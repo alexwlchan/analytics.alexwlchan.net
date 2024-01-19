@@ -1,6 +1,27 @@
-from flask import Flask, request, send_file
+import datetime
+import functools
+import json
+import uuid
+
+from flask import abort, Flask, request, send_file
 import hyperlink
+import maxminddb
 from sqlite_utils import Database
+
+
+@functools.lru_cache
+def country_iso_code(ip_address):
+    with maxminddb.open_database('GeoLite2-Country_20240116/GeoLite2-Country.mmdb') as reader:
+        result = reader.get(ip_address)
+
+    try:
+        return result['country']['iso_code']
+    except TypeError:
+        if result is None:
+            return None
+        else:
+            raise
+
 
 
 app = Flask(__name__)
@@ -20,10 +41,41 @@ events.create(
         "query": str,
         "width": int,
         "height": int,
-    }
+    },
+    pk="id",
+    if_not_exists=True
 )
 
 
 @app.route("/a.gif")
 def tracking_pixel():
+    try:
+        url = request.args['url']
+        referrer = request.args['referrer']
+        title = request.args['title']
+        width = int(request.args['width'])
+        height = int(request.args['height'])
+    except KeyError:
+        abort(400)
+
+    u = hyperlink.DecodedURL.from_text(url)
+
+    row = {
+        'id': uuid.uuid4(),
+        'date': datetime.datetime.now().timestamp(),
+        'url': url,
+        'title': title,
+        'session_id': uuid.uuid4(),
+        'country': country_iso_code(request.remote_addr),
+        'host': u.host,
+        'path': '/'.join(u.path),
+        'query': json.dumps(u.query),
+        'width': width,
+        'height': height
+    }
+
+    db = Database("requests.sqlite")
+    events = db["events"]
+    events.insert(row)
+
     return send_file("static/a.gif")
