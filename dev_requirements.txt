@@ -50,10 +50,14 @@ httpx==0.26.0
     # via datasette
 hupper==1.12
     # via datasette
+hyperlink==21.0.0
+    # via -r requirements.txt
 idna==3.6
     # via
+    #   -r requirements.txt
     #   anyio
     #   httpx
+    #   hyperlink
 itsdangerous==2.1.2
     # via
     #   -r requirements.txt

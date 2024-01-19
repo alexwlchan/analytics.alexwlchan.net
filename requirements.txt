@@ -15,6 +15,10 @@ click-default-group==1.2.4
     # via sqlite-utils
 flask==3.0.1
     # via -r requirements.in
+hyperlink==21.0.0
+    # via -r requirements.in
+idna==3.6
+    # via hyperlink
 itsdangerous==2.1.2
     # via flask
 jinja2==3.1.3
