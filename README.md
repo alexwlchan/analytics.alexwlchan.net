@@ -17,3 +17,6 @@ https://www.maxmind.com/en/accounts/963002/geoip/downloads
   }
 
 </script>
+
+
+$ datasette requests.sqlite --port 8008 --metadata metadata.json

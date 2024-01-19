@@ -1,0 +1,11 @@
+{
+    "databases": {
+        "requests": {
+            "tables": {
+                "events": {
+                    "sort_desc": "date"
+                }
+            }
+        }
+    }
+}
