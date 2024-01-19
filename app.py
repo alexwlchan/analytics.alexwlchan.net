@@ -3,6 +3,7 @@
 import datetime
 import functools
 import json
+import sqlite3
 import uuid
 
 from flask import abort, Flask, request, send_file
@@ -10,51 +11,12 @@ import hyperlink
 import maxminddb
 from sqlite_utils import Database
 
-
-@functools.lru_cache
-def country_iso_code(ip_address):
-    with maxminddb.open_database('GeoLite2-Country_20240116/GeoLite2-Country.mmdb') as reader:
-        result = reader.get(ip_address)
-
-    try:
-        return result['country']['iso_code']
-    except TypeError:
-        if result is None:
-            return None
-        else:
-            raise
-
+from utils import get_country_iso_code, get_database, get_session_identifier
 
 
 app = Flask(__name__)
 
-db = Database("requests.sqlite")
-events = db["events"]
-events.create(
-    {
-        "id": str,
-        "date": str,
-        "url": str,
-        "title": str,
-        "session_id": str,
-        "country": str,
-        "host": str,
-        "path": str,
-        "query": str,
-        "width": int,
-        "height": int,
-    },
-    pk="id",
-    if_not_exists=True
-)
-
-
-@functools.lru_cache()
-def get_session_identifier(today, ip_address):
-    # mix in user-agent here
-
-    return uuid.uuid4()
-
+db = get_database(path="requests.sqlite")
 
 
 @app.route("/a.gif")
@@ -68,7 +30,6 @@ def tracking_pixel():
     except KeyError:
         abort(400)
 
-
     u = hyperlink.DecodedURL.from_text(url)
 
     row = {
@@ -77,10 +38,11 @@ def tracking_pixel():
         'url': url,
         'title': title,
         'session_id': get_session_identifier(
-            today=datetime.date.today(),
-            ip_address=request.remote_addr
+            db,
+            ip_address=request.remote_addr,
+            user_agent=request.user_agent.string
         ),
-        'country': country_iso_code(request.remote_addr),
+        'country': get_country_iso_code(request.remote_addr),
         'host': u.host,
         'path': '/' + '/'.join(u.path),
         'query': json.dumps(u.query),
@@ -88,8 +50,6 @@ def tracking_pixel():
         'height': height
     }
 
-    db = Database("requests.sqlite")
-    events = db["events"]
-    events.insert(row)
+    db['events'].insert(row)
 
     return send_file("static/a.gif")
