@@ -49,6 +49,12 @@ events.create(
 )
 
 
+@functools.lru_cache()
+def get_session_identifier(today, ip_address):
+    return uuid.uuid4()
+
+
+
 @app.route("/a.gif")
 def tracking_pixel():
     try:
@@ -64,13 +70,16 @@ def tracking_pixel():
 
     row = {
         'id': uuid.uuid4(),
-        'date': datetime.datetime.now().timestamp(),
+        'date': datetime.datetime.now().isoformat(),
         'url': url,
         'title': title,
-        'session_id': uuid.uuid4(),
+        'session_id': get_session_identifier(
+            today=datetime.date.today(),
+            ip_address=request.remote_addr
+        ),
         'country': country_iso_code(request.remote_addr),
         'host': u.host,
-        'path': '/'.join(u.path),
+        'path': '/' + '/'.join(u.path),
         'query': json.dumps(u.query),
         'width': width,
         'height': height
