@@ -51,6 +51,8 @@ events.create(
 
 @functools.lru_cache()
 def get_session_identifier(today, ip_address):
+    # mix in user-agent here
+
     return uuid.uuid4()
 
 
@@ -65,6 +67,7 @@ def tracking_pixel():
         height = int(request.args['height'])
     except KeyError:
         abort(400)
+
 
     u = hyperlink.DecodedURL.from_text(url)
 
