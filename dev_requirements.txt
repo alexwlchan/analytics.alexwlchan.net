@@ -49,6 +49,8 @@ flake8==7.0.0
     # via -r dev_requirements.in
 flask==3.0.1
     # via -r requirements.txt
+gunicorn==21.2.0
+    # via -r requirements.txt
 h11==0.14.0
     # via
     #   httpcore
@@ -97,8 +99,10 @@ mypy-extensions==1.0.0
     # via black
 packaging==23.2
     # via
+    #   -r requirements.txt
     #   black
     #   build
+    #   gunicorn
     #   pytest
 pathspec==0.12.1
     # via black
