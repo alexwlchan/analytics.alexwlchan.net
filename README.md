@@ -1,3 +1,12 @@
+## analytics.alexwlchan.net
+
+This is a tiny Flask app for counting visitors to my websites (alexwlchan.net and its subdomains).
+My goals for this project are:
+
+*   Collect the data I need to make informed decisions about the site
+*   Avoid collecting any Personally Identifiable Information about readers (e.g. IP address)
+*   Collect more detailed statistics than Netlify Analytics
+
 https://www.maxmind.com/en/accounts/963002/geoip/downloads
 
 <script>
