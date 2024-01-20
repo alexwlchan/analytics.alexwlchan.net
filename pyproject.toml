@@ -1,9 +1,5 @@
 [tool.coverage.run]
 branch = true
-source = [
-  "app.py",
-  "utils.py",
-]
 
 [tool.coverage.report]
 show_missing = true
