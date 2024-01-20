@@ -107,3 +107,14 @@ def get_session_identifier(db: Database, ip_address: str, user_agent: str) -> st
     )
 
     return session_id
+
+
+def guess_if_bot(user_agent: str) -> bool:
+    """
+    Guess whether a particular User-Agent string is a bot/crawler.
+    """
+    for word in ('bot', 'spider', 'crawler'):
+        if word in user_agent.lower():
+            return True
+
+    return False
