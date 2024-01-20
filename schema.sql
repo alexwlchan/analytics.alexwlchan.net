@@ -13,9 +13,3 @@ CREATE TABLE IF NOT EXISTS [events] (
    [height] INTEGER NOT NULL,
    [is_bot] BOOLEAN NOT NULL
 );
-
-CREATE TABLE IF NOT EXISTS [session_identifiers] (
-    [hash_id] TEXT PRIMARY KEY NOT NULL,
-    [session_id] TEXT NOT NULL,
-    [expires] INTEGER NOT NULL
-)
