@@ -32,14 +32,17 @@ I **don't** record your IP address or user agent.
 
 ### Anonymous session identifier
 
-I want to see what pages people look at in the same browsing session.
-If I'm looking at three hits in quick succession, I want to know if they were three people look at one page each, or one person looking at three pages.
+I want to count unique visitors to the site.
 
-For this, I create an anonymous session identifier.
+This means I need a way to correlate requests from the same visitor.
+If I got three hits in quick succession, did they come from three people looking at one page each, or one perso looking at three pages?
+
+To correlate requests, I create an anonymous session identifier which gets attached to each request.
 This is a randomly-assigned UUID that's attached to all requests coming from your (IP address, User-Agent) combination.
 It lasts for a single day, after which it expires and your requests get a new UUID.
 
-This session identifier doesn't include your IP address or User-Agent, and I don't record those anywhere.
+This session identifier doesn't include your IP address or User-Agent.
+I don't record your raw IP address or User-Agent anywhere.
 
 This means that I can see that a person looked at several pages in a single day, but I can't tell who that person is, and I can't tell you what they looked at over a span of multiple days.
 
