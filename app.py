@@ -1,13 +1,17 @@
-# https://flask.palletsprojects.com/en/2.3.x/tutorial/database/#
-
 import datetime
 import json
 import uuid
 
 from flask import abort, Flask, request, send_file
+from flask.wrappers import Response
 import hyperlink
 
-from utils import get_country_iso_code, get_database, get_session_identifier
+from utils import (
+    get_country_iso_code,
+    get_database,
+    get_session_identifier,
+    guess_if_bot,
+)
 
 
 app = Flask(__name__)
@@ -16,7 +20,7 @@ db = get_database(path="requests.sqlite")
 
 
 @app.route("/a.gif")
-def tracking_pixel():
+def tracking_pixel() -> Response:
     try:
         url = request.args["url"]
         referrer = request.args["referrer"]
