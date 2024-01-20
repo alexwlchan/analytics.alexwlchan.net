@@ -31,13 +31,10 @@ def get_country_iso_code(ip_address: str) -> str | None:
     ) as reader:
         result = reader.get(ip_address)
 
-    try:
+    if result is None:
+        return None
+    else:
         return result["country"]["iso_code"]
-    except TypeError:
-        if result is None:
-            return None
-        else:
-            raise
 
 
 def get_database(path: str) -> Database:
