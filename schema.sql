@@ -8,8 +8,10 @@ CREATE TABLE IF NOT EXISTS [events] (
    [host] TEXT NOT NULL,
    [path] TEXT NOT NULL,
    [query] TEXT,
+   [referrer] TEXT,
    [width] INTEGER NOT NULL,
-   [height] INTEGER NOT NULL
+   [height] INTEGER NOT NULL,
+   [is_bot] BOOLEAN NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS [session_identifiers] (

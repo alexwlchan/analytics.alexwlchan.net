@@ -31,13 +31,10 @@ def get_country_iso_code(ip_address: str) -> str | None:
     ) as reader:
         result = reader.get(ip_address)
 
-    try:
+    if result is None:
+        return None
+    else:
         return result["country"]["iso_code"]
-    except TypeError:
-        if result is None:
-            return None
-        else:
-            raise
 
 
 def get_database(path: str) -> Database:
@@ -59,7 +56,7 @@ def get_database(path: str) -> Database:
     return db
 
 
-SALT = os.environ.get('SESSION_ID_SALT', secrets.token_hex())
+SALT = os.environ.get("SESSION_ID_SALT", secrets.token_hex())
 ONE_HOUR = 60 * 60
 
 
@@ -94,10 +91,10 @@ def get_session_identifier(db: Database, ip_address: str, user_agent: str) -> st
     except NotFoundError:
         pass
     else:
-        if existing_row['expires'] >= time.monotonic():
-            return existing_row['session_id']
+        if existing_row["expires"] >= time.monotonic():
+            return existing_row["session_id"]
         else:
-            db['session_identifiers'].delete(hash_id)
+            db["session_identifiers"].delete(hash_id)
 
     session_id = uuid.uuid4()
     expires = time.monotonic() + 8 * ONE_HOUR
@@ -107,3 +104,14 @@ def get_session_identifier(db: Database, ip_address: str, user_agent: str) -> st
     )
 
     return session_id
+
+
+def guess_if_bot(user_agent: str) -> bool:
+    """
+    Guess whether a particular User-Agent string is a bot/crawler.
+    """
+    for word in ("bot", "spider", "crawler"):
+        if word in user_agent.lower():
+            return True
+
+    return False
