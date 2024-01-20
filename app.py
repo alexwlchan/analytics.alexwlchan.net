@@ -45,7 +45,7 @@ def tracking_pixel():
         "query": json.dumps(u.query),
         "width": width,
         "height": height,
-        "is_bot": guess_if_bot(user_agent)
+        "is_bot": guess_if_bot(user_agent),
     }
 
     db["events"].insert(row)
