@@ -12,4 +12,4 @@ certbot certonly \
   -m alex@alexwlchan.net --agree-tos --no-eff-email \
   --keep-until-expiring
 
-systemctl reload nginx
+sudo systemctl reload nginx
