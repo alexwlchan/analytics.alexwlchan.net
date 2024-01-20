@@ -3,6 +3,7 @@ import pytest
 from utils import get_country_iso_code
 
 
+@pytest.mark.skip("Country DBs aren't currently available in CI")
 @pytest.mark.parametrize(
     ["ip_address", "country_code"],
     [
