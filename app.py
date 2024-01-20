@@ -19,6 +19,19 @@ app = Flask(__name__)
 db = get_database(path="requests.sqlite")
 
 
+@app.route("/")
+def index() -> str:
+    return """<p>This website hosts a tracking pixel for alexwlchan.net and its subdomains.</p>
+
+    <p>For more information about what gets tracked, you can read:</p>
+
+    <ul>
+        <li><a href="https://alexwlchan.net/privacy/">my privacy policy</a></li>
+        <li><a href="https://github.com/alexwlchan/analytics.alexwlchan.net">the code on GitHub</a></li>
+    </ul>
+    """
+
+
 @app.route("/a.gif")
 def tracking_pixel() -> Response:
     try:
