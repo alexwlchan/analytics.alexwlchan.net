@@ -71,7 +71,12 @@ $ pip install -r requirements.txt
 To start the web server:
 
 ```console
-$ ???
+gunicorn app:app \
+  --workers 4 \
+  --bind 127.0.0.1:8007 \
+  --access-logfile access.log \
+  --log-file app.log \
+  --daemon
 ```
 
 To send data to the server, add the following tracking snippet to the page:
