@@ -4,6 +4,5 @@ black
 coverage
 flake8
 datasette
-mypy
 pip-tools
 pytest-cov
