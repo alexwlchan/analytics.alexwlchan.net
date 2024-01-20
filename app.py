@@ -40,7 +40,7 @@ def tracking_pixel() -> Response:
         "url": url,
         "title": title,
         "session_id": get_session_identifier(
-            db, ip_address=request.remote_addr, user_agent=user_agent
+            datetime.date.today(), ip_address=request.remote_addr, user_agent=user_agent
         ),
         "country": get_country_iso_code(request.remote_addr),
         "host": u.host,
