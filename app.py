@@ -55,7 +55,7 @@ def tracking_pixel() -> Response:
         "url": url,
         "title": title,
         "session_id": get_session_identifier(
-            datetime.date.today(ip_address), ip_address=, user_agent=user_agent
+            datetime.date.today(), ip_address=ip_address, user_agent=user_agent
         ),
         "country": get_country_iso_code(ip_address),
         "host": u.host,
