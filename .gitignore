@@ -1,5 +1,6 @@
 *.pyc
 *.sqlite
 .coverage
+*.log
 
 GeoLite2*

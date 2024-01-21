@@ -70,8 +70,25 @@ $ pip install -r requirements.txt
 
 To start the web server:
 
+<!-- TODO: Store session IDs in SQLite so they can be shared across threads -->
+
 ```console
-$ ???
+gunicorn app:app \
+  --workers 1 \
+  --bind 127.0.0.1:8007 \
+  --access-logfile access.log \
+  --log-file app.log \
+  --daemon
+```
+
+To restart the server:
+
+$ ps -eaf | grep app ; kill -HUP 33329
+
+After you restart the sevrer, load a page (e.g. /privacy/) and use this snippet to see the last recorded hit:
+
+```console
+$ sqlite-utils query requests.sqlite 'select * from events order by date desc limit 1'
 ```
 
 To send data to the server, add the following tracking snippet to the page:
@@ -87,7 +104,7 @@ To send data to the server, add the following tracking snippet to the page:
       "height": window.innerHeight,
     });
 
-    fetch(`https://alexwlchan.net/a.gif?${analyticsData.toString()}`)
+    fetch(`https://analytics.alexwlchan.net/a.gif?${analyticsData.toString()}`)
       .then(resp => console.log(resp));
   }
 </script>

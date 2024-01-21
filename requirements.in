@@ -1,4 +1,6 @@
+certbot
 flask
+gunicorn
 hyperlink
 maxminddb
 sqlite-utils

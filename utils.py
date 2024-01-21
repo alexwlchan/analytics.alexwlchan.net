@@ -52,7 +52,9 @@ def get_database(path: str) -> Database:
     return db
 
 
-@functools.cache
+# 100,000 unique visitors a day is way more than I usually get,
+# so this is plenty big enough!
+@functools.lru_cache(maxsize=100000)
 def get_session_identifier(d: datetime.date, ip_address: str, user_agent: str) -> str:
     """
     Create a session identifier. This is a UUID that can be used

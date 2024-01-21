@@ -47,15 +47,17 @@ def tracking_pixel() -> Response:
 
     u = hyperlink.DecodedURL.from_text(url)
 
+    ip_address = request.headers["X-Real-IP"]
+
     row = {
         "id": uuid.uuid4(),
         "date": datetime.datetime.now().isoformat(),
         "url": url,
         "title": title,
         "session_id": get_session_identifier(
-            datetime.date.today(), ip_address=request.remote_addr, user_agent=user_agent
+            datetime.date.today(), ip_address=ip_address, user_agent=user_agent
         ),
-        "country": get_country_iso_code(request.remote_addr),
+        "country": get_country_iso_code(ip_address),
         "host": u.host,
         "referrer": referrer,
         "path": "/" + "/".join(u.path),
