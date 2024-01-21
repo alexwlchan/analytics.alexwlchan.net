@@ -47,7 +47,7 @@ def tracking_pixel() -> Response:
 
     u = hyperlink.DecodedURL.from_text(url)
 
-    ip_address = request.headers['X-Real-IP']
+    ip_address = request.headers["X-Real-IP"]
 
     row = {
         "id": uuid.uuid4(),
