@@ -9,6 +9,7 @@ CREATE TABLE IF NOT EXISTS [events] (
    [path] TEXT NOT NULL,
    [query] TEXT,
    [referrer] TEXT,
+   [normalised_referrer] TEXT,
    [width] INTEGER NOT NULL,
    [height] INTEGER NOT NULL,
    [is_bot] BOOLEAN NOT NULL

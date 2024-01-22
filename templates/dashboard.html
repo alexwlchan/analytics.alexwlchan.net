@@ -1,0 +1,295 @@
+<title>alexwlchan.net analytics</title>
+
+<style>
+  body {
+    background: #0e1f00;
+  }
+
+  main {
+    max-width: 1200px;
+    margin-left:  auto;
+    margin-right: auto;
+    font-family: sans-serif;
+    padding: 1em;
+
+    display: grid;
+    grid-gap: 1.5em;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .chart {
+    padding: 1.5em;
+    background: white;
+    border-radius: 6px;
+  }
+
+  .chart h1 {
+    margin-top: 0;
+    color: #0e2f00;
+  }
+
+  table {
+    width: 100%;
+  }
+
+  td {
+    padding-top: 2px;
+  }
+
+  td.count {
+    text-align: right;
+  }
+
+  a {
+    color: #306b00;
+  }
+
+  a:hover {
+    background: #306b0055;
+  }
+
+  code {
+    font-size: 1.2em;
+  }
+
+  .referrer_name:not(:first-child) td {
+    padding-top: 16px;
+  }
+
+  .referrer_page {
+    font-size: small;
+  }
+
+  .world_info {
+    display: grid;
+    grid-template-columns: auto auto;
+  }
+
+  .world_info table {
+    margin-top: auto;
+    margin-bottom: auto;
+  }
+
+  .world_info table td {
+    padding: 0;
+  }
+
+  #world-map path { fill: #ddd; }
+
+  {% set max_world_map_count = visitors_by_country.values()|max %}
+
+  {% for country, count in visitors_by_country.most_common(10) %}
+  #world-map #{{ country.lower() }} path {
+    fill: {{ '#dddddd' | interpolate_color('#4ca300', count / max_world_map_count) }};
+  }
+  {% endfor %}
+</style>
+
+<body>
+
+<main>
+
+  <div class="chart">
+    <h1>Total pageviews</h1>
+
+    <div>
+      <canvas id="myChart"></canvas>
+    </div>
+  </div>
+
+  <div class="chart">
+    <h1>Unique visitors</h1>
+
+    <div>
+      <canvas id="uniqueVisitorsChart"></canvas>
+    </div>
+  </div>
+
+  <div class="chart" style="grid-column: 1 / span 2;">
+    <h1>Visitors by country</h1>
+
+    <div class="world_info">
+      {% include "world-map.svg" %}
+      <table>
+        {% for country, count in visitors_by_country.most_common(10) %}
+        <tr>
+          <td>{{ country|flag_emoji }} {{ country|country_name }}</td>
+          <td class="count">{{ count }}</td>
+        </tr>
+        {% endfor %}
+      </table>
+    </div>
+  </div>
+
+  <div class="chart">
+    <h1>Most popular posts</h1>
+
+    <table>
+      {% for p in top_pages %}
+      <tr>
+        <td>
+          <a href="https://{{p.host}}{{ p.path }}">{{ p.title.replace(' – alexwlchan', '') }}</a>
+        </td>
+        <td class="count">{{ p.count }}</td>
+      </tr>
+      {% endfor %}
+    </table>
+  </div>
+
+  <div class="chart">
+    <h1>Referrers</h1>
+
+    <table>
+      {% for referrer, pages in grouped_referrers[:10] %}
+      <tr class="referrer_name">
+        <td class="referrer">{{ referrer }}</td>
+        <td class="count">{{ pages.values()|sum }}</td>
+      </tr>
+
+      {% set selected_amount = 4 if pages|length <= 4 else 3 %}
+
+      {# A cheap hack to update a variable outside a loop #}
+      {# See https://stackoverflow.com/a/29581974/1558022 #}
+      {% set remaining_total = {'total': pages.values()|sum} %}
+
+      {% for p, c in pages.most_common(selected_amount) %}
+      <tr class="referrer_page">
+        <td>&rarr; {{ p.replace(' – alexwlchan', '') }}</td>
+        {% set _ = remaining_total.update({'total': remaining_total['total'] - c}) %}
+        <td class="count">{{ c }}</td>
+
+      </tr>
+      {% endfor %}
+
+      {% if pages|length > selected_amount %}
+      <tr class="referrer_page">
+        <td style="padding-left: 6px;">+ {{ pages|length - selected_amount }} other pages</td>
+        <td class="count">{{ remaining_total['total'] }}</td>
+      </tr>
+      {% endif %}
+
+      {% endfor %}
+    </table>
+  </div>
+
+  <div class="chart">
+    <h1>Missing pages</h1>
+
+    <table>
+      {% for p in missing_pages %}
+      <tr>
+        <td>
+          <code>{{ p.path }}</p>
+        </td>
+        <td class="count">{{ p.count }}</td>
+      </tr>
+      {% endfor %}
+    </table>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-chart-geo@4.2.8/build/index.umd.min.js"></script>
+
+  <script>
+    const ctx = document.getElementById('myChart');
+
+    new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: [
+          {% for row in by_date %}'{{ row.day }}',{% endfor %}
+        ],
+        datasets: [{
+          label: 'total pageviews',
+          data: [
+            {% for row in by_date %}{{ row.count }},{% endfor %}
+          ],
+          borderWidth: 1,
+          fill: true,
+          backgroundColor: '#4ca30033',
+          borderColor: '#4ca300ff',
+        }]
+      },
+      options: {
+        plugins: {
+        legend: {
+          display: false
+        }},
+        scales: {
+          x: {
+            offset: true
+          },
+          y: {
+            beginAtZero: true
+          },
+          color: {
+            axis: 'x',
+            display: false,
+          }
+        },
+        animation: {
+          duration: 0
+        },
+      }
+    });
+
+    const ctx2 = document.getElementById('uniqueVisitorsChart');
+
+    new Chart(ctx2, {
+      type: 'line',
+      data: {
+        labels: [
+          {% for row in unique_users %}'{{ row.day }}',{% endfor %}
+        ],
+        datasets: [{
+          label: 'unique visitors',
+          data: [
+            {% for row in unique_users %}{{ row.unique_session_count }},{% endfor %}
+          ],
+          borderWidth: 1,
+          fill: true,
+          backgroundColor: '#4ca30033',
+          borderColor: '#4ca300ff',
+        }]
+      },
+      options: {
+        plugins: {
+        legend: {
+          display: false
+        }},
+        scales: {
+          x: {
+            offset: true
+          },
+          y: {
+            beginAtZero: true
+          }
+        },
+        animation: {
+          duration: 0
+        },
+      }
+    });
+
+    window.onload = function() {
+      const visitors_by_country = {{ visitors_by_country|tojson }};
+      const country_names = {{ country_names|tojson }};
+
+      Object.entries(visitors_by_country).forEach(vc => {
+        const countryId = vc[0];
+        const count = vc[1];
+
+        var title = document.createElementNS('http://www.w3.org/2000/svg', 'title');
+        title.textContent = `${country_names[countryId]}: ${count} hit${count > 1 ? 's' : ''}`;
+
+        if (document.getElementById(countryId.toLowerCase()) !== null) {
+          document.getElementById(countryId.toLowerCase()).appendChild(title);
+        }
+      });
+
+      console.log(visitors_by_country);
+    }
+  </script>
+</main>
+
+</body>
