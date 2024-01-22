@@ -76,7 +76,10 @@
 
   #world-map path { fill: #ddd; }
 
-  #exclusionCookie { grid-column: 1 / span 2; }
+  #exclusionCookie {
+    grid-column: 1 / span 2;
+    line-height: 1.3em;
+  }
 
   {% set max_world_map_count = visitors_by_country.values()|max %}
 
