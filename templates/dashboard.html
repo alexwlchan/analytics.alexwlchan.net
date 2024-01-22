@@ -128,7 +128,7 @@
       {% for p in top_pages %}
       <tr>
         <td>
-          <a href="https://{p.host}{{ p.path }}">{{ p.title.replace(' – alexwlchan', '') }}</a>
+          <a href="https://{{p.host}}{{ p.path }}">{{ p.title.replace(' – alexwlchan', '') }}</a>
         </td>
         <td class="count">{{ p.count }}</td>
       </tr>
