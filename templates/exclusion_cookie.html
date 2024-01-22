@@ -34,11 +34,11 @@
     }
 
     function hasExclusionCookie() {
-      document.querySelector("#exclusionCookie").innerHTML = `You currently <strong>have</strong> the isMe cookie, so your requests will be filtered out of stats. <a href="#" onclick="removeExclusionCookie()">Remove the cookie</a>`;
+      document.querySelector("#exclusionCookie").innerHTML = `✅ You currently <strong>have</strong> the isMe cookie, so your requests will be filtered out of stats. <a href="#" onclick="removeExclusionCookie()">Remove the cookie</a>`;
     }
 
     function hasNoExclusionCookie() {
-      document.querySelector("#exclusionCookie").innerHTML = `You currently <strong>do not</strong> have the isMe cookie, so your requests will be included in stats. <a href="#" onclick="addExclusionCookie()">Add the cookie</a>`;
+      document.querySelector("#exclusionCookie").innerHTML = `⚠️ You currently <strong>do not</strong> have the isMe cookie, so your requests will be included in stats. <a href="#" onclick="addExclusionCookie()">Add the cookie</a>`;
     }
 
     function createExclusionCookieSection() {
