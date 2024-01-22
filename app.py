@@ -265,7 +265,7 @@ def get_hex_color_between(hex1, hex2, proportion):
     g_new = int(g1 + (g2 - g1) * proportion)
     b_new = int(b1 + (b2 - b1) * proportion)
 
-    return f"#%02x%02x%02x" % (r_new, g_new, b_new)
+    return "#%02x%02x%02x" % (r_new, g_new, b_new)
 
 
 app.jinja_env.filters["flag_emoji"] = get_flag_emoji
