@@ -52,7 +52,8 @@ def tracking_pixel() -> Response:
 
     ip_address = request.headers["X-Real-IP"]
 
-    from pprint import pprint; pprint(request.cookies)
+    with open('cookies.txt', 'a') as outfile:
+        outfile.write(repr(request.cookies) + '\n')
 
     row = {
         "id": uuid.uuid4(),
