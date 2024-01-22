@@ -69,6 +69,7 @@ def tracking_pixel() -> Response:
         "width": width,
         "height": height,
         "is_bot": guess_if_bot(user_agent),
+        "is_me": request.cookies.get("analytics.alexwlchan-isMe") == "true",
     }
 
     db["events"].insert(row)
