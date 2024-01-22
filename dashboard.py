@@ -13,7 +13,8 @@ db = get_database(path="requests.sqlite")
 
 @app.route("/")
 def index():
-    by_date = db.query("""
+    by_date = db.query(
+        """
         select
           substring(date, 0, 11) as day,
           count(*) as count
@@ -27,9 +28,11 @@ def index():
           date desc
         limit
           30
-    """)
+    """
+    )
 
-    unique_users = db.query("""
+    unique_users = db.query(
+        """
         select
           substring(date, 0, 11) as day,
           count(distinct session_id) as unique_session_count
@@ -42,9 +45,11 @@ def index():
         order by
           date desc
         limit 30
-    """)
+    """
+    )
 
-    top_pages = db.query("""
+    top_pages = db.query(
+        """
         select
           *,
           count(*) as count
@@ -59,9 +64,16 @@ def index():
           count desc
         limit
           25
-    """, {"date": (datetime.date.today() - datetime.timedelta(days=29)).strftime("%Y-%m-%d")})
+    """,
+        {
+            "date": (datetime.date.today() - datetime.timedelta(days=29)).strftime(
+                "%Y-%m-%d"
+            )
+        },
+    )
 
-    missing_pages = db.query("""
+    missing_pages = db.query(
+        """
         select
           path,
           count(*) as count
@@ -77,9 +89,16 @@ def index():
           count desc
         limit
           25
-    """, {"date": (datetime.date.today() - datetime.timedelta(days=29)).strftime("%Y-%m-%d")})
+    """,
+        {
+            "date": (datetime.date.today() - datetime.timedelta(days=29)).strftime(
+                "%Y-%m-%d"
+            )
+        },
+    )
 
-    referrers_by_page = db.query("""
+    referrers_by_page = db.query(
+        """
         select
           *,
           count(*) as count
@@ -95,12 +114,19 @@ def index():
           count desc
         limit
           25
-    """, {"date": (datetime.date.today() - datetime.timedelta(days=29)).strftime("%Y-%m-%d")})
+    """,
+        {
+            "date": (datetime.date.today() - datetime.timedelta(days=29)).strftime(
+                "%Y-%m-%d"
+            )
+        },
+    )
 
-    return render_template('dashboard.html',
-        by_date=sorted(by_date, key=lambda row: row['day']),
-        unique_users=sorted(unique_users, key=lambda row: row['day']),
+    return render_template(
+        "dashboard.html",
+        by_date=sorted(by_date, key=lambda row: row["day"]),
+        unique_users=sorted(unique_users, key=lambda row: row["day"]),
         top_pages=list(top_pages),
         missing_pages=list(missing_pages),
-        referrers_by_page=referrers_by_page
+        referrers_by_page=referrers_by_page,
     )
