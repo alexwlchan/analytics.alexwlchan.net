@@ -4,5 +4,6 @@ black
 coverage
 flake8
 datasette
+datasette-vega
 pip-tools
 pytest-cov

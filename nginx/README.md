@@ -1,1 +1,1 @@
-sudo cp nginx/analytics.alexwlchan.net.conf /etc/nginx/conf.d/
+sudo cp analytics.alexwlchan.net.conf /etc/nginx/conf.d/

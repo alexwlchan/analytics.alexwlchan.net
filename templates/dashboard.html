@@ -1,0 +1,250 @@
+<title>alexwlchan.net analytics</title>
+
+<style>
+  body {
+    background: #0e1f00;
+  }
+
+  main {
+    max-width: 1200px;
+    margin-left:  auto;
+    margin-right: auto;
+    font-family: sans-serif;
+    padding: 1em;
+
+    display: grid;
+    grid-gap: 1.5em;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .chart {
+    padding: 1.5em;
+    background: white;
+    border-radius: 6px;
+  }
+
+  .chart h1 {
+    margin-top: 0;
+    color: #0e2f00;
+  }
+
+  table {
+    width: 100%;
+  }
+
+  td {
+    padding-top: 2px;
+  }
+
+  td.count {
+    text-align: right;
+  }
+
+  a {
+    color: #306b00;
+  }
+
+  a:hover {
+    background: #306b0055;
+  }
+
+  code {
+    font-size: 1.2em;
+  }
+</style>
+
+<body>
+
+<main>
+
+  <div class="chart">
+    <h1>Total pageviews</h1>
+
+    <div>
+      <canvas id="myChart"></canvas>
+    </div>
+  </div>
+
+  <div class="chart">
+    <h1>Unique visitors</h1>
+
+    <div>
+      <canvas id="uniqueVisitorsChart"></canvas>
+    </div>
+  </div>
+
+  <div class="chart" style="grid-column: 1 / span 2; height: 635px;">
+    <h1>Visitors by country</h1>
+
+    <div>
+      <canvas id="worldMap"></canvas>
+    </div>
+  </div>
+
+  <div class="chart">
+    <h1>Most popular posts</h1>
+
+    <table>
+      {% for p in top_pages %}
+      <tr>
+        <td>
+          <a href="https://{p.host}{{ p.path }}">{{ p.title.replace(' – alexwlchan', '') }}</a>
+        </td>
+        <td class="count">{{ p.count }}</td>
+      </tr>
+      {% endfor %}
+    </table>
+  </div>
+
+  <div class="chart">
+    <h1>Referrers by page</h1>
+
+    <table>
+      {% for p in referrers_by_page %}
+      <tr>
+        <td>
+          {{ p.referrer }}<br/>&rarr; {{ p.title.replace(' – alexwlchan', '') }}
+        </td>
+        <td class="count">{{ p.count }}</td>
+      </tr>
+      {% endfor %}
+    </table>
+  </div>
+
+  <div class="chart">
+    <h1>Missing pages</h1>
+
+    <table>
+      {% for p in missing_pages %}
+      <tr>
+        <td>
+          <code>{{ p.path }}</p>
+        </td>
+        <td class="count">{{ p.count }}</td>
+      </tr>
+      {% endfor %}
+    </table>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-chart-geo@4.2.8/build/index.umd.min.js"></script>
+
+  <script>
+    const ctx = document.getElementById('myChart');
+
+    new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: [
+          {% for row in by_date %}'{{ row.day }}',{% endfor %}
+        ],
+        datasets: [{
+          label: 'total pageviews',
+          data: [
+            {% for row in by_date %}{{ row.count }},{% endfor %}
+          ],
+          borderWidth: 1,
+          fill: true,
+          backgroundColor: '#4ca30033',
+          borderColor: '#4ca300ff',
+        }]
+      },
+      options: {
+        plugins: {
+        legend: {
+          display: false
+        }},
+        scales: {
+          x: {
+            offset: true
+          },
+          y: {
+            beginAtZero: true
+          },
+          color: {
+            axis: 'x',
+            display: false,
+          }
+        },
+        animation: {
+          duration: 0
+        },
+      }
+    });
+
+    const ctx2 = document.getElementById('uniqueVisitorsChart');
+
+    new Chart(ctx2, {
+      type: 'line',
+      data: {
+        labels: [
+          {% for row in unique_users %}'{{ row.day }}',{% endfor %}
+        ],
+        datasets: [{
+          label: 'unique visitors',
+          data: [
+            {% for row in unique_users %}{{ row.unique_session_count }},{% endfor %}
+          ],
+          borderWidth: 1,
+          fill: true,
+          backgroundColor: '#4ca30033',
+          borderColor: '#4ca300ff',
+        }]
+      },
+      options: {
+        plugins: {
+        legend: {
+          display: false
+        }},
+        scales: {
+          x: {
+            offset: true
+          },
+          y: {
+            beginAtZero: true
+          }
+        },
+        animation: {
+          duration: 0
+        },
+      }
+    });
+
+    fetch('{{ url_for("static", filename="countries-50m.json") }}').then((r) => r.json()).then((data) => {
+          const countries = ChartGeo.topojson.feature(data, data.objects.countries).features;
+
+      const chart = new Chart(document.getElementById("worldMap").getContext("2d"), {
+        type: 'choropleth',
+        data: {
+          labels: countries.map((d) => d.properties.name),
+          datasets: [{
+            label: 'Countries',
+            data: countries.map((d) => {
+              console.log(d);
+              return {feature: d, value: Math.random()};
+            }),
+          }]
+        },
+        options: {
+          plugins: {
+            legend: {
+              display: false
+            },
+          },
+          scales: {
+            projection: {
+              axis: 'x',
+              projection: 'naturalEarth1'
+            },
+            color: {
+              axis: 'x',
+              display: false
+            },
+          }
+        }
+      });
+    });
+  </script>
+</main>
+
+</body>

@@ -75,6 +75,10 @@ cryptography==41.0.7
     #   josepy
     #   pyopenssl
 datasette==0.64.6
+    # via
+    #   -r dev_requirements.in
+    #   datasette-vega
+datasette-vega==0.6.2
     # via -r dev_requirements.in
 distro==1.9.0
     # via
