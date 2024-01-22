@@ -65,6 +65,8 @@ parsedatetime==2.6
     # via certbot
 pluggy==1.3.0
     # via sqlite-utils
+pycountry==23.12.11
+    # via -r requirements.in
 pycparser==2.21
     # via cffi
 pyopenssl==23.3.0

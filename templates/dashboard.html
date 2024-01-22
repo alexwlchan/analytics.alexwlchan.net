@@ -59,6 +59,30 @@
   .referrer_page {
     font-size: small;
   }
+
+  .world_info {
+    display: grid;
+    grid-template-columns: auto auto;
+  }
+
+  .world_info table {
+    margin-top: auto;
+    margin-bottom: auto;
+  }
+
+  .world_info table td {
+    padding: 0;
+  }
+
+  #world-map path { fill: #ddd; }
+
+  {% set max_world_map_count = visitors_by_country.values()|max %}
+
+  {% for country, count in visitors_by_country.most_common(10) %}
+  #world-map #{{ country.lower() }} path {
+    fill: {{ '#dddddd' | interpolate_color('#4ca300', count / max_world_map_count) }};
+  }
+  {% endfor %}
 </style>
 
 <body>
@@ -81,13 +105,21 @@
     </div>
   </div>
 
-  <!-- <div class="chart" style="grid-column: 1 / span 2; height: 635px;">
+  <div class="chart" style="grid-column: 1 / span 2;">
     <h1>Visitors by country</h1>
 
-    <div>
-      <canvas id="worldMap"></canvas>
+    <div class="world_info">
+      {% include "world-map.svg" %}
+      <table>
+        {% for country, count in visitors_by_country.most_common(10) %}
+        <tr>
+          <td>{{ country|flag_emoji }} {{ country|country_name }}</td>
+          <td class="count">{{ count }}</td>
+        </tr>
+        {% endfor %}
+      </table>
     </div>
-  </div> -->
+  </div>
 
   <div class="chart">
     <h1>Most popular posts</h1>
@@ -238,6 +270,25 @@
         },
       }
     });
+
+    window.onload = function() {
+      const visitors_by_country = {{ visitors_by_country|tojson }};
+      const country_names = {{ country_names|tojson }};
+
+      Object.entries(visitors_by_country).forEach(vc => {
+        const countryId = vc[0];
+        const count = vc[1];
+
+        var title = document.createElementNS('http://www.w3.org/2000/svg', 'title');
+        title.textContent = `${country_names[countryId]}: ${count} hit${count > 1 ? 's' : ''}`;
+
+        if (document.getElementById(countryId.toLowerCase()) !== null) {
+          document.getElementById(countryId.toLowerCase()).appendChild(title);
+        }
+      });
+
+      console.log(visitors_by_country);
+    }
   </script>
 </main>
 

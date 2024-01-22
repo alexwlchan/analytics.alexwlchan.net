@@ -3,4 +3,5 @@ flask
 gunicorn
 hyperlink
 maxminddb
+pycountry
 sqlite-utils
