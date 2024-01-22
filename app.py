@@ -43,6 +43,7 @@ def tracking_pixel() -> Response:
         title = request.args["title"]
         width = int(request.args["width"])
         height = int(request.args["height"])
+        is_me = request.args.get("isMe") == "true"
     except KeyError:
         abort(400)
 
@@ -72,7 +73,7 @@ def tracking_pixel() -> Response:
         "width": width,
         "height": height,
         "is_bot": guess_if_bot(user_agent),
-        "is_me": request.cookies.get("analytics.alexwlchan-isMe") == "true",
+        "is_me": is_me,
     }
 
     db["events"].insert(row)
