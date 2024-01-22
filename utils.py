@@ -1,8 +1,10 @@
 import datetime
 import functools
 import sqlite3
+import sys
 import uuid
 
+import hyperlink
 import maxminddb
 from sqlite_utils import Database
 
@@ -75,3 +77,31 @@ def guess_if_bot(user_agent: str) -> bool:
             return True
 
     return False
+
+
+def normalise_referrer(referrer: str) -> str | None:
+    """
+    If possible, create a "normalised form" of a referrer.
+    """
+    if referrer == 'android-app://com.google.android.googlequicksearchbox/':
+        return 'Google'
+
+    try:
+        u = hyperlink.DecodedURL.from_text(referrer)
+    except Exception as e:
+        print(f"Unable to parse {referrer}: {e}", file=sys.stderr)
+        return None
+
+    if u.host.startswith('www.google.'):
+        return 'Google'
+
+    if u.host == 'facebook.com' or u.host.endswith('.facebook.com'):
+        return 'Facebook'
+
+    if u.host == 't.co' and u.path == ('',):
+        return 'Twitter'
+
+    if 'alexwlchan.net' in u.host or 'localhost' in u.host:
+        return None
+
+    return None
