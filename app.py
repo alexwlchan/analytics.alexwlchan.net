@@ -60,6 +60,7 @@ def tracking_pixel() -> Response:
         "country": get_country_iso_code(ip_address),
         "host": u.host,
         "referrer": referrer,
+        "normalised_referrer": normalise_referrer(referrer),
         "path": "/" + "/".join(u.path),
         "query": json.dumps(u.query),
         "width": width,

@@ -79,12 +79,15 @@ def guess_if_bot(user_agent: str) -> bool:
     return False
 
 
-def normalise_referrer(referrer: str) -> str | None:
+def normalise_referrer(referrer: str | None) -> str | None:
     """
     If possible, create a "normalised form" of a referrer.
     """
-    if referrer == 'android-app://com.google.android.googlequicksearchbox/':
-        return 'Google'
+    if referrer == "android-app://com.google.android.googlequicksearchbox/":
+        return "Google"
+
+    if referrer is None:
+        return None
 
     try:
         u = hyperlink.DecodedURL.from_text(referrer)
@@ -92,16 +95,16 @@ def normalise_referrer(referrer: str) -> str | None:
         print(f"Unable to parse {referrer}: {e}", file=sys.stderr)
         return None
 
-    if u.host.startswith('www.google.'):
-        return 'Google'
+    if u.host.startswith("www.google."):
+        return "Google"
 
-    if u.host == 'facebook.com' or u.host.endswith('.facebook.com'):
-        return 'Facebook'
+    if u.host == "facebook.com" or u.host.endswith(".facebook.com"):
+        return "Facebook"
 
-    if u.host == 't.co' and u.path == ('',):
-        return 'Twitter'
+    if u.host == "t.co" and u.path == ("",):
+        return "Twitter"
 
-    if 'alexwlchan.net' in u.host or 'localhost' in u.host:
+    if "alexwlchan.net" in u.host or "localhost" in u.host:
         return None
 
     return None
