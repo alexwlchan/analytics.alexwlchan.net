@@ -139,7 +139,7 @@ def count_visitors_by_country():
         },
     )
 
-    return collections.Counter({row['country']: row['count'] for row in cursor})
+    return collections.Counter({row["country"]: row["count"] for row in cursor})
 
 
 def find_popular_pages():
@@ -222,9 +222,11 @@ def find_grouped_referrers():
     grouped_referrers = collections.defaultdict(lambda: collections.Counter())
 
     for row in referrers_by_page:
-        grouped_referrers[row['normalised_referrer']][row['title']] = row['count']
+        grouped_referrers[row["normalised_referrer"]][row["title"]] = row["count"]
 
-    grouped_referrers = sorted(grouped_referrers.items(), key=lambda kv: sum(kv[1].values()), reverse=True)
+    grouped_referrers = sorted(
+        grouped_referrers.items(), key=lambda kv: sum(kv[1].values()), reverse=True
+    )
 
     return grouped_referrers
 
@@ -238,14 +240,14 @@ def get_flag_emoji(country_id: str) -> str:
 
 
 def get_country_name(country_id: str) -> str:
-    if country_id == 'US':
-        return 'USA'
+    if country_id == "US":
+        return "USA"
 
-    if country_id == 'GB':
-        return 'UK'
+    if country_id == "GB":
+        return "UK"
 
-    if country_id == 'RU':
-        return 'Russia'
+    if country_id == "RU":
+        return "Russia"
 
     c = pycountry.countries.get(alpha_2=country_id)
 
@@ -263,12 +265,12 @@ def get_hex_color_between(hex1, hex2, proportion):
     g_new = int(g1 + (g2 - g1) * proportion)
     b_new = int(b1 + (b2 - b1) * proportion)
 
-    return f'#%02x%02x%02x' % (r_new, g_new, b_new)
+    return f"#%02x%02x%02x" % (r_new, g_new, b_new)
 
 
-app.jinja_env.filters['flag_emoji'] = get_flag_emoji
-app.jinja_env.filters['country_name'] = get_country_name
-app.jinja_env.filters['interpolate_color'] = get_hex_color_between
+app.jinja_env.filters["flag_emoji"] = get_flag_emoji
+app.jinja_env.filters["country_name"] = get_country_name
+app.jinja_env.filters["interpolate_color"] = get_hex_color_between
 
 
 @app.route("/dashboard/")
@@ -286,8 +288,7 @@ def dashboard():
     visitors_by_country = count_visitors_by_country()
 
     country_names = {
-        country: get_country_name(country)
-        for country in visitors_by_country
+        country: get_country_name(country) for country in visitors_by_country
     }
 
     return render_template(
