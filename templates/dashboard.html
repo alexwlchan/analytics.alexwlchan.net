@@ -17,7 +17,7 @@
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  .chart {
+  .chart, section {
     padding: 1.5em;
     background: white;
     border-radius: 6px;
@@ -76,6 +76,8 @@
 
   #world-map path { fill: #ddd; }
 
+  #exclusionCookie { grid-column: 1 / span 2; }
+
   {% set max_world_map_count = visitors_by_country.values()|max %}
 
   {% for country, count in visitors_by_country.most_common(10) %}
@@ -88,6 +90,7 @@
 <body>
 
 <main>
+  {% include "exclusion_cookie.html" %}
 
   <div class="chart">
     <h1>Total pageviews</h1>
@@ -272,6 +275,8 @@
     });
 
     window.onload = function() {
+      createExclusionCookieSection();
+
       const visitors_by_country = {{ visitors_by_country|tojson }};
       const country_names = {{ country_names|tojson }};
 
