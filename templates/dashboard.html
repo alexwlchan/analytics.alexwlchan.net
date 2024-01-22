@@ -51,6 +51,14 @@
   code {
     font-size: 1.2em;
   }
+
+  .referrer_name:not(:first-child) td {
+    padding-top: 16px;
+  }
+
+  .referrer_page {
+    font-size: small;
+  }
 </style>
 
 <body>
@@ -73,13 +81,13 @@
     </div>
   </div>
 
-  <div class="chart" style="grid-column: 1 / span 2; height: 635px;">
+  <!-- <div class="chart" style="grid-column: 1 / span 2; height: 635px;">
     <h1>Visitors by country</h1>
 
     <div>
       <canvas id="worldMap"></canvas>
     </div>
-  </div>
+  </div> -->
 
   <div class="chart">
     <h1>Most popular posts</h1>
@@ -97,16 +105,37 @@
   </div>
 
   <div class="chart">
-    <h1>Referrers by page</h1>
+    <h1>Referrers</h1>
 
     <table>
-      {% for p in referrers_by_page %}
-      <tr>
-        <td>
-          {{ p.referrer }}<br/>&rarr; {{ p.title.replace(' – alexwlchan', '') }}
-        </td>
-        <td class="count">{{ p.count }}</td>
+      {% for referrer, pages in grouped_referrers[:10] %}
+      <tr class="referrer_name">
+        <td class="referrer">{{ referrer }}</td>
+        <td class="count">{{ pages.values()|sum }}</td>
       </tr>
+
+      {% set selected_amount = 4 if pages|length <= 4 else 3 %}
+
+      {# A cheap hack to update a variable outside a loop #}
+      {# See https://stackoverflow.com/a/29581974/1558022 #}
+      {% set remaining_total = {'total': pages.values()|sum} %}
+
+      {% for p, c in pages.most_common(selected_amount) %}
+      <tr class="referrer_page">
+        <td>&rarr; {{ p.replace(' – alexwlchan', '') }}</td>
+        {% set _ = remaining_total.update({'total': remaining_total['total'] - c}) %}
+        <td class="count">{{ c }}</td>
+
+      </tr>
+      {% endfor %}
+
+      {% if pages|length > selected_amount %}
+      <tr class="referrer_page">
+        <td style="padding-left: 6px;">+ {{ pages|length - selected_amount }} other pages</td>
+        <td class="count">{{ remaining_total['total'] }}</td>
+      </tr>
+      {% endif %}
+
       {% endfor %}
     </table>
   </div>
@@ -208,41 +237,6 @@
           duration: 0
         },
       }
-    });
-
-    fetch('{{ url_for("static", filename="countries-50m.json") }}').then((r) => r.json()).then((data) => {
-          const countries = ChartGeo.topojson.feature(data, data.objects.countries).features;
-
-      const chart = new Chart(document.getElementById("worldMap").getContext("2d"), {
-        type: 'choropleth',
-        data: {
-          labels: countries.map((d) => d.properties.name),
-          datasets: [{
-            label: 'Countries',
-            data: countries.map((d) => {
-              console.log(d);
-              return {feature: d, value: Math.random()};
-            }),
-          }]
-        },
-        options: {
-          plugins: {
-            legend: {
-              display: false
-            },
-          },
-          scales: {
-            projection: {
-              axis: 'x',
-              projection: 'naturalEarth1'
-            },
-            color: {
-              axis: 'x',
-              display: false
-            },
-          }
-        }
-      });
     });
   </script>
 </main>

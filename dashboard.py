@@ -1,3 +1,4 @@
+import collections
 import datetime
 import json
 
@@ -106,14 +107,12 @@ def index():
           events
         where
           date >= :date
-           and referrer != ''
+           and normalised_referrer != ''
           and host != 'localhost' and host not like '%--alexwlchan.netlify.app'
         group by
-          title, referrer
+          title, normalised_referrer
         order by
           count desc
-        limit
-          25
     """,
         {
             "date": (datetime.date.today() - datetime.timedelta(days=29)).strftime(
@@ -122,6 +121,13 @@ def index():
         },
     )
 
+    grouped_referrers = collections.defaultdict(lambda: collections.Counter())
+
+    for row in referrers_by_page:
+        grouped_referrers[row['normalised_referrer']][row['title']] = row['count']
+
+    grouped_referrers = sorted(grouped_referrers.items(), key=lambda kv: sum(kv[1].values()), reverse=True)
+
     return render_template(
         "dashboard.html",
         by_date=sorted(by_date, key=lambda row: row["day"]),
@@ -129,4 +135,5 @@ def index():
         top_pages=list(top_pages),
         missing_pages=list(missing_pages),
         referrers_by_page=referrers_by_page,
+        grouped_referrers=grouped_referrers,
     )
