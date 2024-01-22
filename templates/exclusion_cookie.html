@@ -24,7 +24,7 @@
     }
 
     function removeExclusionCookie() {
-        document.cookie = "";
+        document.cookie = `${cookieName}=; Max-Age=0`;
         hasNoExclusionCookie();
     }
 
