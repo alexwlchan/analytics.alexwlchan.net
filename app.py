@@ -87,7 +87,7 @@ def count_requests_by_day():
         from
           events
         where
-          host != 'localhost' and host not like '%--alexwlchan.netlify.app'
+          is_me = '0' and host != 'localhost' and host not like '%--alexwlchan.netlify.app'
         group by
           day
         order by
@@ -107,7 +107,7 @@ def count_unique_visitors():
         from
           events
         where
-          host != 'localhost' and host not like '%--alexwlchan.netlify.app'
+          is_me = '0' and host != 'localhost' and host not like '%--alexwlchan.netlify.app'
         group by
           day
         order by
@@ -128,7 +128,7 @@ def count_visitors_by_country():
         where
           date >= :date
           and country != ''
-          and host != 'localhost' and host not like '%--alexwlchan.netlify.app'
+          and is_me = '0' and host != 'localhost' and host not like '%--alexwlchan.netlify.app'
         group by
           country
         order by
@@ -154,7 +154,7 @@ def find_popular_pages():
           events
         where
           date >= :date
-          and host != 'localhost' and host not like '%--alexwlchan.netlify.app'
+          and is_me = '0' and host != 'localhost' and host not like '%--alexwlchan.netlify.app'
         group by
           title
         order by
@@ -181,7 +181,7 @@ def find_missing_pages():
         where
           date >= :date
           and title = '404 Not Found – alexwlchan'
-          and host != 'localhost' and host not like '%--alexwlchan.netlify.app'
+          and is_me = '0' and host != 'localhost' and host not like '%--alexwlchan.netlify.app'
         group by
           path
         order by
@@ -208,7 +208,7 @@ def find_grouped_referrers():
         where
           date >= :date
            and normalised_referrer != ''
-          and host != 'localhost' and host not like '%--alexwlchan.netlify.app'
+          and is_me = '0' and host != 'localhost' and host not like '%--alexwlchan.netlify.app'
         group by
           title, normalised_referrer
         order by
