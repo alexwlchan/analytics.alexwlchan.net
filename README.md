@@ -95,30 +95,6 @@ To send data to the server, add the following tracking snippet to the page:
 
 ```html
 <script>
-  const cookieName = "analytics.alexwlchan-isMe";
-
-  /* https://stackoverflow.com/a/5968306/1558022 */
-  function getCookie(name) {
-      var dc = document.cookie;
-      var prefix = name + "=";
-      var begin = dc.indexOf("; " + prefix);
-      if (begin == -1) {
-          begin = dc.indexOf(prefix);
-          if (begin != 0) return null;
-      }
-      else
-      {
-          begin += 2;
-          var end = document.cookie.indexOf(";", begin);
-          if (end == -1) {
-          end = dc.length;
-          }
-      }
-      // because unescape has been deprecated, replaced with decodeURI
-      //return unescape(dc.substring(begin + prefix.length, end));
-      return decodeURI(dc.substring(begin + prefix.length, end));
-  }
-
   window.onload = function() {
     const analyticsData = new URLSearchParams({
       "url": window.location.href,
@@ -126,10 +102,9 @@ To send data to the server, add the following tracking snippet to the page:
       "title": document.title,
       "width": window.innerWidth,
       "height": window.innerHeight,
-      "is_me": getCookie(cookieName),
     });
 
-    fetch(`https://analytics.alexwlchan.net/a.gif?${analyticsData.toString()}`)
+    fetch(`https://analytics.alexwlchan.net/a.gif?${analyticsData.toString()}`, { credentials: 'include' })
       .then(resp => console.log(resp));
   }
 </script>

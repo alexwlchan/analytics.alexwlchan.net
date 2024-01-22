@@ -53,9 +53,6 @@ def tracking_pixel() -> Response:
 
     ip_address = request.headers["X-Real-IP"]
 
-    with open('cookies.txt', 'a') as outfile:
-        outfile.write(repr(request.cookies) + '\n')
-
     row = {
         "id": uuid.uuid4(),
         "date": datetime.datetime.now().isoformat(),
@@ -73,7 +70,7 @@ def tracking_pixel() -> Response:
         "width": width,
         "height": height,
         "is_bot": guess_if_bot(user_agent),
-        "is_me": is_me,
+        "is_me": request.cookies.get("analytics.alexwlchan-isMe") == "true",
     }
 
     db["events"].insert(row)
