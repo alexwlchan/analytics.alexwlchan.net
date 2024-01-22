@@ -83,11 +83,21 @@ def normalise_referrer(referrer: str | None) -> str | None:
     """
     If possible, create a "normalised form" of a referrer.
     """
-    if referrer == "android-app://com.google.android.googlequicksearchbox/":
-        return "Google"
-
     if referrer is None:
         return None
+
+    exact_matches = {
+        "android-app://com.google.android.googlequicksearchbox/": "Google",
+        "https://news.ycombinator.com/": "Hacker News",
+        "https://t.co/": "Twitter",
+        "https://www.bing.com/": "Bing",
+        "https://www.reddit.com/": "Reddit",
+    }
+
+    try:
+        return exact_matches[referrer]
+    except KeyError:
+        pass
 
     try:
         u = hyperlink.DecodedURL.from_text(referrer)
@@ -101,10 +111,7 @@ def normalise_referrer(referrer: str | None) -> str | None:
     if u.host == "facebook.com" or u.host.endswith(".facebook.com"):
         return "Facebook"
 
-    if u.host == "t.co" and u.path == ("",):
-        return "Twitter"
-
     if "alexwlchan.net" in u.host or "localhost" in u.host:
         return None
 
-    return None
+    return referrer

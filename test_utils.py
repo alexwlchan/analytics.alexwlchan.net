@@ -25,6 +25,7 @@ def test_get_country_iso_code(ip_address, country_code):
         ("https://alexwlchan.net/2014/part-ia-exams/", None),
         ("https://t.co/", "Twitter"),
         (None, None),
+        ("https://shkspr.mobi/", "https://shkspr.mobi/"),
     ],
 )
 def test_normalise_referrer(referrer, expected):
