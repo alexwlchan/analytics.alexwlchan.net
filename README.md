@@ -104,7 +104,7 @@ To send data to the server, add the following tracking snippet to the page:
       "height": window.innerHeight,
     });
 
-    fetch(`https://analytics.alexwlchan.net/a.gif?${analyticsData.toString()}`)
+    fetch(`https://analytics.alexwlchan.net/a.gif?${analyticsData.toString()}`, { credentials: 'include' })
       .then(resp => console.log(resp));
   }
 </script>
