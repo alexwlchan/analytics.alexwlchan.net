@@ -43,7 +43,6 @@ def tracking_pixel() -> Response:
         title = request.args["title"]
         width = int(request.args["width"])
         height = int(request.args["height"])
-        is_me = request.args.get("isMe") == "true"
     except KeyError:
         abort(400)
 
