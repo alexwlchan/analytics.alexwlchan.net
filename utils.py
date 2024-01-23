@@ -93,6 +93,7 @@ def normalise_referrer(referrer: str | None) -> str | None:
         "https://www.bing.com/": "Bing",
         "https://www.reddit.com/": "Reddit",
         "https://duckduckgo.com/": "DuckDuckGo",
+        "https://yandex.ru/": "Yandex",
     }
 
     try:
