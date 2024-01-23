@@ -77,6 +77,11 @@ def tracking_pixel() -> Response:
     return send_file("static/a.gif")
 
 
+@app.route("/robots.txt")
+def robots_txt():
+    return send_file("static/robots.txt")
+
+
 def count_requests_by_day():
     return db.query(
         """
