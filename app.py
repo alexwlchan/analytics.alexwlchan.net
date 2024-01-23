@@ -209,7 +209,7 @@ def find_grouped_referrers():
            and normalised_referrer != ''
           and is_me = '0' and host != 'localhost' and host not like '%--alexwlchan.netlify.app'
         group by
-          title, normalised_referrer
+          path, normalised_referrer
         order by
           count desc
     """,
@@ -223,7 +223,10 @@ def find_grouped_referrers():
     grouped_referrers = collections.defaultdict(lambda: collections.Counter())
 
     for row in referrers_by_page:
-        grouped_referrers[row["normalised_referrer"]][row["title"]] = row["count"]
+        if row["title"] == "410 Gone – alexwlchan":
+            grouped_referrers[row["normalised_referrer"]][row["path"]] = row["count"]
+        else:
+            grouped_referrers[row["normalised_referrer"]][row["title"]] = row["count"]
 
     grouped_referrers = sorted(
         grouped_referrers.items(), key=lambda kv: sum(kv[1].values()), reverse=True
