@@ -195,10 +195,35 @@
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chartjs-chart-geo@4.2.8/build/index.umd.min.js"></script>
 
   <script>
     const ctx = document.getElementById('myChart');
+
+    const chartJsOptions = {
+      plugins: {
+        legend: {
+          display: false
+        }
+      },
+      scales: {
+        x: {
+          offset: true,
+          grid: {
+            display: false
+          }
+        },
+        y: {
+          beginAtZero: true
+        },
+        color: {
+          axis: 'x',
+          display: false,
+        }
+      },
+      animation: {
+        duration: 0
+      },
+    };
 
     new Chart(ctx, {
       type: 'line',
@@ -217,27 +242,7 @@
           borderColor: '#4ca300ff',
         }]
       },
-      options: {
-        plugins: {
-        legend: {
-          display: false
-        }},
-        scales: {
-          x: {
-            offset: true
-          },
-          y: {
-            beginAtZero: true
-          },
-          color: {
-            axis: 'x',
-            display: false,
-          }
-        },
-        animation: {
-          duration: 0
-        },
-      }
+      options: chartJsOptions
     });
 
     const ctx2 = document.getElementById('uniqueVisitorsChart');
@@ -259,23 +264,7 @@
           borderColor: '#4ca300ff',
         }]
       },
-      options: {
-        plugins: {
-        legend: {
-          display: false
-        }},
-        scales: {
-          x: {
-            offset: true
-          },
-          y: {
-            beginAtZero: true
-          }
-        },
-        animation: {
-          duration: 0
-        },
-      }
+      options: chartJsOptions
     });
 
     window.onload = function() {
