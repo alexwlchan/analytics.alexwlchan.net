@@ -1,5 +1,6 @@
 import datetime
 import functools
+import glob
 import sqlite3
 import sys
 import uuid
@@ -24,9 +25,9 @@ def get_country_iso_code(ip_address: str) -> str | None:
         None
 
     """
-    with maxminddb.open_database(
-        "GeoLite2-Country_20240116/GeoLite2-Country.mmdb"
-    ) as reader:
+    db_folder = max(glob.glob("Geolite2-Country_*"))
+
+    with maxminddb.open_database(f"{db_folder}/GeoLite2-Country.mmdb") as reader:
         result = reader.get(ip_address)
 
     if result is None:
