@@ -25,7 +25,7 @@ def get_country_iso_code(ip_address: str) -> str | None:
         None
 
     """
-    db_folder = max(glob.glob("Geolite2-Country_*"))
+    db_folder = max(glob.glob("GeoLite2-Country_*"))
 
     with maxminddb.open_database(f"{db_folder}/GeoLite2-Country.mmdb") as reader:
         result = reader.get(ip_address)
