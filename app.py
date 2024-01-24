@@ -24,7 +24,7 @@ db = get_database(path="requests.sqlite")
 
 @app.route("/")
 def index() -> str:
-    return render_template('index.html')
+    return render_template("index.html")
 
 
 @app.route("/a.gif")
