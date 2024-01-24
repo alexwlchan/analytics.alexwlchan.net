@@ -99,6 +99,7 @@ def normalise_referrer(referrer: str | None) -> str | None:
         "https://search.brave.com/": search_catchall,
         "https://www.startpage.com/": search_catchall,
         "https://yandex.ru/": search_catchall,
+        "https://www.perplexity.ai/": search_catchall,
     }
 
     try:
