@@ -89,17 +89,24 @@ def normalise_referrer(referrer: str | None) -> str | None:
 
     search_catchall = "Search (Google, Bing, DDG, …)"
 
+    if referrer in {
+        "https://www.bing.com/",
+        "https://duckduckgo.com/",
+        "https://search.brave.com/",
+        "https://www.startpage.com/",
+        "https://yandex.kz/",
+        "https://yandex.ru/",
+        "https://www.perplexity.ai/",
+        "https://yandex.com/",
+    }:
+        return search_catchall
+
     exact_matches = {
         "android-app://com.google.android.googlequicksearchbox/": search_catchall,
         "https://news.ycombinator.com/": "Hacker News",
         "https://t.co/": "Twitter",
-        "https://www.bing.com/": search_catchall,
         "https://www.reddit.com/": "Reddit",
-        "https://duckduckgo.com/": search_catchall,
-        "https://search.brave.com/": search_catchall,
-        "https://www.startpage.com/": search_catchall,
-        "https://yandex.ru/": search_catchall,
-        "https://www.perplexity.ai/": search_catchall,
+        "https://out.reddit.com/": "Reddit",
     }
 
     try:
