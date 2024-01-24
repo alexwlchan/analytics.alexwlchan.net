@@ -107,6 +107,7 @@ def normalise_referrer(referrer: str | None) -> str | None:
         "https://t.co/": "Twitter",
         "https://www.reddit.com/": "Reddit",
         "https://out.reddit.com/": "Reddit",
+        "android-app://io.syncapps.lemmy_sync/": "Lemmy",
     }
 
     try:
