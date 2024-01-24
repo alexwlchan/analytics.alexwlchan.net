@@ -1,0 +1,79 @@
+body {
+  background: #0e1f00;
+}
+
+main {
+  max-width: 1200px;
+  margin-left:  auto;
+  margin-right: auto;
+  font-family: sans-serif;
+  padding: 1em;
+
+  display: grid;
+  grid-gap: 1.5em;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.chart, section {
+  padding: 1.5em;
+  background: white;
+  border-radius: 6px;
+}
+
+.chart h1 {
+  margin-top: 0;
+  color: #0e2f00;
+}
+
+table {
+  width: 100%;
+}
+
+td {
+  padding-top: 2px;
+}
+
+td.count {
+  text-align: right;
+}
+
+a {
+  color: #306b00;
+}
+
+a:hover {
+  background: #306b0055;
+}
+
+code {
+  font-size: 1.2em;
+}
+
+.referrer_name:not(:first-child) td {
+  padding-top: 16px;
+}
+
+.referrer_page {
+  font-size: small;
+}
+
+.world_info {
+  display: grid;
+  grid-template-columns: auto auto;
+}
+
+.world_info table {
+  margin-top: auto;
+  margin-bottom: auto;
+}
+
+.world_info table td {
+  padding: 0;
+}
+
+#world-map path { fill: #ddd; }
+
+#exclusionCookie {
+  grid-column: 1 / span 2;
+  line-height: 1.3em;
+}

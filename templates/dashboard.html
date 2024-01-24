@@ -1,95 +1,19 @@
-<title>alexwlchan.net analytics</title>
+<head>
+  <title>alexwlchan.net analytics</title>
 
-<style>
-  body {
-    background: #0e1f00;
-  }
+  <style>
+    {% set max_world_map_count = visitors_by_country.values()|max %}
 
-  main {
-    max-width: 1200px;
-    margin-left:  auto;
-    margin-right: auto;
-    font-family: sans-serif;
-    padding: 1em;
-
-    display: grid;
-    grid-gap: 1.5em;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  .chart, section {
-    padding: 1.5em;
-    background: white;
-    border-radius: 6px;
-  }
-
-  .chart h1 {
-    margin-top: 0;
-    color: #0e2f00;
-  }
-
-  table {
-    width: 100%;
-  }
-
-  td {
-    padding-top: 2px;
-  }
-
-  td.count {
-    text-align: right;
-  }
-
-  a {
-    color: #306b00;
-  }
-
-  a:hover {
-    background: #306b0055;
-  }
-
-  code {
-    font-size: 1.2em;
-  }
-
-  .referrer_name:not(:first-child) td {
-    padding-top: 16px;
-  }
-
-  .referrer_page {
-    font-size: small;
-  }
-
-  .world_info {
-    display: grid;
-    grid-template-columns: auto auto;
-  }
-
-  .world_info table {
-    margin-top: auto;
-    margin-bottom: auto;
-  }
-
-  .world_info table td {
-    padding: 0;
-  }
-
-  #world-map path { fill: #ddd; }
-
-  #exclusionCookie {
-    grid-column: 1 / span 2;
-    line-height: 1.3em;
-  }
-
-  {% set max_world_map_count = visitors_by_country.values()|max %}
-
-  {% for country, count in visitors_by_country.most_common(10) %}
-  #world-map #{{ country.lower() }} path,
-  #world-map path#{{ country.lower() }} {
-    fill: {{ '#dddddd' | interpolate_color('#4ca300', count / max_world_map_count) }};
-  }
-  {% endfor %}
-</style>
+    {% for country, count in visitors_by_country.most_common(10) %}
+    #world-map #{{ country.lower() }} path,
+    #world-map path#{{ country.lower() }} {
+      fill: {{ '#dddddd' | interpolate_color('#4ca300', count / max_world_map_count) }};
+    }
+    {% endfor %}
+  </style>
+  
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
 
 <body>
 
