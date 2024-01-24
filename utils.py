@@ -87,15 +87,17 @@ def normalise_referrer(referrer: str | None) -> str | None:
     if referrer is None:
         return None
 
+    search_catchall = "Search (Google, Bing, DDG, …)"
+
     exact_matches = {
-        "android-app://com.google.android.googlequicksearchbox/": "Google",
+        "android-app://com.google.android.googlequicksearchbox/": search_catchall,
         "https://news.ycombinator.com/": "Hacker News",
         "https://t.co/": "Twitter",
-        "https://www.bing.com/": "Bing",
+        "https://www.bing.com/": search_catchall,
         "https://www.reddit.com/": "Reddit",
-        "https://duckduckgo.com/": "DuckDuckGo",
-        "https://search.brave.com/": "Brave Search",
-        "https://yandex.ru/": "Yandex",
+        "https://duckduckgo.com/": search_catchall,
+        "https://search.brave.com/": search_catchall,
+        "https://yandex.ru/": search_catchall,
     }
 
     try:
@@ -110,7 +112,7 @@ def normalise_referrer(referrer: str | None) -> str | None:
         return None
 
     if u.host.startswith("www.google."):
-        return "Google"
+        return search_catchall
 
     if u.host == "facebook.com" or u.host.endswith(".facebook.com"):
         return "Facebook"
