@@ -97,6 +97,7 @@ def normalise_referrer(referrer: str | None) -> str | None:
         "https://www.reddit.com/": "Reddit",
         "https://duckduckgo.com/": search_catchall,
         "https://search.brave.com/": search_catchall,
+        "https://www.startpage.com/": search_catchall,
         "https://yandex.ru/": search_catchall,
     }
 
