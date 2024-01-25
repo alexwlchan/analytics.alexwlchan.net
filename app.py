@@ -221,7 +221,9 @@ def find_grouped_referrers():
 
     for row in referrers_by_page:
         if row["title"] == "410 Gone – alexwlchan":
-            grouped_referrers[row["normalised_referrer"]][row["path"]] = row["count"]
+            grouped_referrers[row["normalised_referrer"]][row["path"] + " (410)"] = row["count"]
+        elif row["title"] == "404 Not Found – alexwlchan":
+            grouped_referrers[row["normalised_referrer"]][row["path"] + " (404)"] = row["count"]
         else:
             grouped_referrers[row["normalised_referrer"]][row["title"]] = row["count"]
 
