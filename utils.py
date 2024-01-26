@@ -80,6 +80,7 @@ def guess_if_bot(user_agent: str) -> bool:
     return False
 
 
+@functools.lru_cache
 def normalise_referrer(referrer: str | None) -> str | None:
     """
     If possible, create a "normalised form" of a referrer.
@@ -87,17 +88,8 @@ def normalise_referrer(referrer: str | None) -> str | None:
     if referrer is None:
         return None
 
-    search_catchall = "Search (Google, Bing, DDG, …)"
 
-    if referrer in {
-        "https://duckduckgo.com/",
-        "https://search.brave.com/",
-        "https://www.bing.com/",
-        "https://www.ecosia.org/",
-        "https://www.perplexity.ai/",
-        "https://www.startpage.com/",
-    }:
-        return search_catchall
+    search_catchall = "Search (Google, Bing, DDG, …)"
 
     if referrer in {
         "https://news.ycombinator.com/",
@@ -127,6 +119,16 @@ def normalise_referrer(referrer: str | None) -> str | None:
     if u.host.startswith(("www.google.", "www.yandex.", "yandex.")):
         return search_catchall
 
+    if u.host in {
+        "duckduckgo.com",
+        "search.brave.com",
+        "www.bing.com",
+        "www.ecosia.org",
+        "www.perplexity.ai",
+        "www.qwant.com",
+        "www.startpage.com",
+    }:
+        return search_catchall
 
     if u.host == "facebook.com" or u.host.endswith(".facebook.com"):
         return "Facebook"
