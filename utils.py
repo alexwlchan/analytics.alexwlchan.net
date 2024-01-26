@@ -90,20 +90,23 @@ def normalise_referrer(referrer: str | None) -> str | None:
     search_catchall = "Search (Google, Bing, DDG, …)"
 
     if referrer in {
-        "https://www.bing.com/",
         "https://duckduckgo.com/",
         "https://search.brave.com/",
-        "https://www.startpage.com/",
-        "https://yandex.kz/",
-        "https://yandex.ru/",
+        "https://www.bing.com/",
+        "https://www.ecosia.org/",
         "https://www.perplexity.ai/",
-        "https://yandex.com/",
+        "https://www.startpage.com/",
     }:
         return search_catchall
 
+    if referrer in {
+        "https://news.ycombinator.com/",
+        "https://hnfrontpage.pages.dev/",
+    }:
+        return "Hacker News",
+
     exact_matches = {
         "android-app://com.google.android.googlequicksearchbox/": search_catchall,
-        "https://news.ycombinator.com/": "Hacker News",
         "https://t.co/": "Twitter",
         "https://www.reddit.com/": "Reddit",
         "https://out.reddit.com/": "Reddit",
@@ -121,8 +124,9 @@ def normalise_referrer(referrer: str | None) -> str | None:
         print(f"Unable to parse {referrer}: {e}", file=sys.stderr)
         return None
 
-    if u.host.startswith("www.google."):
+    if u.host.startswith(("www.google.", "www.yandex.", "yandex.")):
         return search_catchall
+
 
     if u.host == "facebook.com" or u.host.endswith(".facebook.com"):
         return "Facebook"
