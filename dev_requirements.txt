@@ -98,6 +98,8 @@ httpcore==1.0.2
     # via httpx
 httpx==0.26.0
     # via datasette
+humanize==4.9.0
+    # via -r requirements.txt
 hupper==1.12
     # via datasette
 hyperlink==21.0.0

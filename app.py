@@ -5,6 +5,7 @@ import uuid
 
 from flask import abort, Flask, render_template, request, send_file
 from flask.wrappers import Response
+import humanize
 import hyperlink
 import pycountry
 
@@ -275,7 +276,13 @@ def get_hex_color_between(hex1, hex2, proportion):
 
 app.jinja_env.filters["flag_emoji"] = get_flag_emoji
 app.jinja_env.filters["country_name"] = get_country_name
+app.jinja_env.filters["intcomma"] = humanize.intcomma
 app.jinja_env.filters["interpolate_color"] = get_hex_color_between
+
+
+@app.template_filter("prettydate")
+def prettydate(d: str) -> str:
+    return datetime.datetime.strptime(d, '%Y-%m-%d').strftime('%a %-d %b')
 
 
 @app.route("/dashboard/")

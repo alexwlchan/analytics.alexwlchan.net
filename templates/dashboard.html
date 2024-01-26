@@ -11,7 +11,7 @@
     }
     {% endfor %}
   </style>
-  
+
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 
@@ -21,7 +21,7 @@
   {% include "exclusion_cookie.html" %}
 
   <div class="chart">
-    <h1>Total pageviews</h1>
+    <h1>{{ by_date|map(attribute='count')|sum|intcomma }} total pageviews</h1>
 
     <div>
       <canvas id="myChart"></canvas>
@@ -29,7 +29,7 @@
   </div>
 
   <div class="chart">
-    <h1>Unique visitors</h1>
+    <h1>{{ unique_users|map(attribute='unique_session_count')|sum|intcomma }} unique visitors</h1>
 
     <div>
       <canvas id="uniqueVisitorsChart"></canvas>
@@ -71,10 +71,10 @@
     <h1>Referrers</h1>
 
     <table>
-      {% for referrer, pages in grouped_referrers[:10] %}
+      {% for referrer, pages in grouped_referrers %}
       <tr class="referrer_name">
         <td class="referrer">{{ referrer }}</td>
-        <td class="count">{{ pages.values()|sum }}</td>
+        <td class="count">{{ pages.values()|sum|intcomma }}</td>
       </tr>
 
       {% set selected_amount = 4 if pages|length <= 4 else 3 %}
@@ -87,7 +87,7 @@
       <tr class="referrer_page">
         <td>&rarr; {{ p.replace(' – alexwlchan', '') }}</td>
         {% set _ = remaining_total.update({'total': remaining_total['total'] - c}) %}
-        <td class="count">{{ c }}</td>
+        <td class="count">{{ c|intcomma }}</td>
 
       </tr>
       {% endfor %}
@@ -95,7 +95,7 @@
       {% if pages|length > selected_amount %}
       <tr class="referrer_page">
         <td style="padding-left: 6px;">+ {{ pages|length - selected_amount }} other pages</td>
-        <td class="count">{{ remaining_total['total'] }}</td>
+        <td class="count">{{ remaining_total['total']|intcomma }}</td>
       </tr>
       {% endif %}
 
@@ -153,7 +153,7 @@
       type: 'line',
       data: {
         labels: [
-          {% for row in by_date %}'{{ row.day }}',{% endfor %}
+          {% for row in by_date %}'{{ row.day|prettydate }}',{% endfor %}
         ],
         datasets: [{
           label: 'total pageviews',
@@ -175,7 +175,7 @@
       type: 'line',
       data: {
         labels: [
-          {% for row in unique_users %}'{{ row.day }}',{% endfor %}
+          {% for row in unique_users %}'{{ row.day|prettydate }}',{% endfor %}
         ],
         datasets: [{
           label: 'unique visitors',

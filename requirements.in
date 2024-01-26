@@ -1,6 +1,7 @@
 certbot
 flask
 gunicorn
+humanize
 hyperlink
 maxminddb
 pycountry
