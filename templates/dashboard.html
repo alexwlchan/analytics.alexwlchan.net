@@ -4,7 +4,7 @@
   <style>
     {% set max_world_map_count = visitors_by_country.values()|max %}
 
-    {% for country, count in visitors_by_country.most_common(10) %}
+    {% for country, count in visitors_by_country.most_common() %}
     #world-map #{{ country.lower() }} path,
     #world-map path#{{ country.lower() }} {
       fill: {{ '#dddddd' | interpolate_color('#4ca300', count / max_world_map_count) }};

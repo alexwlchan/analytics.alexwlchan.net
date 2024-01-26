@@ -282,7 +282,7 @@ app.jinja_env.filters["interpolate_color"] = get_hex_color_between
 
 @app.template_filter("prettydate")
 def prettydate(d: str) -> str:
-    return datetime.datetime.strptime(d, '%Y-%m-%d').strftime('%a %-d %b')
+    return datetime.datetime.strptime(d, "%Y-%m-%d").strftime("%a %-d %b")
 
 
 @app.route("/dashboard/")

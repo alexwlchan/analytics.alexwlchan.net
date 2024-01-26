@@ -71,7 +71,7 @@ code {
   padding: 0;
 }
 
-#world-map path { fill: #ddd; }
+#world-map path { fill: #eee; }
 
 #exclusionCookie {
   grid-column: 1 / span 2;
