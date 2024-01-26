@@ -3,10 +3,14 @@
 <style>
   section p:first-child { margin-top: 0;    }
   section p:last-child  { margin-bottom: 0; }
+
+  #intro {
+    line-height: 1.4em;
+  }
 </style>
 
 <main>
-  <section>
+  <section id="intro">
     <p>This website hosts a tracking pixel for alexwlchan.net and its subdomains.</p>
 
     <p>For more information about what gets tracked, you can read:</p>
@@ -19,7 +23,7 @@
           <a href="https://github.com/alexwlchan/analytics.alexwlchan.net">the code on GitHub</a>
         </li>
     </ul>
-  
+
     <p>
       You can also go to the <a href="{{ url_for('dashboard') }}">tracking dashboard</a> (requires login).
     </p>
