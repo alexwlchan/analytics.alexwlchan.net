@@ -83,9 +83,12 @@ gunicorn app:app \
 
 To restart the server:
 
-$ ps -eaf | grep app ; kill -HUP 33329
+```console
+$ ps -eaf | grep app
+$ kill -HUP [app_id]
+```
 
-After you restart the sevrer, load a page (e.g. /privacy/) and use this snippet to see the last recorded hit:
+After you restart the server, load a page (e.g. /privacy/) and use this snippet to see the last recorded hit:
 
 ```console
 $ sqlite-utils query requests.sqlite 'select * from events order by date desc limit 1'
