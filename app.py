@@ -221,11 +221,13 @@ def find_grouped_referrers():
 
     for row in referrers_by_page:
         if row["title"] == "410 Gone – alexwlchan":
-            grouped_referrers[row["normalised_referrer"]][row["path"] + " (410)"] = row["count"]
+            label = row["path"] + " (410)"
         elif row["title"] == "404 Not Found – alexwlchan":
-            grouped_referrers[row["normalised_referrer"]][row["path"] + " (404)"] = row["count"]
+            label = row["path"] + " (404)"
         else:
-            grouped_referrers[row["normalised_referrer"]][row["title"]] = row["count"]
+            label = row["title"]
+
+        grouped_referrers[row["normalised_referrer"]][label] = row["count"]
 
     grouped_referrers = sorted(
         grouped_referrers.items(), key=lambda kv: sum(kv[1].values()), reverse=True

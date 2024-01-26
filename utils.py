@@ -88,7 +88,6 @@ def normalise_referrer(referrer: str | None) -> str | None:
     if referrer is None:
         return None
 
-
     search_catchall = "Search (Google, Bing, DDG, …)"
 
     if referrer in {
