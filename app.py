@@ -3,7 +3,7 @@ import datetime
 import json
 import uuid
 
-from flask import abort, Flask, render_template, request, send_file
+from flask import abort, Flask, redirect, render_template, request, send_file, url_for
 from flask.wrappers import Response
 import humanize
 import hyperlink
@@ -24,7 +24,10 @@ db = get_database(path="requests.sqlite")
 
 
 @app.route("/")
-def index() -> str:
+def index():
+    if request.cookies.get("analytics.alexwlchan-isMe") == "true":
+        return redirect(url_for("dashboard"))
+
     return render_template("index.html")
 
 
