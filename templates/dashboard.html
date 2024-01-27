@@ -11,6 +11,8 @@
     }
     {% endfor %}
   </style>
+  
+  <script src="{{ url_for('static', filename='dashboard.js') }}"></script>
 
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
@@ -18,7 +20,9 @@
 <body>
 
 <main>
-  {% include "exclusion_cookie.html" %}
+  <section id="exclusionCookie">
+    🔄 Checking if you have the exclusion cookie…
+  </section>
 
   <div class="chart">
     <h1>{{ by_date|map(attribute='count')|sum|intcomma }} total pageviews</h1>
