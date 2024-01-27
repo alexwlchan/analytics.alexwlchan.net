@@ -14,12 +14,6 @@ main {
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
-@media screen and (max-width: 500px) {
-  main {
-    grid-template-columns: auto;
-  }
-}
-
 .chart, section {
   padding: 1.5em;
   background: white;
@@ -68,12 +62,6 @@ code {
   grid-template-columns: auto auto;
 }
 
-@media screen and (max-width: 500px) {
-  .world_info {
-    grid-template-columns: auto;
-  }
-}
-
 .world_info table {
   margin-top: auto;
   margin-bottom: auto;
@@ -88,4 +76,22 @@ code {
 #exclusionCookie {
   grid-column: 1 / span 2;
   line-height: 1.3em;
+}
+
+#visitorsByCountry {
+  grid-column: 1 / span 2;
+}
+
+@media screen and (max-width: 500px) {
+  main {
+    grid-template-columns: auto;
+  }
+
+  .world_info {
+    grid-template-columns: auto;
+  }
+
+  #exclusionCookie, #visitorsByCountry {
+    grid-column: 1;
+  }
 }
