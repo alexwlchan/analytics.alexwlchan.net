@@ -1,6 +1,6 @@
-<head>
-  <title>alexwlchan.net analytics</title>
+{% extends "base.html" %}
 
+{% block head_content %}
   <style>
     {% set max_world_map_count = visitors_by_country.values()|max %}
 
@@ -11,15 +11,9 @@
     }
     {% endfor %}
   </style>
-  
-  <script src="{{ url_for('static', filename='dashboard.js') }}"></script>
+{% endblock %}
 
-  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-</head>
-
-<body>
-
-<main>
+{% block content %}
   <section id="exclusionCookie">
     🔄 Checking if you have the exclusion cookie…
   </section>
@@ -214,6 +208,4 @@
       });
     }
   </script>
-</main>
-
-</body>
+{% endblock %}
