@@ -15,12 +15,15 @@ def test_get_country_iso_code(ip_address, country_code):
     assert get_country_iso_code(ip_address) == country_code
 
 
-@pytest.mark.parametrize("referrer", [
-    "https://www.google.pl/",
-    "https://www.google.de/",
-    "android-app://com.google.android.googlequicksearchbox/",
-    "https://in.search.yahoo.com/",
-])
+@pytest.mark.parametrize(
+    "referrer",
+    [
+        "https://www.google.pl/",
+        "https://www.google.de/",
+        "android-app://com.google.android.googlequicksearchbox/",
+        "https://in.search.yahoo.com/",
+    ],
+)
 def test_referrer_is_search(referrer):
     assert normalise_referrer(referrer) == "Search (Google, Bing, DDG, …)"
 
