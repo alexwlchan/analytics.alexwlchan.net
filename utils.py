@@ -97,6 +97,7 @@ def normalise_referrer(referrer: str | None) -> str | None:
         return "Hacker News"
 
     exact_matches = {
+        "http://baidu.com/": search_catchall,
         "android-app://com.google.android.googlequicksearchbox/": search_catchall,
         "https://t.co/": "Twitter",
         "https://www.reddit.com/": "Reddit",
