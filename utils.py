@@ -118,7 +118,7 @@ def normalise_referrer(referrer: str | None) -> str | None:
     if u.host.startswith(("www.google.", "www.yandex.", "yandex.")):
         return search_catchall
 
-    if u.host.endswith(".search.yahoo.com"):
+    if u.host.endswith((".search.yahoo.com", ".bing.com")):
         return search_catchall
 
     if u.host in {
