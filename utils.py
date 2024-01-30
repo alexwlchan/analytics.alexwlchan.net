@@ -126,7 +126,7 @@ def normalise_referrer(referrer: str | None) -> str | None:
         "duckduckgo.com",
         "search.brave.com",
         "search.yahoo.com",
-        "www.bing.com",
+        "bing.com",
         "www.ecosia.org",
         "www.perplexity.ai",
         "www.qwant.com",

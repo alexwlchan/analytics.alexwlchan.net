@@ -23,6 +23,7 @@ def test_get_country_iso_code(ip_address, country_code):
         "android-app://com.google.android.googlequicksearchbox/",
         "https://in.search.yahoo.com/",
         "https://cn.bing.com/",
+        "https://bing.com/",
     ],
 )
 def test_referrer_is_search(referrer):
