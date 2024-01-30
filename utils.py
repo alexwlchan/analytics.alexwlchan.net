@@ -103,6 +103,7 @@ def normalise_referrer(referrer: str | None) -> str | None:
         "https://www.reddit.com/": "Reddit",
         "https://out.reddit.com/": "Reddit",
         "android-app://io.syncapps.lemmy_sync/": "Lemmy",
+        "https://mail.google.com/": "Gmail",
     }
 
     try:
@@ -126,6 +127,7 @@ def normalise_referrer(referrer: str | None) -> str | None:
         "duckduckgo.com",
         "search.brave.com",
         "search.yahoo.com",
+        "searchmysite.net",
         "bing.com",
         "www.ecosia.org",
         "www.perplexity.ai",
