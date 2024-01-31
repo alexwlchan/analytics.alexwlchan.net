@@ -43,7 +43,7 @@
         {% for country, count in visitors_by_country.most_common(10) %}
         <tr>
           <td>{{ country|flag_emoji }} {{ country|country_name }}</td>
-          <td class="count">{{ count }}</td>
+          <td class="count">{{ count|intcomma }}</td>
         </tr>
         {% endfor %}
       </table>
