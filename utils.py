@@ -96,14 +96,22 @@ def normalise_referrer(referrer: str | None) -> str | None:
     }:
         return "Hacker News"
 
+    if referrer in {
+        "https://www.reddit.com/",
+        "https://www.reddit.com",
+        "https://out.reddit.com/",
+    }:
+        return "Reddit"
+
     exact_matches = {
         "http://baidu.com/": search_catchall,
         "android-app://com.google.android.googlequicksearchbox/": search_catchall,
         "https://t.co/": "Twitter",
-        "https://www.reddit.com/": "Reddit",
-        "https://out.reddit.com/": "Reddit",
         "android-app://io.syncapps.lemmy_sync/": "Lemmy",
         "https://mail.google.com/": "Gmail",
+        "https://www.linkedin.com/": "LinkedIn",
+        "android-app://com.linkedin.android/": "LinkedIn",
+        "https://pypi.org/": "PyPi",
     }
 
     try:
@@ -133,6 +141,8 @@ def normalise_referrer(referrer: str | None) -> str | None:
         "www.perplexity.ai",
         "www.qwant.com",
         "www.startpage.com",
+        "ya.ru",
+        "iframe-yang.yandex",
     }:
         return search_catchall
 
