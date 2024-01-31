@@ -38,6 +38,8 @@ def test_referrer_is_search(referrer):
         ("https://t.co/", "Twitter"),
         (None, None),
         ("https://shkspr.mobi/", "https://shkspr.mobi/"),
+        ("https://github.com/alexwlchan?tab=repositories", "https://github.com/alexwlchan"),
+        ("https://github.com/alexwlchan", "https://github.com/alexwlchan"),
     ],
 )
 def test_normalise_referrer(referrer, expected):

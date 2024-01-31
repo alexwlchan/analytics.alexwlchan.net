@@ -93,6 +93,7 @@ def normalise_referrer(referrer: str | None) -> str | None:
     if referrer in {
         "https://news.ycombinator.com/",
         "https://hnfrontpage.pages.dev/",
+        "http://hn.luap.info/",
     }:
         return "Hacker News"
 
@@ -111,7 +112,9 @@ def normalise_referrer(referrer: str | None) -> str | None:
         "https://mail.google.com/": "Gmail",
         "https://www.linkedin.com/": "LinkedIn",
         "android-app://com.linkedin.android/": "LinkedIn",
-        "https://pypi.org/": "PyPi",
+        "https://pypi.org/": "PyPI",
+        "https://wordpress.com/": "WordPress",
+        "https://translate.google.co.jp/": None,
     }
 
     try:
@@ -130,6 +133,10 @@ def normalise_referrer(referrer: str | None) -> str | None:
 
     if u.host.endswith((".search.yahoo.com", ".bing.com")):
         return search_catchall
+
+    if u.host == "github.com" and u.get("tab"):
+        u = u.remove("tab")
+        return u.to_text()
 
     if u.host in {
         "duckduckgo.com",
