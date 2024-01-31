@@ -92,8 +92,9 @@ def normalise_referrer(referrer: str | None) -> str | None:
 
     if referrer in {
         "https://news.ycombinator.com/",
-        "https://hnfrontpage.pages.dev/",
         "http://hn.luap.info/",
+        "https://hckrnews.com/",
+        "https://hnfrontpage.pages.dev/",
     }:
         return "Hacker News"
 
