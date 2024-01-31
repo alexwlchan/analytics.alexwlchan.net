@@ -95,6 +95,7 @@ def normalise_referrer(referrer: str | None) -> str | None:
         "http://hn.luap.info/",
         "https://hckrnews.com/",
         "https://hnfrontpage.pages.dev/",
+        "android-app://io.github.hidroh.materialistic/",
     }:
         return "Hacker News"
 
