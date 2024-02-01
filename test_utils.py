@@ -1,6 +1,6 @@
 import pytest
 
-from utils import get_country_iso_code, normalise_referrer
+from utils import get_country_iso_code
 
 
 @pytest.mark.skip("Country DBs aren't currently available in CI")
@@ -13,37 +13,3 @@ from utils import get_country_iso_code, normalise_referrer
 )
 def test_get_country_iso_code(ip_address, country_code):
     assert get_country_iso_code(ip_address) == country_code
-
-
-@pytest.mark.parametrize(
-    "referrer",
-    [
-        "https://www.google.pl/",
-        "https://www.google.de/",
-        "android-app://com.google.android.googlequicksearchbox/",
-        "https://in.search.yahoo.com/",
-        "https://cn.bing.com/",
-        "https://bing.com/",
-    ],
-)
-def test_referrer_is_search(referrer):
-    assert normalise_referrer(referrer) == "Search (Google, Bing, DDG, …)"
-
-
-@pytest.mark.parametrize(
-    ["referrer", "expected"],
-    [
-        ("https://l.facebook.com/", "Facebook"),
-        ("https://alexwlchan.net/2014/part-ia-exams/", None),
-        ("https://t.co/", "Twitter"),
-        (None, None),
-        ("https://shkspr.mobi/", "https://shkspr.mobi/"),
-        (
-            "https://github.com/alexwlchan?tab=repositories",
-            "https://github.com/alexwlchan",
-        ),
-        ("https://github.com/alexwlchan", "https://github.com/alexwlchan"),
-    ],
-)
-def test_normalise_referrer(referrer, expected):
-    assert normalise_referrer(referrer) == expected

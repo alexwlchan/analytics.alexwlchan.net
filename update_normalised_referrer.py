@@ -2,7 +2,8 @@
 Update the database with the latest definitions of normalise_referrer().
 """
 
-from utils import normalise_referrer, get_database
+from referrers import normalise_referrer
+from utils import get_database
 
 db = get_database(path="requests.sqlite")
 
