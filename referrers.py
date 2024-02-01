@@ -148,6 +148,7 @@ def _is_news_aggregator(u: hyperlink.DecodedURL) -> bool:
         "spike.news",
         "read.squidapp.co",
         "daily.sdinet.de",
+        "christian.rubbert.de",
     }:
         return True
 
