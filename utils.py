@@ -3,6 +3,7 @@ import functools
 import glob
 import sqlite3
 import sys
+from typing import TypedDict
 import uuid
 
 import hyperlink
@@ -78,87 +79,3 @@ def guess_if_bot(user_agent: str) -> bool:
             return True
 
     return False
-
-
-@functools.lru_cache
-def normalise_referrer(referrer: str | None) -> str | None:
-    """
-    If possible, create a "normalised form" of a referrer.
-    """
-    if referrer is None:
-        return None
-
-    search_catchall = "Search (Google, Bing, DDG, …)"
-
-    if referrer in {
-        "https://news.ycombinator.com/",
-        "http://hn.luap.info/",
-        "https://hckrnews.com/",
-        "https://hnfrontpage.pages.dev/",
-        "android-app://io.github.hidroh.materialistic/",
-    }:
-        return "Hacker News"
-
-    if referrer in {
-        "https://www.reddit.com/",
-        "https://www.reddit.com",
-        "https://out.reddit.com/",
-    }:
-        return "Reddit"
-
-    exact_matches = {
-        "http://baidu.com/": search_catchall,
-        "android-app://com.google.android.googlequicksearchbox/": search_catchall,
-        "https://t.co/": "Twitter",
-        "android-app://io.syncapps.lemmy_sync/": "Lemmy",
-        "https://mail.google.com/": "Gmail",
-        "https://www.linkedin.com/": "LinkedIn",
-        "android-app://com.linkedin.android/": "LinkedIn",
-        "https://pypi.org/": "PyPI",
-        "https://wordpress.com/": "WordPress",
-        "https://translate.google.co.jp/": None,
-    }
-
-    try:
-        return exact_matches[referrer]
-    except KeyError:
-        pass
-
-    try:
-        u = hyperlink.DecodedURL.from_text(referrer)
-    except Exception as e:
-        print(f"Unable to parse {referrer}: {e}", file=sys.stderr)
-        return None
-
-    if u.host.startswith(("www.google.", "www.yandex.", "yandex.")):
-        return search_catchall
-
-    if u.host.endswith((".search.yahoo.com", ".bing.com")):
-        return search_catchall
-
-    if u.host == "github.com" and u.get("tab"):
-        u = u.remove("tab")
-        return u.to_text()
-
-    if u.host in {
-        "duckduckgo.com",
-        "search.brave.com",
-        "search.yahoo.com",
-        "searchmysite.net",
-        "bing.com",
-        "www.ecosia.org",
-        "www.perplexity.ai",
-        "www.qwant.com",
-        "www.startpage.com",
-        "ya.ru",
-        "iframe-yang.yandex",
-    }:
-        return search_catchall
-
-    if u.host == "facebook.com" or u.host.endswith(".facebook.com"):
-        return "Facebook"
-
-    if "alexwlchan.net" in u.host or "localhost" in u.host:
-        return None
-
-    return referrer
