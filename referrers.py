@@ -79,6 +79,8 @@ def _is_hacker_news_referrer(u: hyperlink.DecodedURL) -> bool:
         "hntoplinks.com",
         "www.hntoplinks.com",
         "now.hackertab.dev",
+        "news.social-protocols.org",
+        "ycnews.tech",
     }:
         return True
 
@@ -122,7 +124,7 @@ def _is_rss_reader(u: hyperlink.DecodedURL) -> bool:
 
 
 def _is_news_aggregator(u: hyperlink.DecodedURL) -> bool:
-    return has_empty_path(u) and u.host in {
+    if has_empty_path(u) and u.host in {
         "hackurls.com",
         "devurls.com",
         "serializer.io",
@@ -142,7 +144,16 @@ def _is_news_aggregator(u: hyperlink.DecodedURL) -> bool:
         "hn.kickflip.workers.dev",
         "hnpwa-vanilla.firebaseapp.com",
         "hnpwa.dev.muze.nl",
-    }
+        "b.hatena.ne.jp",
+        "spike.news",
+        "read.squidapp.co",
+    }:
+        return True
+
+    if u.host == "b.hatena.ne.jp" and u.path == ("hotentry", "it"):
+        return True
+
+    return False
 
 
 def _is_reddit(u: hyperlink.DecodedURL) -> bool:
@@ -219,6 +230,7 @@ def normalise_referrer(referrer: str | None) -> str | None:
         "io.syncapps.lemmy_sync": "Lemmy",
         "org.telegram.messenger": "Telegram",
         "org.telegram.messenger.web": "Telegram",
+        "org.telegram.plus": "Telegram",
     }
 
     if u.scheme == "android-app":
