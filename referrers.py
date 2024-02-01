@@ -147,10 +147,14 @@ def _is_news_aggregator(u: hyperlink.DecodedURL) -> bool:
         "b.hatena.ne.jp",
         "spike.news",
         "read.squidapp.co",
+        "daily.sdinet.de",
     }:
         return True
 
     if u.host == "b.hatena.ne.jp" and u.path == ("hotentry", "it"):
+        return True
+
+    if u.host == "b.hatena.ne.jp" and u.path == ("hotentry", "fun"):
         return True
 
     return False
