@@ -34,6 +34,11 @@ def test_referrer_is_search(referrer):
         ("https://news.ycombinator.com", "Hacker News"),
         ("android-app://io.github.hidroh.materialistic/", "Hacker News"),
         ("https://www.inoreader.com/", "RSS reader (Feedly, Inoreader, …)"),
+        ("https://old.reddit.com/?count=75&after=t3_1ag8jtu", "Reddit"),
+        (
+            "https://old.reddit.com/r/ForAllMankindTV/comments/1ag7bke/i_was_rewatching_season_1/",
+            "https://old.reddit.com/r/ForAllMankindTV/comments/1ag7bke/i_was_rewatching_season_1/",
+        ),
     ],
 )
 def test_normalise_referrer(referrer, expected):

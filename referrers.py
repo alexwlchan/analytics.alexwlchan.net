@@ -4,6 +4,10 @@ import sys
 import hyperlink
 
 
+def has_empty_path(u):
+    return u.path == () or u.path == ("",)
+
+
 def _is_search_referrer(u: hyperlink.DecodedURL) -> bool:
     """
     Returns True if this referrer is from a search engine, False otherwise.
@@ -46,7 +50,7 @@ def _is_hacker_news_referrer(u: hyperlink.DecodedURL) -> bool:
     If one of my posts hits the front page of Hacker News, this allows
     me to gather all that into a single category.
     """
-    if u.host in {
+    if has_empty_path(u) and u.host in {
         "news.ycombinator.com",
         "hckrnews.com",
         "y-combinator-news-trends.vercel.app",
@@ -71,12 +75,25 @@ def _is_hacker_news_referrer(u: hyperlink.DecodedURL) -> bool:
         "hacc.foo",
         "mono-hackernews.deno.dev",
         "quiethn.gyttja.com",
+        "hacker.news",
+        "hntoplinks.com",
+        "www.hntoplinks.com",
+        "now.hackertab.dev",
     }:
         return True
 
     # Materialistic is a Hacker News Android reader.
     # See https://github.com/hidroh/materialistic
-    if u.scheme == "android-app" and u.host == "io.github.hidroh.materialistic":
+    if (
+        has_empty_path(u)
+        and u.scheme == "android-app"
+        and u.host
+        in {
+            "io.github.hidroh.materialistic",
+            "com.jiaqifeng.hacki",
+            "com.stefandekanski.hackernews.free",
+        }
+    ):
         return True
 
     return False
@@ -86,7 +103,7 @@ def _is_rss_reader(u: hyperlink.DecodedURL) -> bool:
     """
     Returns true if this referrer looks like somebody's RSS reader.
     """
-    if u.path == ("",) and u.host in {
+    if has_empty_path(u) and u.host in {
         "www.inoreader.com",
         "rss.cloudier.com",
         "jp.inoreader.com",
@@ -94,6 +111,10 @@ def _is_rss_reader(u: hyperlink.DecodedURL) -> bool:
         "app.usepanda.com",
         "api.daily.dev",
         "base.usepanda.com",
+        "www.newsblur.com",
+        "newsblur.com",
+        "ios.feeddler.com",
+        "theoldreader.com",
     }:
         return True
 
@@ -101,7 +122,7 @@ def _is_rss_reader(u: hyperlink.DecodedURL) -> bool:
 
 
 def _is_news_aggregator(u: hyperlink.DecodedURL) -> bool:
-    if u.host in {
+    return has_empty_path(u) and u.host in {
         "hackurls.com",
         "devurls.com",
         "serializer.io",
@@ -113,10 +134,23 @@ def _is_news_aggregator(u: hyperlink.DecodedURL) -> bool:
         "techurls.com",
         "old.thenews.im",
         "readspike.com",
-    }:
-        return True
+        "flipboard.com",
+        "www.hntoplinks.com",
+        "now.hackertab.dev",
+        "newz-mixer.vercel.app",
+        "hn.cr4xy.dev",
+        "hn.kickflip.workers.dev",
+        "hnpwa-vanilla.firebaseapp.com",
+        "hnpwa.dev.muze.nl",
+    }
 
-    return False
+
+def _is_reddit(u: hyperlink.DecodedURL) -> bool:
+    return has_empty_path(u) and u.host in {
+        "old.reddit.com",
+        "out.reddit.com",
+        "www.reddit.com",
+    }
 
 
 @functools.lru_cache
@@ -136,11 +170,17 @@ def normalise_referrer(referrer: str | None) -> str | None:
     if _is_search_referrer(u):
         return "Search (Google, Bing, DDG, …)"
 
+    if u.host in {
+        "alexwlchan.net",
+        "analytics.alexwlchan.net",
+        "books.alexwlchan.net",
+        "til.alexwlchan.net",
+        "localhost",
+    }:
+        return None
+
     hostname_matches = {
         "127.0.0.1": None,
-        "alexwlchan.net": None,
-        "analytics.alexwlchan.net": None,
-        "books.alexwlchan.net": None,
         "chat.openai.com": "ChatGPT",
         "facebook.com": "Facebook",
         "gist.github.com": "GitHub",
@@ -148,32 +188,37 @@ def normalise_referrer(referrer: str | None) -> str | None:
         "l.messenger.com": "Facebook",
         "ln.ht": "Linkhut",
         "lobste.rs": "Lobsters",
-        "localhost:5757": None,
         "mail.google.com": "Gmail",
-        "out.reddit.com": "Reddit",
         "pypi.org": "PyPI",
         "t.cn": "Tencent",
         "t.co": "Twitter",
-        "til.alexwlchan.net": None,
         "translate.google.co.jp": None,
         "twitter.com": "Twitter",
         "web.skype.com": "Skype",
         "weibo.cn": "Weibo",
         "wordpress.com": "WordPress",
         "www.linkedin.com": "LinkedIn",
-        "www.reddit.com": "Reddit",
+        "pinboard.in": "Pinboard",
+        "www.tumblr.com": "Tumblr",
+        "www.msn.com": "MSN",
+        "teams.microsoft.com": "Microsoft Teams",
+        "bsky.app": "Bluesky",
+        "l.instagram.com": "Instagram",
+        "web.telegram.org": "Telegram",
     }
 
-    try:
-        return hostname_matches[u.host]
-    except KeyError:
-        pass
+    if has_empty_path(u):
+        try:
+            return hostname_matches[u.host]
+        except KeyError:
+            pass
 
     android_app_id_matches = {
         "com.linkedin.android": "LinkedIn",
         "com.slack": "Slack",
         "io.syncapps.lemmy_sync": "Lemmy",
         "org.telegram.messenger": "Telegram",
+        "org.telegram.messenger.web": "Telegram",
     }
 
     if u.scheme == "android-app":
@@ -192,8 +237,11 @@ def normalise_referrer(referrer: str | None) -> str | None:
     if _is_rss_reader(u):
         return "RSS reader (Feedly, Inoreader, …)"
 
+    if _is_reddit(u):
+        return "Reddit"
+
     if _is_news_aggregator(u):
-        return "News aggregator (HN, Reddit, …)"
+        return "News aggregator (Flipboard, HN, Reddit, …)"
 
     if u.host.endswith(".facebook.com"):
         return "Facebook"
