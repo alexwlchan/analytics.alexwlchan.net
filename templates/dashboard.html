@@ -59,7 +59,7 @@
         <td>
           <a href="https://{{p.host}}{{ p.path }}">{{ p.title.replace(' – alexwlchan', '') }}</a>
         </td>
-        <td class="count">{{ p.count }}</td>
+        <td class="count">{{ p.count|intcomma }}</td>
       </tr>
       {% endfor %}
     </table>
