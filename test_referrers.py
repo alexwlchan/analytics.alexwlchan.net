@@ -33,7 +33,7 @@ def test_referrer_is_search(referrer):
         ("https://github.com/alexwlchan", "https://github.com/alexwlchan"),
         ("https://news.ycombinator.com", "Hacker News"),
         ("android-app://io.github.hidroh.materialistic/", "Hacker News"),
-        ("https://www.inoreader.com/", "RSS reader (Inoreader, …)"),
+        ("https://www.inoreader.com/", "RSS reader (Feedly, Inoreader, …)"),
     ],
 )
 def test_normalise_referrer(referrer, expected):
