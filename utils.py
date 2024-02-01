@@ -2,11 +2,8 @@ import datetime
 import functools
 import glob
 import sqlite3
-import sys
-from typing import TypedDict
 import uuid
 
-import hyperlink
 import maxminddb
 from sqlite_utils import Database
 
