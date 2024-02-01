@@ -68,6 +68,9 @@ def _is_hacker_news_referrer(u: hyperlink.DecodedURL) -> bool:
         "hackernews.betacat.io",
         "hn.premii.com",
         "hackerweb.app",
+        "hacc.foo",
+        "mono-hackernews.deno.dev",
+        "quiethn.gyttja.com",
     }:
         return True
 
@@ -105,6 +108,11 @@ def _is_news_aggregator(u: hyperlink.DecodedURL) -> bool:
         "www.buzzing.cc",
         "progscrape.com",
         "brutalist.report",
+        "news.hada.io",
+        "feeder.co",
+        "techurls.com",
+        "old.thenews.im",
+        "readspike.com",
     }:
         return True
 
@@ -129,29 +137,31 @@ def normalise_referrer(referrer: str | None) -> str | None:
         return "Search (Google, Bing, DDG, …)"
 
     hostname_matches = {
-        "til.alexwlchan.net": None,
-        "analytics.alexwlchan.net": None,
+        "127.0.0.1": None,
         "alexwlchan.net": None,
+        "analytics.alexwlchan.net": None,
+        "books.alexwlchan.net": None,
+        "chat.openai.com": "ChatGPT",
         "facebook.com": "Facebook",
         "gist.github.com": "GitHub",
+        "instagram.com": "Instagram",
+        "l.messenger.com": "Facebook",
+        "ln.ht": "Linkhut",
+        "lobste.rs": "Lobsters",
         "localhost:5757": None,
         "mail.google.com": "Gmail",
         "out.reddit.com": "Reddit",
         "pypi.org": "PyPI",
+        "t.cn": "Tencent",
         "t.co": "Twitter",
+        "til.alexwlchan.net": None,
         "translate.google.co.jp": None,
+        "twitter.com": "Twitter",
+        "web.skype.com": "Skype",
         "weibo.cn": "Weibo",
         "wordpress.com": "WordPress",
         "www.linkedin.com": "LinkedIn",
         "www.reddit.com": "Reddit",
-        "instagram.com": "Instagram",
-        "books.alexwlchan.net": None,
-        "web.skype.com": "Skype",
-        "t.cn": "Tencent",
-        "lobste.rs": "Lobsters",
-        "chat.openai.com": "ChatGPT",
-        "127.0.0.1": None,
-        "ln.ht": "Linkhut",
     }
 
     try:
