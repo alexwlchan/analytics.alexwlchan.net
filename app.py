@@ -197,7 +197,24 @@ def find_missing_pages():
     )
 
 
-def find_grouped_referrers():
+Counter = dict[str, int]
+
+
+def find_grouped_referrers() -> list[tuple[str, Counter]]:
+    """
+    Get a list of referrers, grouped by source.  The entries look
+    something like
+
+        (
+            "Hacker News",
+            {
+                "Making a PDF that’s larger than Germany": 200,
+                "You should take more screenshots": 50,
+                "Cut the cutesy errors": 1,
+            }
+        )
+
+    """
     referrers_by_page = db.query(
         """
         select
