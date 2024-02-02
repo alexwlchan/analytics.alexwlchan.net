@@ -185,6 +185,12 @@ def normalise_referrer(referrer: str | None) -> str | None:
         "https://boingboing-net.cdn.ampproject.org/v/s/boingboing.net/2024/02/01/a-pdf-the-size-of-germany-or-the-universe.html/amp?amp_gsa=1&amp_js_v=a9&usqp=mq331AQGsAEggAID": "https://boingboing.net/2024/02/01/a-pdf-the-size-of-germany-or-the-universe.html",
         "https://b.hatena.ne.jp/?iosapp=1": "https://b.hatena.ne.jp/",
         "https://boingboing.net": "https://boingboing.net/",
+        "https://m.fark.com/": "https://www.fark.com/",
+        "https://fark.com/": "https://www.fark.com/",
+        "https://www.numerama.com/?p=1623224&preview=true": "https://www.numerama.com/politique/1623224-un-fichier-pdf-grand-comme-lunivers-cest-possible.html",
+        "https://b.hatena.ne.jp/entrylist/it?page=2": "https://b.hatena.ne.jp/",
+        "https://b.hatena.ne.jp/entrylist/it?page=3": "https://b.hatena.ne.jp/",
+        "https://b.hatena.ne.jp/entrylist/all?page=8": "https://b.hatena.ne.jp/",
     }
 
     try:
@@ -243,6 +249,13 @@ def normalise_referrer(referrer: str | None) -> str | None:
         "lemmy.packitsolutions.net": "Lemmy",
         "staging.bsky.app": "Bluesky",
         "www.ft.com": "The Financial Times",
+        "www.metafilter.com": "MetaFilter",
+        "slashdot.org": "Slashdot",
+        "m.slashdot.org": "Slashdot",
+        "it.slashdot.org": "Slashdot",
+        "kottke.org": "Kottke",
+        "www.kottke.org": "Kottke",
+        "www.instapaper.com": "Instapaper",
     }
 
     if has_empty_path(u):
@@ -269,7 +282,7 @@ def normalise_referrer(referrer: str | None) -> str | None:
             pass
 
     if has_empty_path(u) and u.host == "bbs.boingboing.net":
-        return "https://boingboing.net"
+        return "https://boingboing.net/"
 
     if u.host == "github.com" and u.get("tab"):
         u = u.remove("tab")
