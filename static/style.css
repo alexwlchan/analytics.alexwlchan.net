@@ -53,6 +53,14 @@ code {
   padding-top: 16px;
 }
 
+.referrer_name {
+  max-width: 440px;
+}
+
+.referrer {
+  max-width: 440px;
+}
+
 .referrer_page {
   font-size: small;
 }

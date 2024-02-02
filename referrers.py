@@ -81,6 +81,7 @@ def _is_hacker_news_referrer(u: hyperlink.DecodedURL) -> bool:
         "now.hackertab.dev",
         "news.social-protocols.org",
         "ycnews.tech",
+        "hnapp.com",
     }:
         return True
 
@@ -177,6 +178,19 @@ def normalise_referrer(referrer: str | None) -> str | None:
     if referrer is None:
         return None
 
+    hardcoded_matches = {
+        "https://lemmy.blahaj.zone/?dataType=Post&listingType=All&page=3&sort=Active	": "Lemmy",
+        "https://lemmy.blahaj.zone/?dataType=Post&listingType=All&page=3&sort=Active": "Lemmy",
+        "https://boingboing-net.cdn.ampproject.org/v/s/boingboing.net/2024/02/01/a-pdf-the-size-of-germany-or-the-universe.html/amp?amp_gsa=1&amp_js_v=a9&usqp=mq331AQGsAEggAID": "https://boingboing.net/2024/02/01/a-pdf-the-size-of-germany-or-the-universe.html",
+        "https://b.hatena.ne.jp/?iosapp=1": "https://b.hatena.ne.jp/",
+        "https://boingboing.net": "https://boingboing.net/",
+    }
+
+    try:
+        return hardcoded_matches[referrer]
+    except KeyError:
+        pass
+
     try:
         u = hyperlink.DecodedURL.from_text(referrer)
     except Exception as e:
@@ -204,6 +218,7 @@ def normalise_referrer(referrer: str | None) -> str | None:
         "l.messenger.com": "Facebook",
         "ln.ht": "Linkhut",
         "lobste.rs": "Lobsters",
+        "localhost": None,
         "mail.google.com": "Gmail",
         "pypi.org": "PyPI",
         "t.cn": "Tencent",
@@ -214,6 +229,8 @@ def normalise_referrer(referrer: str | None) -> str | None:
         "weibo.cn": "Weibo",
         "wordpress.com": "WordPress",
         "www.linkedin.com": "LinkedIn",
+        "www.reddit.com": "Reddit",
+        "www.youtube.com": "YouTube",
         "pinboard.in": "Pinboard",
         "www.tumblr.com": "Tumblr",
         "www.msn.com": "MSN",
@@ -221,6 +238,11 @@ def normalise_referrer(referrer: str | None) -> str | None:
         "bsky.app": "Bluesky",
         "l.instagram.com": "Instagram",
         "web.telegram.org": "Telegram",
+        "lemmy.dbzer0.com": "Lemmy",
+        "lemmy.packitsolutions.net": "Lemmy",
+        "staging.bsky.app": "Bluesky",
+        "www.ft.com": "The Financial Times",
+
     }
 
     if has_empty_path(u):
@@ -236,6 +258,8 @@ def normalise_referrer(referrer: str | None) -> str | None:
         "org.telegram.messenger": "Telegram",
         "org.telegram.messenger.web": "Telegram",
         "org.telegram.plus": "Telegram",
+        "com.twitter.android": "Twitter",
+        "com.ft.news": "The Financial Times",
     }
 
     if u.scheme == "android-app":
@@ -243,6 +267,9 @@ def normalise_referrer(referrer: str | None) -> str | None:
             return android_app_id_matches[u.host]
         except KeyError:
             pass
+
+    if has_empty_path(u) and u.host == "bbs.boingboing.net":
+        return "https://boingboing.net"
 
     if u.host == "github.com" and u.get("tab"):
         u = u.remove("tab")
