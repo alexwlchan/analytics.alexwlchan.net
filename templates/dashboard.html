@@ -69,7 +69,7 @@
     <h1>Referrers</h1>
 
     <table>
-      {% for referrer, pages in grouped_referrers %}
+      {% for referrer, pages in grouped_referrers.grouped_referrers %}
       <tr class="referrer_name">
         <td class="referrer">{{ referrer }}</td>
         <td class="count">{{ pages.values()|sum|intcomma }}</td>
@@ -97,6 +97,20 @@
       </tr>
       {% endif %}
 
+      {% endfor %}
+
+      {% for page_title, source in grouped_referrers.long_tail.items() %}
+      <tr class="referrer_name">
+        <td class="referrer">{{ page_title.replace(' – alexwlchan', '') }}</td>
+        <td class="count">{{ source|length|intcomma }}</td>
+      </tr>
+
+      {% for s, count in source.most_common() %}
+        <tr class="referrer_page">
+          <td class="referrer">&larr; {{ s }}</td>
+          <td class="count">{{ count|intcomma }}</td>
+        </tr>
+      {% endfor %}
       {% endfor %}
     </table>
   </div>

@@ -82,6 +82,7 @@ def _is_hacker_news_referrer(u: hyperlink.DecodedURL) -> bool:
         "news.social-protocols.org",
         "ycnews.tech",
         "hnapp.com",
+        "www.hndigest.com",
     }:
         return True
 
@@ -242,7 +243,6 @@ def normalise_referrer(referrer: str | None) -> str | None:
         "lemmy.packitsolutions.net": "Lemmy",
         "staging.bsky.app": "Bluesky",
         "www.ft.com": "The Financial Times",
-
     }
 
     if has_empty_path(u):

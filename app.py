@@ -254,7 +254,20 @@ def find_grouped_referrers() -> list[tuple[str, Counter]]:
         grouped_referrers.items(), key=lambda kv: sum(kv[1].values()), reverse=True
     )
 
-    return grouped_referrers
+    popular_posts = {
+        "Making a PDF that’s larger than Germany – alexwlchan",
+        "The Collected Works of Ian Flemingo – alexwlchan",
+    }
+
+    long_tail = collections.defaultdict(lambda: collections.Counter())
+
+    for source, tally in list(grouped_referrers):
+        if sum(tally.values()) <= 3 and set(tally.keys()).issubset(popular_posts):
+            (dest,) = tally.keys()
+            long_tail[dest][source] = tally[dest]
+            grouped_referrers.remove((source, tally))
+
+    return {"grouped_referrers": grouped_referrers, "long_tail": long_tail}
 
 
 def get_flag_emoji(country_id: str) -> str:
