@@ -83,6 +83,8 @@ def _is_hacker_news_referrer(u: hyperlink.DecodedURL) -> bool:
         "ycnews.tech",
         "hnapp.com",
         "www.hndigest.com",
+        "hn.nuxt.space",
+        "hn-news.cdcde.com",
     }:
         return True
 
@@ -119,7 +121,19 @@ def _is_rss_reader(u: hyperlink.DecodedURL) -> bool:
         "newsblur.com",
         "ios.feeddler.com",
         "theoldreader.com",
+        "feedbin.com",
+        "newsletters.feedbinusercontent.com",
     }:
+        return True
+
+    if (
+        has_empty_path(u)
+        and u.scheme == "android-app"
+        and u.host
+        in {
+            "org.fox.ttrss",
+        }
+    ):
         return True
 
     return False
@@ -160,6 +174,9 @@ def _is_news_aggregator(u: hyperlink.DecodedURL) -> bool:
     if u.host == "b.hatena.ne.jp" and u.path == ("hotentry", "fun"):
         return True
 
+    if u.host == "b.hatena.ne.jp" and u.path == ("entrylist", "it"):
+        return True
+
     return False
 
 
@@ -185,12 +202,18 @@ def normalise_referrer(referrer: str | None) -> str | None:
         "https://boingboing-net.cdn.ampproject.org/v/s/boingboing.net/2024/02/01/a-pdf-the-size-of-germany-or-the-universe.html/amp?amp_gsa=1&amp_js_v=a9&usqp=mq331AQGsAEggAID": "https://boingboing.net/2024/02/01/a-pdf-the-size-of-germany-or-the-universe.html",
         "https://b.hatena.ne.jp/?iosapp=1": "https://b.hatena.ne.jp/",
         "https://boingboing.net": "https://boingboing.net/",
+        "https://boingboing-net.cdn.ampproject.org/": "https://boingboing.net/",
         "https://m.fark.com/": "https://www.fark.com/",
         "https://fark.com/": "https://www.fark.com/",
         "https://www.numerama.com/?p=1623224&preview=true": "https://www.numerama.com/politique/1623224-un-fichier-pdf-grand-comme-lunivers-cest-possible.html",
         "https://b.hatena.ne.jp/entrylist/it?page=2": "https://b.hatena.ne.jp/",
         "https://b.hatena.ne.jp/entrylist/it?page=3": "https://b.hatena.ne.jp/",
         "https://b.hatena.ne.jp/entrylist/all?page=8": "https://b.hatena.ne.jp/",
+        "https://hatena.ne.jp/": "https://b.hatena.ne.jp/",
+        "https://www-golem-de.cdn.ampproject.org/v/s/www.golem.de/news/spassprojekt-mann-erstellt-pdf-dokument-in-der-groesse-der-welt-2402-181844.amp.html?amp_gsa=1&amp_js_v=a9&usqp=mq331AQGsAEggAID": "https://www.golem.de/news/spassprojekt-mann-erstellt-pdf-dokument-in-der-groesse-der-welt-2402-181844.html",
+        "https://www-golem-de.cdn.ampproject.org/v/s/www.golem.de/news/spassprojekt-mann-erstellt-pdf-dokument-in-der-groesse-der-welt-2402-181844.amp.html?amp_js_v=a6&amp_gsa=1": "https://www.golem.de/news/spassprojekt-mann-erstellt-pdf-dokument-in-der-groesse-der-welt-2402-181844.html",
+        "https://www-golem-de.cdn.ampproject.org/": "https://www.golem.de/",
+        "https://backend.golem.de/": "https://www.golem.de/",
     }
 
     try:
@@ -239,6 +262,7 @@ def normalise_referrer(referrer: str | None) -> str | None:
         "www.reddit.com": "Reddit",
         "www.youtube.com": "YouTube",
         "pinboard.in": "Pinboard",
+        "www.pinboard.in": "Pinboard",
         "www.tumblr.com": "Tumblr",
         "www.msn.com": "MSN",
         "teams.microsoft.com": "Microsoft Teams",
@@ -256,6 +280,7 @@ def normalise_referrer(referrer: str | None) -> str | None:
         "kottke.org": "Kottke",
         "www.kottke.org": "Kottke",
         "www.instapaper.com": "Instapaper",
+        "l.threads.net": "Threads",
     }
 
     if has_empty_path(u):
@@ -303,4 +328,11 @@ def normalise_referrer(referrer: str | None) -> str | None:
     if u.host.endswith(".facebook.com"):
         return "Facebook"
 
-    return referrer
+    for param, _ in u.query:
+        if param.startswith("utm_"):
+            u = u.remove(param)
+
+    if u.host in {"m.slashdot.org", "it.slashdot.org"}:
+        u = u.replace(host="slashdot.org")
+
+    return u.to_text()
