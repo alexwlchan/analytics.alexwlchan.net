@@ -85,11 +85,10 @@ def _is_hacker_news_referrer(u: hyperlink.DecodedURL) -> bool:
         "www.hndigest.com",
         "hn.nuxt.space",
         "hn-news.cdcde.com",
+        "www.hakaran.com",
     }:
         return True
 
-    # Materialistic is a Hacker News Android reader.
-    # See https://github.com/hidroh/materialistic
     if (
         has_empty_path(u)
         and u.scheme == "android-app"
@@ -165,6 +164,7 @@ def _is_news_aggregator(u: hyperlink.DecodedURL) -> bool:
         "read.squidapp.co",
         "daily.sdinet.de",
         "christian.rubbert.de",
+        "apollo.fractum.nl",
     }:
         return True
 

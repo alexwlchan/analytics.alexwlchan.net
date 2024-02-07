@@ -40,12 +40,17 @@
     <div class="world_info">
       {% include "world-map.svg" %}
       <table>
-        {% for country, count in visitors_by_country.most_common(10) %}
+        {% for country, count in visitors_by_country.most_common(12) %}
         <tr>
-          <td>{{ country|flag_emoji }} {{ country|country_name }}</td>
+          <td>{{ country|flag_emoji }}</td>
+          <td>{{ country|country_name }}</td>
           <td class="count">{{ count|intcomma }}</td>
         </tr>
         {% endfor %}
+        <tr>
+          <td></td>
+          <td style="padding-top: 3px;">+ {{ visitors_by_country|length - 12 }} other countries</td>
+        </tr>
       </table>
     </div>
   </div>
