@@ -165,6 +165,8 @@ def _is_news_aggregator(u: hyperlink.DecodedURL) -> bool:
         "daily.sdinet.de",
         "christian.rubbert.de",
         "apollo.fractum.nl",
+        "app.mailbrew.com",
+        "www.freshnews.org",
     }:
         return True
 
@@ -188,6 +190,20 @@ def _is_reddit(u: hyperlink.DecodedURL) -> bool:
     }
 
 
+def _is_email(u: hyperlink.DecodedURL) -> bool:
+    return has_empty_path(u) and u.host in {
+        "mail.missiveapp.com",
+        "webmail.nikola.com",
+        "webmail.seriot.ch",
+        "us9.admin.mailchimp.com",
+        "us1-campaign--archive-com.translate.goog",
+        "url11.mailanyone.net",
+        "mail.yahoo.co.jp",
+        "mail.zoho.com",
+        "email.t-online.de",
+    }
+
+
 @functools.lru_cache
 def normalise_referrer(referrer: str | None) -> str | None:
     """
@@ -196,25 +212,57 @@ def normalise_referrer(referrer: str | None) -> str | None:
     if referrer is None:
         return None
 
-    hardcoded_matches = {
-        "https://lemmy.blahaj.zone/?dataType=Post&listingType=All&page=3&sort=Active	": "Lemmy",
-        "https://lemmy.blahaj.zone/?dataType=Post&listingType=All&page=3&sort=Active": "Lemmy",
-        "https://boingboing-net.cdn.ampproject.org/v/s/boingboing.net/2024/02/01/a-pdf-the-size-of-germany-or-the-universe.html/amp?amp_gsa=1&amp_js_v=a9&usqp=mq331AQGsAEggAID": "https://boingboing.net/2024/02/01/a-pdf-the-size-of-germany-or-the-universe.html",
-        "https://b.hatena.ne.jp/?iosapp=1": "https://b.hatena.ne.jp/",
-        "https://boingboing.net": "https://boingboing.net/",
-        "https://boingboing-net.cdn.ampproject.org/": "https://boingboing.net/",
-        "https://m.fark.com/": "https://www.fark.com/",
-        "https://fark.com/": "https://www.fark.com/",
-        "https://www.numerama.com/?p=1623224&preview=true": "https://www.numerama.com/politique/1623224-un-fichier-pdf-grand-comme-lunivers-cest-possible.html",
-        "https://b.hatena.ne.jp/entrylist/it?page=2": "https://b.hatena.ne.jp/",
-        "https://b.hatena.ne.jp/entrylist/it?page=3": "https://b.hatena.ne.jp/",
-        "https://b.hatena.ne.jp/entrylist/all?page=8": "https://b.hatena.ne.jp/",
-        "https://hatena.ne.jp/": "https://b.hatena.ne.jp/",
-        "https://www-golem-de.cdn.ampproject.org/v/s/www.golem.de/news/spassprojekt-mann-erstellt-pdf-dokument-in-der-groesse-der-welt-2402-181844.amp.html?amp_gsa=1&amp_js_v=a9&usqp=mq331AQGsAEggAID": "https://www.golem.de/news/spassprojekt-mann-erstellt-pdf-dokument-in-der-groesse-der-welt-2402-181844.html",
-        "https://www-golem-de.cdn.ampproject.org/v/s/www.golem.de/news/spassprojekt-mann-erstellt-pdf-dokument-in-der-groesse-der-welt-2402-181844.amp.html?amp_js_v=a6&amp_gsa=1": "https://www.golem.de/news/spassprojekt-mann-erstellt-pdf-dokument-in-der-groesse-der-welt-2402-181844.html",
-        "https://www-golem-de.cdn.ampproject.org/": "https://www.golem.de/",
-        "https://backend.golem.de/": "https://www.golem.de/",
+    hardcoded_lookup = {
+        "Lemmy": [
+            "https://lemmy.blahaj.zone/?dataType=Post&listingType=All&page=3&sort=Active",
+        ],
+        "https://b.hatena.ne.jp/": [
+            "https://b.hatena.ne.jp/?iosapp=1",
+            "https://b.hatena.ne.jp/entrylist/it?page=2",
+            "https://b.hatena.ne.jp/entrylist/it?page=3",
+            "https://b.hatena.ne.jp/entrylist/all?page=8",
+            "https://b.hatena.ne.jp/entrylist/fun/%E3%81%93%E3%82%8C%E3%81%AF%E3%81%99%E3%81%94%E3%81%84",
+            "https://b.hatena.ne.jp/entrylist/it/AI%E3%83%BB%E6%A9%9F%E6%A2%B0%E5%AD%A6%E7%BF%92",
+            "https://hatena.ne.jp/",
+        ],
+        "https://boingboing.net/": [
+            "https://boingboing.net",
+            "https://boingboing-net.cdn.ampproject.org/",
+        ],
+        "https://boingboing.net/2024/02/01/a-pdf-the-size-of-germany-or-the-universe.html": [
+            "https://boingboing-net.cdn.ampproject.org/v/s/boingboing.net/2024/02/01/a-pdf-the-size-of-germany-or-the-universe.html/amp?amp_gsa=1&amp_js_v=a9&usqp=mq331AQGsAEggAID",
+            "https://boingboing-net.cdn.ampproject.org/v/s/boingboing.net/2024/02/01/a-pdf-the-size-of-germany-or-the-universe.html/amp?amp_gsa=1&amp_js_v=a9&usqp=mq331AQIUAKwASCAAgM%3D",
+        ],
+        "https://slashdot.org/story/24/02/02/1534229/making-a-pdf-thats-larger-than-germany": [
+            "https://slashdot.org/story/424446",
+            "https://m.slashdot.org/story/424446",
+            "https://it.slashdot.org/story/424446",
+        ],
+        "https://www.fark.com/": ["https://m.fark.com/", "https://fark.com/"],
+        "https://www.golem.de/": [
+            "https://www-golem-de.cdn.ampproject.org/",
+            "https://backend.golem.de/",
+        ],
+        "https://www.golem.de/news/spassprojekt-mann-erstellt-pdf-dokument-in-der-groesse-der-welt-2402-181844.html": [
+            "https://www-golem-de.cdn.ampproject.org/v/s/www.golem.de/news/spassprojekt-mann-erstellt-pdf-dokument-in-der-groesse-der-welt-2402-181844.amp.html?amp_gsa=1&amp_js_v=a9&usqp=mq331AQGsAEggAID",
+            "https://www-golem-de.cdn.ampproject.org/v/s/www.golem.de/news/spassprojekt-mann-erstellt-pdf-dokument-in-der-groesse-der-welt-2402-181844.amp.html?amp_js_v=a6&amp_gsa=1",
+            "https://www-golem-de.cdn.ampproject.org/v/s/www.golem.de/news/spassprojekt-mann-erstellt-pdf-dokument-in-der-groesse-der-welt-2402-181844.amp.html?amp_js_v=0.1&usqp=mq331AQIUAKwASCAAgM%3D",
+        ],
+        "https://www.meneame.net/": [
+            "https://old.meneame.net/queue",
+            "https://old.meneame.net/",
+            "https://www.meneame.net/queue",
+        ],
+        "https://www.numerama.com/politique/1623224-un-fichier-pdf-grand-comme-lunivers-cest-possible.html": [
+            "https://www.numerama.com/?p=1623224&preview=true"
+        ],
     }
+
+    hardcoded_matches = {}
+
+    for name, matching_urls in hardcoded_lookup.items():
+        for url in matching_urls:
+            hardcoded_matches[url] = name
 
     try:
         return hardcoded_matches[referrer]
@@ -239,49 +287,44 @@ def normalise_referrer(referrer: str | None) -> str | None:
     }:
         return None
 
-    hostname_matches = {
-        "127.0.0.1": None,
-        "chat.openai.com": "ChatGPT",
-        "facebook.com": "Facebook",
-        "gist.github.com": "GitHub",
-        "instagram.com": "Instagram",
-        "l.messenger.com": "Facebook",
-        "ln.ht": "Linkhut",
-        "lobste.rs": "Lobsters",
-        "localhost": None,
-        "mail.google.com": "Gmail",
-        "pypi.org": "PyPI",
-        "t.cn": "Tencent",
-        "t.co": "Twitter",
-        "translate.google.co.jp": None,
-        "twitter.com": "Twitter",
-        "web.skype.com": "Skype",
-        "weibo.cn": "Weibo",
-        "wordpress.com": "WordPress",
-        "www.linkedin.com": "LinkedIn",
-        "www.reddit.com": "Reddit",
-        "www.youtube.com": "YouTube",
-        "pinboard.in": "Pinboard",
-        "www.pinboard.in": "Pinboard",
-        "www.tumblr.com": "Tumblr",
-        "www.msn.com": "MSN",
-        "teams.microsoft.com": "Microsoft Teams",
-        "bsky.app": "Bluesky",
-        "l.instagram.com": "Instagram",
-        "web.telegram.org": "Telegram",
-        "lemmy.dbzer0.com": "Lemmy",
-        "lemmy.packitsolutions.net": "Lemmy",
-        "staging.bsky.app": "Bluesky",
-        "www.ft.com": "The Financial Times",
-        "www.metafilter.com": "MetaFilter",
-        "slashdot.org": "Slashdot",
-        "m.slashdot.org": "Slashdot",
-        "it.slashdot.org": "Slashdot",
-        "kottke.org": "Kottke",
-        "www.kottke.org": "Kottke",
-        "www.instapaper.com": "Instapaper",
-        "l.threads.net": "Threads",
+    hostname_lookup = {
+        None: ["127.0.0.1", "localhost", "translate.google.co.jp"],
+        "Bluesky": ["bsky.app", "staging.bsky.app"],
+        "ChatGPT": ["chat.openai.com"],
+        "Facebook": ["facebook.com", "l.messenger.com"],
+        "GitHub": ["gist.github.com", "github.com"],
+        "Gmail": ["mail.google.com"],
+        "Instagram": ["instagram.com", "l.instagram.com"],
+        "Instapaper": ["www.instapaper.com"],
+        "Kottke": ["kottke.org", "www.kottke.org"],
+        "Lemmy": ["lemmy.dbzer0.com", "lemmy.packitsolutions.net"],
+        "LinkedIn": ["www.linkedin.com", "lnkd.in"],
+        "Linkhut": ["ln.ht"],
+        "Lobsters": ["lobste.rs"],
+        "MSN": ["www.msn.com"],
+        "MetaFilter": ["www.metafilter.com"],
+        "Microsoft Teams": ["teams.microsoft.com"],
+        "Pinboard": ["pinboard.in", "m.pinboard.in", "www.pinboard.in"],
+        "PyPI": ["pypi.org"],
+        "Reddit": ["www.reddit.com"],
+        "Skype": ["web.skype.com"],
+        "Slashdot": ["slashdot.org", "m.slashdot.org", "it.slashdot.org"],
+        "Telegram": ["web.telegram.org"],
+        "Tencent": ["t.cn"],
+        "The Financial Times": ["www.ft.com"],
+        "Threads": ["l.threads.net"],
+        "Tumblr": ["www.tumblr.com"],
+        "Twitter": ["t.co", "twitter.com"],
+        "Weibo": ["weibo.cn"],
+        "WordPress": ["wordpress.com"],
+        "YouTube": ["www.youtube.com"],
     }
+
+    hostname_matches = {}
+
+    for name, hostnames in hostname_lookup.items():
+        for host in hostnames:
+            hostname_matches[host] = name
 
     if has_empty_path(u):
         try:
@@ -298,6 +341,7 @@ def normalise_referrer(referrer: str | None) -> str | None:
         "org.telegram.plus": "Telegram",
         "com.twitter.android": "Twitter",
         "com.ft.news": "The Financial Times",
+        "org.telegram.biftogram": "Telegram",
     }
 
     if u.scheme == "android-app":
@@ -324,6 +368,9 @@ def normalise_referrer(referrer: str | None) -> str | None:
 
     if _is_news_aggregator(u):
         return "News aggregator (Flipboard, HN, Reddit, …)"
+
+    if _is_email(u):
+        return "Email"
 
     if u.host.endswith(".facebook.com"):
         return "Facebook"
