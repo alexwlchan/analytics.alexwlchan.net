@@ -4,9 +4,7 @@ import pytest
 from referrers import has_empty_path, normalise_referrer
 
 
-@pytest.mark.parametrize("url", [
-    "android-app://org.telegram.messenger.web/"
-])
+@pytest.mark.parametrize("url", ["android-app://org.telegram.messenger.web/"])
 def test_has_empty_path_is_true(url: str) -> None:
     u = hyperlink.DecodedURL.from_text(url)
     assert has_empty_path(u)

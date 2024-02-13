@@ -1,6 +1,8 @@
 certbot
+feedparser
 flask
 gunicorn
+httpx
 humanize
 hyperlink
 maxminddb

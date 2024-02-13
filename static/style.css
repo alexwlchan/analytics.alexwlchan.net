@@ -103,3 +103,7 @@ code {
     grid-column: 1;
   }
 }
+
+.date {
+  color: #999;
+}

@@ -144,8 +144,8 @@ def count_visitors_by_country():
     return collections.Counter({row["country"]: row["count"] for row in cursor})
 
 
-def find_popular_pages():
-    return db.query(
+def get_per_page_counts():
+    result = db.query(
         """
         select
           *,
@@ -159,8 +159,6 @@ def find_popular_pages():
           title
         order by
           count desc
-        limit
-          25
     """,
         {
             "date": (datetime.date.today() - datetime.timedelta(days=29)).strftime(
@@ -168,6 +166,8 @@ def find_popular_pages():
             )
         },
     )
+
+    return list(result)
 
 
 def find_missing_pages():
@@ -195,6 +195,34 @@ def find_missing_pages():
             )
         },
     )
+
+
+def get_recent_posts(per_page_counts):
+    per_url_counts = collections.Counter()
+
+    for p in per_page_counts:
+        per_url_counts[f"https://{p['host']}{p['path']}"] += p["count"]
+
+    posts = list(
+        db.query(
+            """
+        select
+          *
+        from
+          posts
+        order by
+          date_posted desc
+        limit
+          10
+        """
+        )
+    )
+
+    for p in posts:
+        p["count"] = per_url_counts.get(p["url"], 0)
+        p["date_posted"] = datetime.datetime.fromisoformat(p["date_posted"])
+
+    return posts
 
 
 Counter = dict[str, int]
@@ -324,7 +352,8 @@ def dashboard():
 
     unique_users = count_unique_visitors()
 
-    top_pages = find_popular_pages()
+    per_page_counts = get_per_page_counts()
+    popular_pages = per_page_counts[:25]
 
     missing_pages = find_missing_pages()
 
@@ -336,13 +365,16 @@ def dashboard():
         country: get_country_name(country) for country in visitors_by_country
     }
 
+    recent_posts = get_recent_posts(per_page_counts)
+
     return render_template(
         "dashboard.html",
         by_date=sorted(by_date, key=lambda row: row["day"]),
         unique_users=sorted(unique_users, key=lambda row: row["day"]),
-        top_pages=list(top_pages),
+        popular_pages=popular_pages,
         missing_pages=list(missing_pages),
         grouped_referrers=grouped_referrers,
         visitors_by_country=count_visitors_by_country(),
         country_names=country_names,
+        recent_posts=recent_posts,
     )

@@ -59,10 +59,24 @@
     <h1>Most popular posts</h1>
 
     <table>
-      {% for p in top_pages %}
+      {% for p in popular_pages %}
       <tr>
         <td>
-          <a href="https://{{p.host}}{{ p.path }}">{{ p.title.replace(' – alexwlchan', '') }}</a>
+          <a href="https://{{ p.host }}{{ p.path }}">{{ p.title.replace(' – alexwlchan', '') }}</a>
+        </td>
+        <td class="count">{{ p.count|intcomma }}</td>
+      </tr>
+      {% endfor %}
+    </table>
+
+    <h1 style="margin-top: 2em;">Recent posts</h1>
+
+    <table>
+      {% for p in recent_posts %}
+      <tr>
+        <td>
+          <a href="{{ p.url }}">{{ p.title }}</a>
+          <span class="date">({{ p.date_posted.strftime("%-d %b") }})</span>
         </td>
         <td class="count">{{ p.count|intcomma }}</td>
       </tr>
