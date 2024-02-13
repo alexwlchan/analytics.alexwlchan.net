@@ -1,6 +1,15 @@
+import hyperlink
 import pytest
 
-from referrers import normalise_referrer
+from referrers import has_empty_path, normalise_referrer
+
+
+@pytest.mark.parametrize("url", [
+    "android-app://org.telegram.messenger.web/"
+])
+def test_has_empty_path_is_true(url: str) -> None:
+    u = hyperlink.DecodedURL.from_text(url)
+    assert has_empty_path(u)
 
 
 @pytest.mark.parametrize(
@@ -43,6 +52,7 @@ def test_referrer_is_search(referrer):
             "https://www.numerama.com/politique/1623224-un-fichier-pdf-grand-comme-lunivers-cest-possible.html?utm_source=newsletter_daily&utm_campaign=20240203&utm_medium=e-mail",
             "https://www.numerama.com/politique/1623224-un-fichier-pdf-grand-comme-lunivers-cest-possible.html",
         ),
+        ("android-app://org.telegram.messenger.web/", "Telegram"),
     ],
 )
 def test_normalise_referrer(referrer, expected):

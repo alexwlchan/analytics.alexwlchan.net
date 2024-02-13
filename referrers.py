@@ -309,7 +309,7 @@ def normalise_referrer(referrer: str | None) -> str | None:
         except KeyError:
             pass
 
-    android_app_id_matches = {
+    android_app_id_lookup = {
         "Hacker News": [
             "io.github.hidroh.materialistic",
             "com.jiaqifeng.hacki",
@@ -327,6 +327,8 @@ def normalise_referrer(referrer: str | None) -> str | None:
         "The Financial Times": ["com.ft.news"],
         "Twitter": ["com.twitter.android"],
     }
+
+    android_app_id_matches = invert_dict(android_app_id_lookup)
 
     if has_empty_path(u) and u.scheme == "android-app":
         try:
