@@ -4,6 +4,16 @@ import sys
 import hyperlink
 
 
+def invert_dict(d: dict[str, list[str]]) -> dict[str, str]:
+    result: dict[str, str] = {}
+
+    for key, values in d.items():
+        for v in values:
+            result[v] = key
+
+    return result
+
+
 def has_empty_path(u):
     return u.path == () or u.path == ("",)
 
@@ -38,67 +48,6 @@ def _is_search_referrer(u: hyperlink.DecodedURL) -> bool:
         "com.google.android.googlequicksearchbox",
         "com.google.android.gm",
     }:
-        return True
-
-    return False
-
-
-def _is_hacker_news_referrer(u: hyperlink.DecodedURL) -> bool:
-    """
-    Returns True if this referrer is Hacker News or an aggregator.
-
-    If one of my posts hits the front page of Hacker News, this allows
-    me to gather all that into a single category.
-    """
-    if has_empty_path(u) and u.host in {
-        "news.ycombinator.com",
-        "hckrnews.com",
-        "y-combinator-news-trends.vercel.app",
-        "sveltekit-hacker-news-pwa.vercel.app",
-        "remix-clone-hacker-news.flameddd1.workers.dev",
-        "news-ycombinator-com.translate.goog",
-        "modernorange.io",
-        "hn.cxjs.io",
-        "hn.algolia.com",
-        "hackyournews.com",
-        "hackerlive.net",
-        "hn.luap.info",
-        "hnfrontpage.pages.dev",
-        "www.hackernewz.com",
-        "hn.cotyhamilton.com",
-        "hn.buzzing.cc",
-        "hacker-news.news",
-        "hn.svelte.dev",
-        "hackernews.betacat.io",
-        "hn.premii.com",
-        "hackerweb.app",
-        "hacc.foo",
-        "mono-hackernews.deno.dev",
-        "quiethn.gyttja.com",
-        "hacker.news",
-        "hntoplinks.com",
-        "www.hntoplinks.com",
-        "now.hackertab.dev",
-        "news.social-protocols.org",
-        "ycnews.tech",
-        "hnapp.com",
-        "www.hndigest.com",
-        "hn.nuxt.space",
-        "hn-news.cdcde.com",
-        "www.hakaran.com",
-    }:
-        return True
-
-    if (
-        has_empty_path(u)
-        and u.scheme == "android-app"
-        and u.host
-        in {
-            "io.github.hidroh.materialistic",
-            "com.jiaqifeng.hacki",
-            "com.stefandekanski.hackernews.free",
-        }
-    ):
         return True
 
     return False
@@ -182,28 +131,6 @@ def _is_news_aggregator(u: hyperlink.DecodedURL) -> bool:
     return False
 
 
-def _is_reddit(u: hyperlink.DecodedURL) -> bool:
-    return has_empty_path(u) and u.host in {
-        "old.reddit.com",
-        "out.reddit.com",
-        "www.reddit.com",
-    }
-
-
-def _is_email(u: hyperlink.DecodedURL) -> bool:
-    return has_empty_path(u) and u.host in {
-        "mail.missiveapp.com",
-        "webmail.nikola.com",
-        "webmail.seriot.ch",
-        "us9.admin.mailchimp.com",
-        "us1-campaign--archive-com.translate.goog",
-        "url11.mailanyone.net",
-        "mail.yahoo.co.jp",
-        "mail.zoho.com",
-        "email.t-online.de",
-    }
-
-
 @functools.lru_cache
 def normalise_referrer(referrer: str | None) -> str | None:
     """
@@ -258,11 +185,7 @@ def normalise_referrer(referrer: str | None) -> str | None:
         ],
     }
 
-    hardcoded_matches = {}
-
-    for name, matching_urls in hardcoded_lookup.items():
-        for url in matching_urls:
-            hardcoded_matches[url] = name
+    hardcoded_matches = invert_dict(hardcoded_lookup)
 
     try:
         return hardcoded_matches[referrer]
@@ -288,12 +211,65 @@ def normalise_referrer(referrer: str | None) -> str | None:
         return None
 
     hostname_lookup = {
-        None: ["127.0.0.1", "localhost", "translate.google.co.jp"],
+        None: [
+            "127.0.0.1",
+            "localhost",
+            "translate.google.co.jp",
+        ],
         "Bluesky": ["bsky.app", "staging.bsky.app"],
         "ChatGPT": ["chat.openai.com"],
+        "Email": [
+            "mail.missiveapp.com",
+            "webmail.nikola.com",
+            "webmail.seriot.ch",
+            "us9.admin.mailchimp.com",
+            "us1-campaign--archive-com.translate.goog",
+            "url11.mailanyone.net",
+            "mail.yahoo.co.jp",
+            "mail.zoho.com",
+            "email.t-online.de",
+        ],
         "Facebook": ["facebook.com", "l.messenger.com"],
         "GitHub": ["gist.github.com", "github.com"],
         "Gmail": ["mail.google.com"],
+        "Hacker News": [
+            "news.ycombinator.com",
+            "hckrnews.com",
+            "y-combinator-news-trends.vercel.app",
+            "sveltekit-hacker-news-pwa.vercel.app",
+            "remix-clone-hacker-news.flameddd1.workers.dev",
+            "news-ycombinator-com.translate.goog",
+            "modernorange.io",
+            "hn.cxjs.io",
+            "hn.algolia.com",
+            "hackyournews.com",
+            "hackerlive.net",
+            "hn.luap.info",
+            "hnfrontpage.pages.dev",
+            "www.hackernewz.com",
+            "hn.cotyhamilton.com",
+            "hn.buzzing.cc",
+            "hacker-news.news",
+            "hn.svelte.dev",
+            "hackernews.betacat.io",
+            "hn.premii.com",
+            "hackerweb.app",
+            "hacc.foo",
+            "mono-hackernews.deno.dev",
+            "quiethn.gyttja.com",
+            "hacker.news",
+            "hntoplinks.com",
+            "www.hntoplinks.com",
+            "now.hackertab.dev",
+            "news.social-protocols.org",
+            "ycnews.tech",
+            "hnapp.com",
+            "www.hndigest.com",
+            "hn.nuxt.space",
+            "hn-news.cdcde.com",
+            "www.hakaran.com",
+            "hackerdaily.io",
+        ],
         "Instagram": ["instagram.com", "l.instagram.com"],
         "Instapaper": ["www.instapaper.com"],
         "Kottke": ["kottke.org", "www.kottke.org"],
@@ -306,7 +282,12 @@ def normalise_referrer(referrer: str | None) -> str | None:
         "Microsoft Teams": ["teams.microsoft.com"],
         "Pinboard": ["pinboard.in", "m.pinboard.in", "www.pinboard.in"],
         "PyPI": ["pypi.org"],
-        "Reddit": ["www.reddit.com"],
+        "Reddit": [
+            "www.reddit.com",
+            "old.reddit.com",
+            "out.reddit.com",
+            "www.reddit.com",
+        ],
         "Skype": ["web.skype.com"],
         "Slashdot": ["slashdot.org", "m.slashdot.org", "it.slashdot.org"],
         "Telegram": ["web.telegram.org"],
@@ -320,11 +301,7 @@ def normalise_referrer(referrer: str | None) -> str | None:
         "YouTube": ["www.youtube.com"],
     }
 
-    hostname_matches = {}
-
-    for name, hostnames in hostname_lookup.items():
-        for host in hostnames:
-            hostname_matches[host] = name
+    hostname_matches = invert_dict(hostname_lookup)
 
     if has_empty_path(u):
         try:
@@ -333,18 +310,25 @@ def normalise_referrer(referrer: str | None) -> str | None:
             pass
 
     android_app_id_matches = {
-        "com.linkedin.android": "LinkedIn",
-        "com.slack": "Slack",
-        "io.syncapps.lemmy_sync": "Lemmy",
-        "org.telegram.messenger": "Telegram",
-        "org.telegram.messenger.web": "Telegram",
-        "org.telegram.plus": "Telegram",
-        "com.twitter.android": "Twitter",
-        "com.ft.news": "The Financial Times",
-        "org.telegram.biftogram": "Telegram",
+        "Hacker News": [
+            "io.github.hidroh.materialistic",
+            "com.jiaqifeng.hacki",
+            "com.stefandekanski.hackernews.free",
+        ],
+        "Lemmy": ["io.syncapps.lemmy_sync"],
+        "LinkedIn": ["com.linkedin.android"],
+        "Slack": ["com.slack"],
+        "Telegram": [
+            "org.telegram.messenger",
+            "org.telegram.messenger.web",
+            "org.telegram.plus",
+            "org.telegram.biftogram",
+        ],
+        "The Financial Times": ["com.ft.news"],
+        "Twitter": ["com.twitter.android"],
     }
 
-    if u.scheme == "android-app":
+    if has_empty_path(u) and u.scheme == "android-app":
         try:
             return android_app_id_matches[u.host]
         except KeyError:
@@ -357,20 +341,11 @@ def normalise_referrer(referrer: str | None) -> str | None:
         u = u.remove("tab")
         return u.to_text()
 
-    if _is_hacker_news_referrer(u):
-        return "Hacker News"
-
     if _is_rss_reader(u):
         return "RSS reader (Feedly, Inoreader, …)"
 
-    if _is_reddit(u):
-        return "Reddit"
-
     if _is_news_aggregator(u):
         return "News aggregator (Flipboard, HN, Reddit, …)"
-
-    if _is_email(u):
-        return "Email"
 
     if u.host.endswith(".facebook.com"):
         return "Facebook"
