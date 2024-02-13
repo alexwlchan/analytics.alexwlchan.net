@@ -219,15 +219,16 @@ def normalise_referrer(referrer: str | None) -> str | None:
         "Bluesky": ["bsky.app", "staging.bsky.app"],
         "ChatGPT": ["chat.openai.com"],
         "Email": [
+            "email.t-online.de",
             "mail.missiveapp.com",
-            "webmail.nikola.com",
-            "webmail.seriot.ch",
-            "us9.admin.mailchimp.com",
-            "us1-campaign--archive-com.translate.goog",
-            "url11.mailanyone.net",
             "mail.yahoo.co.jp",
             "mail.zoho.com",
-            "email.t-online.de",
+            "url.emailprotection.link",
+            "url11.mailanyone.net",
+            "us1-campaign--archive-com.translate.goog",
+            "us9.admin.mailchimp.com",
+            "webmail.nikola.com",
+            "webmail.seriot.ch",
         ],
         "Facebook": ["facebook.com", "l.messenger.com"],
         "GitHub": ["gist.github.com", "github.com"],
@@ -295,7 +296,7 @@ def normalise_referrer(referrer: str | None) -> str | None:
         "The Financial Times": ["www.ft.com"],
         "Threads": ["l.threads.net"],
         "Tumblr": ["www.tumblr.com"],
-        "Twitter": ["t.co", "twitter.com"],
+        "Twitter": ["t.co", "twitter.com", "nitter.moomoo.me"],
         "Weibo": ["weibo.cn"],
         "WordPress": ["wordpress.com"],
         "YouTube": ["www.youtube.com"],
@@ -339,9 +340,12 @@ def normalise_referrer(referrer: str | None) -> str | None:
     if has_empty_path(u) and u.host == "bbs.boingboing.net":
         return "https://boingboing.net/"
 
-    if u.host == "github.com" and u.get("tab"):
-        u = u.remove("tab")
-        return u.to_text()
+    for host, query in [
+        ("github.com", "tab"),
+        ("stackoverflow.blog", "cb"),
+    ]:
+        if u.host == host and u.get(query):
+            u = u.remove(query)
 
     if _is_rss_reader(u):
         return "RSS reader (Feedly, Inoreader, …)"
