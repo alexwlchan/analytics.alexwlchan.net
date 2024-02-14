@@ -343,6 +343,7 @@ def normalise_referrer(referrer: str | None) -> str | None:
     for host, query in [
         ("github.com", "tab"),
         ("stackoverflow.blog", "cb"),
+        ("stackoverflow.blog", "force_isolation"),
     ]:
         if u.host == host and u.get(query):
             u = u.remove(query)
