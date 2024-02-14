@@ -28,6 +28,20 @@ In particular, it records the following fields:
 
 I **don't** record your IP address or user agent.
 
+I can then view the aggregate data in a dashboard:
+
+<img src="dashboard.png">
+
+The dashboard shows me:
+
+*   total pageviews and unique visitors
+*   where my visitors are coming from, geographically
+*   statistics for most popular and most recent posts (it looks at my RSS feed to see what I've posted recently)
+*   the most common referrer source/destination pairs (unlike Netlify Analytics, which just shows you the name of the referrer, but not where traffic is being referred to)
+
+I tidy up some of the data before presenting it in the dashboard, particularly for referrers.
+For example, I gather up a dozen or so domain names under a single "Search" heading -- it's useful for me to know that a hit came from a search result, but I don't need it broken down by different search engines.
+
 ## Privacy considerations (aka don’t be creepy)
 
 ### Anonymous session identifier
