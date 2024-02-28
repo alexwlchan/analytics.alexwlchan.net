@@ -5,6 +5,7 @@ gunicorn
 httpx
 humanize
 hyperlink
+keyring
 maxminddb
 pycountry
 sqlite-utils
