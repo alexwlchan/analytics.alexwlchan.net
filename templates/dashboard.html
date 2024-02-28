@@ -18,6 +18,26 @@
     🔄 Checking if you have the exclusion cookie…
   </section>
 
+  <section id="netlifyUsage">
+    <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" height="50" style="margin: -5px;">
+      <circle cx="50" cy="50" r="50" fill="#eee" stroke-width="1" fill="none"/>
+      <path d="M 50 50 L 50 0 {{
+        circular_arc(
+          centre_x=50,
+          centre_y=50,
+          radius=50,
+          start_angle=0,
+          sweep_angle=360 * netlify_usage.used / netlify_usage.included,
+          angle_unit='degrees'
+        )
+      }} L 50 50"
+      fill="#4ca300"
+      />
+    </svg>
+
+    <p><strong>Netlify usage:</strong> {{ netlify_usage.used | naturalsize }} / {{ netlify_usage.included | naturalsize }}</p>
+  </section>
+
   <div class="chart">
     <h1>{{ by_date|map(attribute='count')|sum|intcomma }} total pageviews</h1>
 

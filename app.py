@@ -1,12 +1,16 @@
 import collections
 import datetime
+import functools
 import json
+import math
 import uuid
 
 from flask import abort, Flask, redirect, render_template, request, send_file, url_for
 from flask.wrappers import Response
+import httpx
 import humanize
 import hyperlink
+import keyring
 import pycountry
 
 from referrers import normalise_referrer
@@ -335,10 +339,84 @@ def get_hex_color_between(hex1, hex2, proportion):
     return "#%02x%02x%02x" % (r_new, g_new, b_new)
 
 
+@functools.cache
+def get_password(service_name, username):
+    password = keyring.get_password(service_name, username)
+    assert password is not None, (service_name, username)
+    return password
+
+
+def get_netlify_bandwidth_usage():
+    team_slug = get_password("netlify", "team_slug")
+    analytics_token = get_password("netlify", "analytics_token")
+
+    resp = httpx.get(
+        f"https://api.netlify.com/api/v1/accounts/{team_slug}/bandwidth",
+        headers={"Authorization": f"Bearer {analytics_token}"},
+    )
+    resp.raise_for_status()
+
+    return resp.json()
+
+
+def get_circular_arc_path_command(
+    *, centre_x, centre_y, radius, start_angle, sweep_angle, angle_unit
+):
+    """
+    Returns a path command to draw a circular arc in an SVG <path> element.
+
+    See https://developer.mozilla.org/en-US/docs/Web/SVG/Tutorial/Paths#line_commands
+    See https://alexwlchan.net/2022/circle-party/
+    """
+    if angle_unit == "radians":
+        pass
+    elif angle_unit == "degrees":
+        start_angle = start_angle / 180 * math.pi
+        sweep_angle = sweep_angle / 180 * math.pi
+    else:
+        raise ValueError(f"Unrecognised angle unit: {angle_unit}")
+
+    # Work out the start/end points of the arc using trig identities
+    start_x = centre_x + radius * math.sin(start_angle)
+    start_y = centre_y - radius * math.cos(start_angle)
+
+    end_x = centre_x + radius * math.sin(start_angle + sweep_angle)
+    end_y = centre_y - radius * math.cos(start_angle + sweep_angle)
+
+    # An arc path in SVG defines an ellipse/curve between two points.
+    # The `x_axis_rotation` parameter defines how an ellipse is rotated,
+    # if at all, but circles don't change under rotation, so it's irrelevant.
+    x_axis_rotation = 0
+
+    # For a given radius, there are two circles that intersect the
+    # start/end points.
+    #
+    # The `sweep-flag` parameter determines whether we move in
+    # a positive angle (=clockwise) or negative (=counter-clockwise).
+    # I'only doing clockwise sweeps, so this is constant.
+    sweep_flag = 1
+
+    # There are now two arcs available: one that's more than 180 degrees,
+    # one that's less than 180 degrees (one from each of the two circles).
+    # The `large-arc-flag` decides which to pick.
+    if sweep_angle > math.pi:
+        large_arc_flag = 1
+    else:
+        large_arc_flag = 0
+
+    return (
+        f"M {start_x} {start_y} "
+        f"A {radius} {radius} "
+        f"{x_axis_rotation} {large_arc_flag} {sweep_flag} {end_x} {end_y}"
+    )
+
+
 app.jinja_env.filters["flag_emoji"] = get_flag_emoji
 app.jinja_env.filters["country_name"] = get_country_name
 app.jinja_env.filters["intcomma"] = humanize.intcomma
 app.jinja_env.filters["interpolate_color"] = get_hex_color_between
+app.jinja_env.filters["naturalsize"] = humanize.naturalsize
+app.jinja_env.globals["circular_arc"] = get_circular_arc_path_command
 
 
 @app.template_filter("prettydate")
@@ -367,6 +445,8 @@ def dashboard():
 
     recent_posts = get_recent_posts(per_page_counts)
 
+    netlify_usage = get_netlify_bandwidth_usage()
+
     return render_template(
         "dashboard.html",
         by_date=sorted(by_date, key=lambda row: row["day"]),
@@ -377,4 +457,5 @@ def dashboard():
         visitors_by_country=count_visitors_by_country(),
         country_names=country_names,
         recent_posts=recent_posts,
+        netlify_usage=netlify_usage,
     )
