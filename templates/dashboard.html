@@ -35,7 +35,10 @@
       />
     </svg>
 
-    <p><strong>Netlify usage:</strong> {{ netlify_usage.used | naturalsize }} / {{ netlify_usage.included | naturalsize }}</p>
+    <p>
+      <strong>Netlify bandwidth:</strong>
+      {{ netlify_usage.used | naturalsize }} / {{ netlify_usage.included | naturalsize }}
+      (until {{ netlify_usage.period_end_date.strftime("%-d %B") }})</p>
   </section>
 
   <div class="chart">

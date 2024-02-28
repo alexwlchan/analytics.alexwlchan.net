@@ -356,7 +356,11 @@ def get_netlify_bandwidth_usage():
     )
     resp.raise_for_status()
 
-    return resp.json()
+    data = resp.json()
+
+    data["period_end_date"] = datetime.datetime.fromisoformat(data["period_end_date"])
+
+    return data
 
 
 def get_circular_arc_path_command(
