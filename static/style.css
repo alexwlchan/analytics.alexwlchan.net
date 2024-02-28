@@ -81,9 +81,20 @@ code {
 
 #world-map path { fill: #eee; }
 
-#exclusionCookie {
-  grid-column: 1 / span 2;
+#exclusionCookie, #netlifyUsage {
   line-height: 1.3em;
+}
+
+#netlifyUsage {
+  display: grid;
+  grid-template-columns: 43px auto;
+  grid-gap: 1em;
+  vertical-align: middle;
+}
+
+#netlifyUsage p {
+  margin-top: auto;
+  margin-bottom: auto;
 }
 
 #visitorsByCountry {
