@@ -37,7 +37,7 @@
 
     <p>
       <strong>Netlify bandwidth:</strong>
-      {{ netlify_usage.used | naturalsize }} / {{ netlify_usage.included | naturalsize }}
+      {{ netlify_usage.used | naturalsize(binary=True) }} / {{ netlify_usage.included | naturalsize(binary=True, format='%d') }}
       (until {{ netlify_usage.period_end_date.strftime("%-d %B") }})</p>
   </section>
 
