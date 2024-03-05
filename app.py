@@ -358,6 +358,7 @@ def get_netlify_bandwidth_usage():
 
     data = resp.json()
 
+    data["period_start_date"] = datetime.datetime.fromisoformat(data["period_start_date"])
     data["period_end_date"] = datetime.datetime.fromisoformat(data["period_end_date"])
 
     return data
@@ -421,6 +422,8 @@ app.jinja_env.filters["intcomma"] = humanize.intcomma
 app.jinja_env.filters["interpolate_color"] = get_hex_color_between
 app.jinja_env.filters["naturalsize"] = humanize.naturalsize
 app.jinja_env.globals["circular_arc"] = get_circular_arc_path_command
+
+app.jinja_env.globals.update(now=lambda: datetime.datetime.now(tz=datetime.timezone.utc))
 
 
 @app.template_filter("prettydate")
