@@ -13,7 +13,7 @@ Each of the websites I want to measure have a small JavaScript snippet that fetc
 The tracking pixel includes some query parameters to tell you what page you were looking at.
 e.g.
 
-> https://analytics.alexwlchan.net/a.gif?url=https%3A%2F%2Falexwlchan.net%2F&referrer=https%3A%2F%2Fexample.net%2F&title=alexwlchan&width=1024&height=768
+> https://analytics.alexwlchan.net/a.gif?url=https%3A%2F%2Falexwlchan.net%2F&referrer=https%3A%2F%2Fexample.net%2F&title=alexwlchan
 
 When you fetch the tracking pixel, it records the hit in a SQLite database.
 In particular, it records the following fields:
@@ -23,7 +23,6 @@ In particular, it records the following fields:
 *   The referrer, i.e. which page linked you to my website
 *   The country you're in, which is guessed from your IP address
 *   An anonymous session identifier, so I can correlate hits within the same session (more on this below)
-*   The dimensions of your screen (e.g. 1024×768)
 *   Whether you're a bot or crawler (based on your User-Agent, so I can separate humans from Google's search crawler)
 
 I **don't** record your IP address or user agent.
@@ -117,8 +116,6 @@ To send data to the server, add the following tracking snippet to the page:
       "url": window.location.href,
       "referrer": document.referrer,
       "title": document.title,
-      "width": window.innerWidth,
-      "height": window.innerHeight,
     });
 
     fetch(`https://analytics.alexwlchan.net/a.gif?${analyticsData.toString()}`, { credentials: 'include' })

@@ -41,8 +41,6 @@ def tracking_pixel() -> Response:
         url = request.args["url"]
         referrer = request.args["referrer"]
         title = request.args["title"]
-        width = int(request.args["width"])
-        height = int(request.args["height"])
     except KeyError:
         abort(400)
 
@@ -66,8 +64,6 @@ def tracking_pixel() -> Response:
         "normalised_referrer": normalise_referrer(referrer),
         "path": "/" + "/".join(u.path),
         "query": json.dumps(u.query),
-        "width": width,
-        "height": height,
         "is_bot": guess_if_bot(user_agent),
         "is_me": request.cookies.get("analytics.alexwlchan-isMe") == "true",
     }

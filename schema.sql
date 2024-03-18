@@ -10,8 +10,6 @@ CREATE TABLE IF NOT EXISTS [events] (
    [query] TEXT,
    [referrer] TEXT,
    [normalised_referrer] TEXT,
-   [width] INTEGER NOT NULL,
-   [height] INTEGER NOT NULL,
    [is_bot] BOOLEAN NOT NULL,
    [is_me] BOOLEAN NOT NULL
 );
