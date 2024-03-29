@@ -135,7 +135,4 @@ $ datasette requests.sqlite --port 8008 --metadata metadata.json
 
 ## License
 
-tbc
-
-
-
+MIT.
