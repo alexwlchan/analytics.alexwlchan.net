@@ -197,32 +197,29 @@ def find_missing_pages():
     )
 
 
-def get_recent_posts(per_page_counts):
-    per_url_counts = collections.Counter()
+def get_recent_posts():
+    """
+    Return a list of the ten most recent posts, and the number of times
+    they were viewed.
+    """
+    query = """
+        SELECT p.url, p.title, p.date_posted, COUNT(e.url) AS count
+        FROM posts p
+        LEFT JOIN events e ON p.url = e.url
+        GROUP BY p.url, p.date_posted
+        ORDER BY p.date_posted DESC
+        LIMIT 10;
+    """
 
-    for p in per_page_counts:
-        per_url_counts[f"https://{p['host']}{p['path']}"] += p["count"]
-
-    posts = list(
-        db.query(
-            """
-        select
-          *
-        from
-          posts
-        order by
-          date_posted desc
-        limit
-          10
-        """
-        )
-    )
-
-    for p in posts:
-        p["count"] = per_url_counts.get(p["url"], 0)
-        p["date_posted"] = datetime.datetime.fromisoformat(p["date_posted"])
-
-    return posts
+    return [
+        {
+            "url": row["url"],
+            "title": row["title"],
+            "date_posted": datetime.datetime.fromisoformat(row["date_posted"]),
+            "count": row["count"],
+        }
+        for row in db.query(query)
+    ]
 
 
 Counter = dict[str, int]
@@ -450,7 +447,7 @@ def dashboard():
         country: get_country_name(country) for country in visitors_by_country
     }
 
-    recent_posts = get_recent_posts(per_page_counts)
+    recent_posts = get_recent_posts()
 
     netlify_usage = get_netlify_bandwidth_usage()
 
