@@ -97,9 +97,9 @@ class AnalyticsDatabase:
             is_me = '0'
             and host != 'localhost'
             and host not like '%--alexwlchan.netlify.app'
-            and date >= {start_date.isoformat()}
+            and date >= '{start_date.isoformat()}'
             and date <= '{end_date.isoformat() + 'x'}'
-        """
+        """.strip()
 
     @staticmethod
     def _days_between(start_date: datetime.date, end_date: datetime.date):
@@ -181,32 +181,32 @@ class AnalyticsDatabase:
             for day in self._days_between(start_date, end_date)
         ]
 
-
-def count_visitors_by_country():
-    cursor = db.query(
+    def count_visitors_by_country(
+        self, start_date: datetime.date, end_date: datetime.date
+    ) -> dict[str, int]:
         """
-        select
-          country,
-          count(*) as count
-        from
-          events
-        where
-          date >= :date
-          and country != ''
-          and is_me = '0' and host != 'localhost' and host not like '%--alexwlchan.netlify.app'
-        group by
-          country
-        order by
-          count desc
-        """,
-        {
-            "date": (datetime.date.today() - datetime.timedelta(days=29)).strftime(
-                "%Y-%m-%d"
-            )
-        },
-    )
+        Given a range of days, count the requests from each country in
+        that range:
 
-    return collections.Counter({row["country"]: row["count"] for row in cursor})
+            {"US" -> 100, "GB" -> 80, …}
+
+        The keys will (mostly) be the 2-digit ISO country codes.
+        """
+        cursor = self.db.query(
+            f"""
+            SELECT
+                country,
+                count(*) as count
+            FROM
+                events
+            WHERE
+                {self._where_clause(start_date, end_date)}
+            GROUP BY
+                country
+            """
+        )
+
+        return collections.Counter({row["country"]: row["count"] for row in cursor})
 
 
 def get_per_page_counts(start_date: datetime.date, end_date: datetime.date):
@@ -512,6 +512,7 @@ def dashboard():
 
     by_date = analytics_db.count_requests_per_day(start_date, end_date)
     unique_visitors = analytics_db.count_unique_visitors_per_day(start_date, end_date)
+    visitors_by_country = analytics_db.count_visitors_by_country(start_date, end_date)
 
     per_page_counts = get_per_page_counts(start_date, end_date)
     popular_pages = per_page_counts[:25]
@@ -519,8 +520,6 @@ def dashboard():
     missing_pages = find_missing_pages()
 
     grouped_referrers = find_grouped_referrers()
-
-    visitors_by_country = count_visitors_by_country()
 
     country_names = {
         country: get_country_name(country) for country in visitors_by_country
@@ -541,7 +540,7 @@ def dashboard():
         popular_pages=popular_pages,
         missing_pages=list(missing_pages),
         grouped_referrers=grouped_referrers,
-        visitors_by_country=count_visitors_by_country(),
+        visitors_by_country=visitors_by_country,
         country_names=country_names,
         recent_posts=recent_posts,
         netlify_usage=netlify_usage,

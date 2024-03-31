@@ -98,3 +98,56 @@ def test_count_unique_visitors_per_day(
         end_date=datetime.date.fromisoformat(end_date),
     )
     assert actual == expected_result
+
+
+@pytest.mark.parametrize(
+    ["start_date", "end_date", "expected_result"],
+    [
+        ("2001-01-01", "2001-01-01", {"US": 10, "GB": 5}),
+        ("2001-01-01", "2001-01-02", {"US": 13, "GB": 9, "DE": 2}),
+        ("2001-01-02", "2001-01-04", {"US": 3, "GB": 11, "DE": 2}),
+        ("2001-01-03", "2001-01-05", {"US": 8, "GB": 7, "FI": 6}),
+        ("2001-01-05", "2001-01-05", {"US": 8, "FI": 6}),
+        ("2010-01-05", "2010-01-05", {}),
+    ],
+)
+def test_count_visitors_by_country(
+    start_date: str, end_date: str, expected_result: dict[str, int]
+):
+    db = Database(":memory:")
+    analytics_db = AnalyticsDatabase(db)
+
+    requests = {
+        "2001-01-01": {"US": 10, "GB": 5},
+        "2001-01-02": {"US": 3, "GB": 4, "DE": 2},
+        "2001-01-04": {"GB": 7},
+        "2001-01-05": {"US": 8, "FI": 6},
+    }
+
+    for day, country_info in requests.items():
+        for country_id, count in country_info.items():
+            print(
+                count,
+                {
+                    "date": day + "T01:23:45Z",
+                    "country": country_id,
+                    "is_me": False,
+                    "host": "alexwlchan.net",
+                },
+            )
+
+            for _ in range(count):
+                db["events"].insert(
+                    {
+                        "date": day + "T01:23:45Z",
+                        "country": country_id,
+                        "is_me": False,
+                        "host": "alexwlchan.net",
+                    }
+                )
+
+    actual = analytics_db.count_visitors_by_country(
+        start_date=datetime.date.fromisoformat(start_date),
+        end_date=datetime.date.fromisoformat(end_date),
+    )
+    assert actual == expected_result
