@@ -3,6 +3,7 @@ import datetime
 import functools
 import json
 import math
+import typing
 import uuid
 
 from flask import abort, Flask, redirect, render_template, request, send_file, url_for
@@ -12,6 +13,7 @@ import humanize
 import hyperlink
 import keyring
 import pycountry
+from sqlite_utils import Database
 
 from referrers import normalise_referrer
 from utils import (
@@ -78,43 +80,106 @@ def robots_txt():
     return send_file("static/robots.txt")
 
 
-def count_requests_by_day():
-    return db.query(
-        """
-        select
-          substring(date, 0, 11) as day,
-          count(*) as count
-        from
-          events
-        where
-          is_me = '0' and host != 'localhost' and host not like '%--alexwlchan.netlify.app'
-        group by
-          day
-        order by
-          date desc
-        limit
-          30
-    """
-    )
+class PerDayCount(typing.TypedDict):
+    day: str
+    count: int
 
 
-def count_unique_visitors():
-    return db.query(
+class AnalyticsDatabase:
+    def __init__(self, db: Database):
+        self.db = db
+
+    @staticmethod
+    def _where_clause(start_date: datetime.date, end_date: datetime.date):
+        # Note: we add the 'x' so that complete datestamps
+        # e.g. 2001-02-03T04:56:07Z sort lower than a date like '2001-02-03'
+        return f"""
+            is_me = '0'
+            and host != 'localhost'
+            and host not like '%--alexwlchan.netlify.app'
+            and date >= {start_date.isoformat()}
+            and date <= '{end_date.isoformat() + 'x'}'
         """
-        select
-          substring(date, 0, 11) as day,
-          count(distinct session_id) as unique_session_count
-        from
-          events
-        where
-          is_me = '0' and host != 'localhost' and host not like '%--alexwlchan.netlify.app'
-        group by
-          day
-        order by
-          date desc
-        limit 30
-    """
-    )
+
+    @staticmethod
+    def _days_between(start_date: datetime.date, end_date: datetime.date):
+        """
+        Generate all the days between two dates, including the dates
+        themselves.
+        """
+        d = start_date
+
+        while d <= end_date:
+            yield d
+            d += datetime.timedelta(days=1)
+
+    def count_requests_per_day(
+        self, start_date: datetime.date, end_date: datetime.date
+    ) -> list[PerDayCount]:
+        """
+        Given a range of days, return a count of total hits in those days, e.g.
+
+            {"2001-01-01" -> 123, "2001-01-02" -> 456, …}
+
+        This will return a complete range of days between start/end, even
+        if there were no hits on some of the days.
+        """
+        cursor = self.db.query(
+            f"""
+            SELECT
+                substring(date, 0, 11) as day,
+                count(*) as count
+            FROM
+                events
+            WHERE
+                {self._where_clause(start_date, end_date)}
+            GROUP BY
+                day
+            ORDER BY
+                date desc
+            """
+        )
+
+        count_lookup = {row["day"]: row["count"] for row in cursor}
+
+        return [
+            {"day": day.isoformat(), "count": count_lookup.get(day.isoformat(), 0)}
+            for day in self._days_between(start_date, end_date)
+        ]
+
+    def count_unique_visitors_per_day(
+        self, start_date: datetime.date, end_date: datetime.date
+    ) -> list[PerDayCount]:
+        """
+        Given a range of days, count the unique visitors each day, e.g.
+
+            {"2001-01-01" -> 123, "2001-01-02" -> 456, …}
+
+        This will return a complete range of days between start/end, even
+        if there were no hits on some of the days.
+        """
+        cursor = self.db.query(
+            f"""
+            SELECT
+                substring(date, 0, 11) as day,
+                count(distinct session_id) as count
+            FROM
+                events
+            WHERE
+                {self._where_clause(start_date, end_date)}
+            GROUP BY
+                day
+            ORDER BY
+                date desc
+            """
+        )
+
+        count_lookup = {row["day"]: row["count"] for row in cursor}
+
+        return [
+            {"day": day.isoformat(), "count": count_lookup.get(day.isoformat(), 0)}
+            for day in self._days_between(start_date, end_date)
+        ]
 
 
 def count_visitors_by_country():
@@ -144,27 +209,26 @@ def count_visitors_by_country():
     return collections.Counter({row["country"]: row["count"] for row in cursor})
 
 
-def get_per_page_counts():
+def get_per_page_counts(start_date: datetime.date, end_date: datetime.date):
     result = db.query(
         """
-        select
-          *,
-          count(*) as count
-        from
-          events
-        where
-          date >= :date
-          and is_me = '0' and host != 'localhost' and host not like '%--alexwlchan.netlify.app'
-        group by
-          title
-        order by
-          count desc
+        SELECT
+            *,
+            count(*) as count
+        FROM
+            events
+        WHERE
+            is_me = '0'
+            and host != 'localhost'
+            and host not like '%--alexwlchan.netlify.app'
+            and date >= :start_date
+            and date <= :end_date
+        GROUP BY
+            title
+        ORDER BY
+            count desc
     """,
-        {
-            "date": (datetime.date.today() - datetime.timedelta(days=29)).strftime(
-                "%Y-%m-%d"
-            )
-        },
+        {"start_date": start_date.isoformat(), "end_date": end_date.isoformat() + "x"},
     )
 
     return list(result)
@@ -430,7 +494,6 @@ def prettydate(d: str) -> str:
 
 @app.route("/dashboard/")
 def dashboard():
-    by_date = count_requests_by_day()
     try:
         start_date = datetime.date.fromisoformat(request.args["startDate"])
         start_is_default = False
@@ -445,9 +508,12 @@ def dashboard():
         end_date = datetime.date.today()
         end_is_default = True
 
-    unique_users = count_unique_visitors()
+    analytics_db = AnalyticsDatabase(db)
 
-    per_page_counts = get_per_page_counts()
+    by_date = analytics_db.count_requests_per_day(start_date, end_date)
+    unique_visitors = analytics_db.count_unique_visitors_per_day(start_date, end_date)
+
+    per_page_counts = get_per_page_counts(start_date, end_date)
     popular_pages = per_page_counts[:25]
 
     missing_pages = find_missing_pages()
@@ -470,8 +536,8 @@ def dashboard():
         end=end_date,
         start_is_default=start_is_default,
         end_is_default=end_is_default,
-        by_date=sorted(by_date, key=lambda row: row["day"]),
-        unique_users=sorted(unique_users, key=lambda row: row["day"]),
+        by_date=by_date,
+        unique_visitors=unique_visitors,
         popular_pages=popular_pages,
         missing_pages=list(missing_pages),
         grouped_referrers=grouped_referrers,

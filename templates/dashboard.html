@@ -112,7 +112,7 @@
   </div>
 
   <div class="chart">
-    <h1>{{ unique_users|map(attribute='unique_session_count')|sum|intcomma }} unique visitors</h1>
+    <h1>{{ unique_visitors|map(attribute='count')|sum|intcomma }} unique visitors</h1>
 
     <div>
       <canvas id="uniqueVisitorsChart"></canvas>
@@ -291,12 +291,12 @@
       type: 'line',
       data: {
         labels: [
-          {% for row in unique_users %}'{{ row.day|prettydate }}',{% endfor %}
+          {% for row in unique_visitors %}'{{ row.day|prettydate }}',{% endfor %}
         ],
         datasets: [{
           label: 'unique visitors',
           data: [
-            {% for row in unique_users %}{{ row.unique_session_count }},{% endfor %}
+            {% for row in unique_visitors %}{{ row.count }},{% endfor %}
           ],
           borderWidth: 1,
           fill: true,
