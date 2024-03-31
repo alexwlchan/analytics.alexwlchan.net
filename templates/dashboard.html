@@ -14,6 +14,46 @@
 {% endblock %}
 
 {% block content %}
+  <script>
+    function updateDates() {
+      const startDate = document.querySelector("#startDate").value;
+      const endDate = document.querySelector("#endDate").value;
+
+      var url = "/dashboard/";
+
+      if (startDate !== "" && endDate !== "") {
+        url += `?startDate=${startDate}&endDate=${endDate}`;
+      } else if (startDate !== "") {
+        url += `?startDate=${startDate}`;
+      } else if (endDate !== "") {
+        url += `?endDate=${endDate}`;
+      }
+
+      window.location = url;
+    }
+  </script>
+
+  <section style="grid-column: 1 / span 2;">
+    Get hits from:
+    <input
+      id="startDate"
+      type="date"
+      {% if start_is_default %}
+      placeholder="{{ start.isoformat() }}"
+      {% else %}
+      value="{{ start.isoformat() }}"
+      {% endif %}
+      onchange="updateDates();"
+    >
+    to
+    <input
+      id="endDate"
+      type="date"
+      {% if not end_is_default %}value="{{ end.isoformat() }}"{% endif %}
+      onchange="updateDates()"
+    >
+  </section>
+
   <section id="exclusionCookie">
     🔄 Checking if you have the exclusion cookie…
   </section>
@@ -72,7 +112,7 @@
   </div>
 
   <div class="chart">
-    <h1>{{ unique_users|map(attribute='unique_session_count')|sum|intcomma }} unique visitors</h1>
+    <h1>{{ unique_visitors|map(attribute='count')|sum|intcomma }} unique visitors</h1>
 
     <div>
       <canvas id="uniqueVisitorsChart"></canvas>
@@ -251,12 +291,12 @@
       type: 'line',
       data: {
         labels: [
-          {% for row in unique_users %}'{{ row.day|prettydate }}',{% endfor %}
+          {% for row in unique_visitors %}'{{ row.day|prettydate }}',{% endfor %}
         ],
         datasets: [{
           label: 'unique visitors',
           data: [
-            {% for row in unique_users %}{{ row.unique_session_count }},{% endfor %}
+            {% for row in unique_visitors %}{{ row.count }},{% endfor %}
           ],
           borderWidth: 1,
           fill: true,

@@ -3,6 +3,7 @@ import datetime
 import functools
 import json
 import math
+import typing
 import uuid
 
 from flask import abort, Flask, redirect, render_template, request, send_file, url_for
@@ -12,6 +13,7 @@ import humanize
 import hyperlink
 import keyring
 import pycountry
+from sqlite_utils import Database
 
 from referrers import normalise_referrer
 from utils import (
@@ -78,96 +80,231 @@ def robots_txt():
     return send_file("static/robots.txt")
 
 
-def count_requests_by_day():
-    return db.query(
+class PerDayCount(typing.TypedDict):
+    day: str
+    count: int
+
+
+class PerPageCount(typing.TypedDict):
+    host: str
+    path: str
+    title: str
+    count: int
+
+
+class AnalyticsDatabase:
+    def __init__(self, db: Database):
+        self.db = db
+
+    @staticmethod
+    def _where_clause(start_date: datetime.date, end_date: datetime.date):
+        # Note: we add the 'x' so that complete datestamps
+        # e.g. 2001-02-03T04:56:07Z sort lower than a date like '2001-02-03'
+        return f"""
+            is_me = '0'
+            and host != 'localhost'
+            and host not like '%--alexwlchan.netlify.app'
+            and date >= '{start_date.isoformat()}'
+            and date <= '{end_date.isoformat() + 'x'}'
+        """.strip()
+
+    @staticmethod
+    def _days_between(start_date: datetime.date, end_date: datetime.date):
         """
-        select
-          substring(date, 0, 11) as day,
-          count(*) as count
-        from
-          events
-        where
-          is_me = '0' and host != 'localhost' and host not like '%--alexwlchan.netlify.app'
-        group by
-          day
-        order by
-          date desc
-        limit
-          30
-    """
-    )
-
-
-def count_unique_visitors():
-    return db.query(
+        Generate all the days between two dates, including the dates
+        themselves.
         """
-        select
-          substring(date, 0, 11) as day,
-          count(distinct session_id) as unique_session_count
-        from
-          events
-        where
-          is_me = '0' and host != 'localhost' and host not like '%--alexwlchan.netlify.app'
-        group by
-          day
-        order by
-          date desc
-        limit 30
-    """
-    )
+        d = start_date
 
+        while d <= end_date:
+            yield d
+            d += datetime.timedelta(days=1)
 
-def count_visitors_by_country():
-    cursor = db.query(
+    def count_requests_per_day(
+        self, start_date: datetime.date, end_date: datetime.date
+    ) -> list[PerDayCount]:
         """
-        select
-          country,
-          count(*) as count
-        from
-          events
-        where
-          date >= :date
-          and country != ''
-          and is_me = '0' and host != 'localhost' and host not like '%--alexwlchan.netlify.app'
-        group by
-          country
-        order by
-          count desc
-        """,
-        {
-            "date": (datetime.date.today() - datetime.timedelta(days=29)).strftime(
-                "%Y-%m-%d"
+        Given a range of days, return a count of total hits in those days, e.g.
+
+            {"2001-01-01" -> 123, "2001-01-02" -> 456, …}
+
+        This will return a complete range of days between start/end, even
+        if there were no hits on some of the days.
+        """
+        cursor = self.db.query(
+            f"""
+            SELECT
+                substring(date, 0, 11) as day,
+                count(*) as count
+            FROM
+                events
+            WHERE
+                {self._where_clause(start_date, end_date)}
+            GROUP BY
+                day
+            ORDER BY
+                date desc
+            """
+        )
+
+        count_lookup = {row["day"]: row["count"] for row in cursor}
+
+        return [
+            {"day": day.isoformat(), "count": count_lookup.get(day.isoformat(), 0)}
+            for day in self._days_between(start_date, end_date)
+        ]
+
+    def count_unique_visitors_per_day(
+        self, start_date: datetime.date, end_date: datetime.date
+    ) -> list[PerDayCount]:
+        """
+        Given a range of days, count the unique visitors each day, e.g.
+
+            {"2001-01-01" -> 123, "2001-01-02" -> 456, …}
+
+        This will return a complete range of days between start/end, even
+        if there were no hits on some of the days.
+        """
+        cursor = self.db.query(
+            f"""
+            SELECT
+                substring(date, 0, 11) as day,
+                count(distinct session_id) as count
+            FROM
+                events
+            WHERE
+                {self._where_clause(start_date, end_date)}
+            GROUP BY
+                day
+            ORDER BY
+                date desc
+            """
+        )
+
+        count_lookup = {row["day"]: row["count"] for row in cursor}
+
+        return [
+            {"day": day.isoformat(), "count": count_lookup.get(day.isoformat(), 0)}
+            for day in self._days_between(start_date, end_date)
+        ]
+
+    def count_visitors_by_country(
+        self, start_date: datetime.date, end_date: datetime.date
+    ) -> dict[str, int]:
+        """
+        Given a range of days, count the requests from each country in
+        that range:
+
+            {"US" -> 100, "GB" -> 80, …}
+
+        The keys will (mostly) be the 2-digit ISO country codes.
+        """
+        cursor = self.db.query(
+            f"""
+            SELECT
+                country,
+                count(*) as count
+            FROM
+                events
+            WHERE
+                {self._where_clause(start_date, end_date)}
+            GROUP BY
+                country
+            """
+        )
+
+        return collections.Counter({row["country"]: row["count"] for row in cursor})
+
+    def count_hits_per_page(
+        self, start_date: datetime.date, end_date: datetime.date, *, limit: int
+    ) -> list[PerPageCount]:
+        """
+        Given a range of dates, count the hits per unique page.
+        """
+        cursor = self.db.query(
+            f"""
+            SELECT
+                title, host, path,
+                count(*) as count
+            FROM
+                events
+            WHERE
+                {self._where_clause(start_date, end_date)}
+            GROUP BY
+                title
+            ORDER BY
+                count desc
+            LIMIT
+                {limit}
+            """
+        )
+
+        return list(cursor)
+
+    def count_referrers(
+        self, start_date: datetime.date, end_date: datetime.date
+    ) -> list[tuple[str, dict[str, int]]]:
+        """
+        Get a list of referrers, grouped by source.  The entries look
+        something like
+
+            (
+                "Hacker News",
+                {
+                    "Making a PDF that’s larger than Germany": 200,
+                    "You should take more screenshots": 50,
+                    "Cut the cutesy errors": 1,
+                }
             )
-        },
-    )
 
-    return collections.Counter({row["country"]: row["count"] for row in cursor})
-
-
-def get_per_page_counts():
-    result = db.query(
         """
-        select
-          *,
-          count(*) as count
-        from
-          events
-        where
-          date >= :date
-          and is_me = '0' and host != 'localhost' and host not like '%--alexwlchan.netlify.app'
-        group by
-          title
-        order by
-          count desc
-    """,
-        {
-            "date": (datetime.date.today() - datetime.timedelta(days=29)).strftime(
-                "%Y-%m-%d"
-            )
-        },
-    )
+        referrers_by_page = self.db.query(
+            f"""
+            SELECT
+                *,
+                count(*) as count
+            FROM
+                events
+            WHERE
+                {self._where_clause(start_date, end_date)}
+                and normalised_referrer != ''
+            GROUP BY
+                path, normalised_referrer
+            ORDER BY
+              count desc
+        """
+        )
 
-    return list(result)
+        grouped_referrers = collections.defaultdict(lambda: collections.Counter())
+
+        for row in referrers_by_page:
+            if row["title"] == "410 Gone – alexwlchan":
+                label = row["path"] + " (410)"
+            elif row["title"] == "404 Not Found – alexwlchan":
+                label = row["path"] + " (404)"
+            else:
+                label = row["title"]
+
+            grouped_referrers[row["normalised_referrer"]][label] = row["count"]
+
+        grouped_referrers = sorted(
+            grouped_referrers.items(), key=lambda kv: sum(kv[1].values()), reverse=True
+        )
+
+        popular_posts = {
+            "Making a PDF that’s larger than Germany – alexwlchan",
+            "The Collected Works of Ian Flemingo – alexwlchan",
+        }
+
+        long_tail = collections.defaultdict(lambda: collections.Counter())
+
+        for source, tally in list(grouped_referrers):
+            if sum(tally.values()) <= 3 and set(tally.keys()).issubset(popular_posts):
+                (dest,) = tally.keys()
+                long_tail[dest][source] = tally[dest]
+                grouped_referrers.remove((source, tally))
+
+        return {"grouped_referrers": grouped_referrers, "long_tail": long_tail}
 
 
 def find_missing_pages():
@@ -223,76 +360,6 @@ def get_recent_posts():
 
 
 Counter = dict[str, int]
-
-
-def find_grouped_referrers() -> list[tuple[str, Counter]]:
-    """
-    Get a list of referrers, grouped by source.  The entries look
-    something like
-
-        (
-            "Hacker News",
-            {
-                "Making a PDF that’s larger than Germany": 200,
-                "You should take more screenshots": 50,
-                "Cut the cutesy errors": 1,
-            }
-        )
-
-    """
-    referrers_by_page = db.query(
-        """
-        select
-          *,
-          count(*) as count
-        from
-          events
-        where
-          date >= :date
-           and normalised_referrer != ''
-          and is_me = '0' and host != 'localhost' and host not like '%--alexwlchan.netlify.app'
-        group by
-          path, normalised_referrer
-        order by
-          count desc
-    """,
-        {
-            "date": (datetime.date.today() - datetime.timedelta(days=29)).strftime(
-                "%Y-%m-%d"
-            )
-        },
-    )
-
-    grouped_referrers = collections.defaultdict(lambda: collections.Counter())
-
-    for row in referrers_by_page:
-        if row["title"] == "410 Gone – alexwlchan":
-            label = row["path"] + " (410)"
-        elif row["title"] == "404 Not Found – alexwlchan":
-            label = row["path"] + " (404)"
-        else:
-            label = row["title"]
-
-        grouped_referrers[row["normalised_referrer"]][label] = row["count"]
-
-    grouped_referrers = sorted(
-        grouped_referrers.items(), key=lambda kv: sum(kv[1].values()), reverse=True
-    )
-
-    popular_posts = {
-        "Making a PDF that’s larger than Germany – alexwlchan",
-        "The Collected Works of Ian Flemingo – alexwlchan",
-    }
-
-    long_tail = collections.defaultdict(lambda: collections.Counter())
-
-    for source, tally in list(grouped_referrers):
-        if sum(tally.values()) <= 3 and set(tally.keys()).issubset(popular_posts):
-            (dest,) = tally.keys()
-            long_tail[dest][source] = tally[dest]
-            grouped_referrers.remove((source, tally))
-
-    return {"grouped_referrers": grouped_referrers, "long_tail": long_tail}
 
 
 def get_flag_emoji(country_id: str) -> str:
@@ -430,18 +497,31 @@ def prettydate(d: str) -> str:
 
 @app.route("/dashboard/")
 def dashboard():
-    by_date = count_requests_by_day()
+    try:
+        start_date = datetime.date.fromisoformat(request.args["startDate"])
+        start_is_default = False
+    except KeyError:
+        start_date = datetime.date.today() - datetime.timedelta(days=29)
+        start_is_default = True
 
-    unique_users = count_unique_visitors()
+    try:
+        end_date = datetime.date.fromisoformat(request.args["endDate"])
+        end_is_default = False
+    except KeyError:
+        end_date = datetime.date.today()
+        end_is_default = True
 
-    per_page_counts = get_per_page_counts()
-    popular_pages = per_page_counts[:25]
+    analytics_db = AnalyticsDatabase(db)
+
+    by_date = analytics_db.count_requests_per_day(start_date, end_date)
+    unique_visitors = analytics_db.count_unique_visitors_per_day(start_date, end_date)
+    visitors_by_country = analytics_db.count_visitors_by_country(start_date, end_date)
+
+    popular_pages = analytics_db.count_hits_per_page(start_date, end_date, limit=25)
 
     missing_pages = find_missing_pages()
 
-    grouped_referrers = find_grouped_referrers()
-
-    visitors_by_country = count_visitors_by_country()
+    grouped_referrers = analytics_db.count_referrers(start_date, end_date)
 
     country_names = {
         country: get_country_name(country) for country in visitors_by_country
@@ -453,12 +533,16 @@ def dashboard():
 
     return render_template(
         "dashboard.html",
-        by_date=sorted(by_date, key=lambda row: row["day"]),
-        unique_users=sorted(unique_users, key=lambda row: row["day"]),
+        start=start_date,
+        end=end_date,
+        start_is_default=start_is_default,
+        end_is_default=end_is_default,
+        by_date=by_date,
+        unique_visitors=unique_visitors,
         popular_pages=popular_pages,
         missing_pages=list(missing_pages),
         grouped_referrers=grouped_referrers,
-        visitors_by_country=count_visitors_by_country(),
+        visitors_by_country=visitors_by_country,
         country_names=country_names,
         recent_posts=recent_posts,
         netlify_usage=netlify_usage,
