@@ -118,3 +118,7 @@ code {
 .date {
   color: #999;
 }
+
+input[type="date"] {
+  font-size: 1em;
+}
