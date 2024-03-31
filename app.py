@@ -241,7 +241,9 @@ class AnalyticsDatabase:
 
         return list(cursor)
 
-    def count_referrers(self, start_date: datetime.date, end_date: datetime.date) -> list[tuple[str, dict[str, int]]]:
+    def count_referrers(
+        self, start_date: datetime.date, end_date: datetime.date
+    ) -> list[tuple[str, dict[str, int]]]:
         """
         Get a list of referrers, grouped by source.  The entries look
         something like
