@@ -85,6 +85,13 @@ class PerDayCount(typing.TypedDict):
     count: int
 
 
+class PerPageCount(typing.TypedDict):
+    host: str
+    path: str
+    title: str
+    count: int
+
+
 class AnalyticsDatabase:
     def __init__(self, db: Database):
         self.db = db
@@ -208,30 +215,94 @@ class AnalyticsDatabase:
 
         return collections.Counter({row["country"]: row["count"] for row in cursor})
 
-
-def get_per_page_counts(start_date: datetime.date, end_date: datetime.date):
-    result = db.query(
+    def count_hits_per_page(
+        self, start_date: datetime.date, end_date: datetime.date, *, limit: int
+    ) -> list[PerPageCount]:
         """
-        SELECT
-            *,
-            count(*) as count
-        FROM
-            events
-        WHERE
-            is_me = '0'
-            and host != 'localhost'
-            and host not like '%--alexwlchan.netlify.app'
-            and date >= :start_date
-            and date <= :end_date
-        GROUP BY
-            title
-        ORDER BY
-            count desc
-    """,
-        {"start_date": start_date.isoformat(), "end_date": end_date.isoformat() + "x"},
-    )
+        Given a range of dates, count the hits per unique page.
+        """
+        cursor = self.db.query(
+            f"""
+            SELECT
+                title, host, path,
+                count(*) as count
+            FROM
+                events
+            WHERE
+                {self._where_clause(start_date, end_date)}
+            GROUP BY
+                title
+            ORDER BY
+                count desc
+            LIMIT
+                {limit}
+            """
+        )
 
-    return list(result)
+        return list(cursor)
+
+    def count_referrers(self, start_date: datetime.date, end_date: datetime.date) -> list[tuple[str, dict[str, int]]]:
+        """
+        Get a list of referrers, grouped by source.  The entries look
+        something like
+
+            (
+                "Hacker News",
+                {
+                    "Making a PDF that’s larger than Germany": 200,
+                    "You should take more screenshots": 50,
+                    "Cut the cutesy errors": 1,
+                }
+            )
+
+        """
+        referrers_by_page = self.db.query(
+            f"""
+            SELECT
+                *,
+                count(*) as count
+            FROM
+                events
+            WHERE
+                {self._where_clause(start_date, end_date)}
+                and normalised_referrer != ''
+            GROUP BY
+                path, normalised_referrer
+            ORDER BY
+              count desc
+        """
+        )
+
+        grouped_referrers = collections.defaultdict(lambda: collections.Counter())
+
+        for row in referrers_by_page:
+            if row["title"] == "410 Gone – alexwlchan":
+                label = row["path"] + " (410)"
+            elif row["title"] == "404 Not Found – alexwlchan":
+                label = row["path"] + " (404)"
+            else:
+                label = row["title"]
+
+            grouped_referrers[row["normalised_referrer"]][label] = row["count"]
+
+        grouped_referrers = sorted(
+            grouped_referrers.items(), key=lambda kv: sum(kv[1].values()), reverse=True
+        )
+
+        popular_posts = {
+            "Making a PDF that’s larger than Germany – alexwlchan",
+            "The Collected Works of Ian Flemingo – alexwlchan",
+        }
+
+        long_tail = collections.defaultdict(lambda: collections.Counter())
+
+        for source, tally in list(grouped_referrers):
+            if sum(tally.values()) <= 3 and set(tally.keys()).issubset(popular_posts):
+                (dest,) = tally.keys()
+                long_tail[dest][source] = tally[dest]
+                grouped_referrers.remove((source, tally))
+
+        return {"grouped_referrers": grouped_referrers, "long_tail": long_tail}
 
 
 def find_missing_pages():
@@ -287,76 +358,6 @@ def get_recent_posts():
 
 
 Counter = dict[str, int]
-
-
-def find_grouped_referrers() -> list[tuple[str, Counter]]:
-    """
-    Get a list of referrers, grouped by source.  The entries look
-    something like
-
-        (
-            "Hacker News",
-            {
-                "Making a PDF that’s larger than Germany": 200,
-                "You should take more screenshots": 50,
-                "Cut the cutesy errors": 1,
-            }
-        )
-
-    """
-    referrers_by_page = db.query(
-        """
-        select
-          *,
-          count(*) as count
-        from
-          events
-        where
-          date >= :date
-           and normalised_referrer != ''
-          and is_me = '0' and host != 'localhost' and host not like '%--alexwlchan.netlify.app'
-        group by
-          path, normalised_referrer
-        order by
-          count desc
-    """,
-        {
-            "date": (datetime.date.today() - datetime.timedelta(days=29)).strftime(
-                "%Y-%m-%d"
-            )
-        },
-    )
-
-    grouped_referrers = collections.defaultdict(lambda: collections.Counter())
-
-    for row in referrers_by_page:
-        if row["title"] == "410 Gone – alexwlchan":
-            label = row["path"] + " (410)"
-        elif row["title"] == "404 Not Found – alexwlchan":
-            label = row["path"] + " (404)"
-        else:
-            label = row["title"]
-
-        grouped_referrers[row["normalised_referrer"]][label] = row["count"]
-
-    grouped_referrers = sorted(
-        grouped_referrers.items(), key=lambda kv: sum(kv[1].values()), reverse=True
-    )
-
-    popular_posts = {
-        "Making a PDF that’s larger than Germany – alexwlchan",
-        "The Collected Works of Ian Flemingo – alexwlchan",
-    }
-
-    long_tail = collections.defaultdict(lambda: collections.Counter())
-
-    for source, tally in list(grouped_referrers):
-        if sum(tally.values()) <= 3 and set(tally.keys()).issubset(popular_posts):
-            (dest,) = tally.keys()
-            long_tail[dest][source] = tally[dest]
-            grouped_referrers.remove((source, tally))
-
-    return {"grouped_referrers": grouped_referrers, "long_tail": long_tail}
 
 
 def get_flag_emoji(country_id: str) -> str:
@@ -514,12 +515,11 @@ def dashboard():
     unique_visitors = analytics_db.count_unique_visitors_per_day(start_date, end_date)
     visitors_by_country = analytics_db.count_visitors_by_country(start_date, end_date)
 
-    per_page_counts = get_per_page_counts(start_date, end_date)
-    popular_pages = per_page_counts[:25]
+    popular_pages = analytics_db.count_hits_per_page(start_date, end_date, limit=25)
 
     missing_pages = find_missing_pages()
 
-    grouped_referrers = find_grouped_referrers()
+    grouped_referrers = analytics_db.count_referrers(start_date, end_date)
 
     country_names = {
         country: get_country_name(country) for country in visitors_by_country
