@@ -37,5 +37,5 @@ jobs:
 
     - name: Run tests
       run: |
-        coverage run -m pytest test_referrers.py test_utils.py
+        coverage run -m pytest test_app.py test_referrers.py test_utils.py
         coverage report
