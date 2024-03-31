@@ -431,6 +431,19 @@ def prettydate(d: str) -> str:
 @app.route("/dashboard/")
 def dashboard():
     by_date = count_requests_by_day()
+    try:
+        start_date = datetime.date.fromisoformat(request.args["startDate"])
+        start_is_default = False
+    except KeyError:
+        start_date = datetime.date.today() - datetime.timedelta(days=29)
+        start_is_default = True
+
+    try:
+        end_date = datetime.date.fromisoformat(request.args["endDate"])
+        end_is_default = False
+    except KeyError:
+        end_date = datetime.date.today()
+        end_is_default = True
 
     unique_users = count_unique_visitors()
 
@@ -453,6 +466,10 @@ def dashboard():
 
     return render_template(
         "dashboard.html",
+        start=start_date,
+        end=end_date,
+        start_is_default=start_is_default,
+        end_is_default=end_is_default,
         by_date=sorted(by_date, key=lambda row: row["day"]),
         unique_users=sorted(unique_users, key=lambda row: row["day"]),
         popular_pages=popular_pages,
