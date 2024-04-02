@@ -457,18 +457,17 @@ def get_password(service_name, username):
     return password
 
 
-team_slug = get_password("netlify", "team_slug")
-analytics_token = get_password("netlify", "analytics_token")
-
-
-netlify_client = SingleUrlClient(
-    base_url=f"https://api.netlify.com/api/v1/accounts/{team_slug}/",
-    headers={"Authorization": f"Bearer {analytics_token}"},
-)
+netlify_client = SingleUrlClient()
 
 
 def get_netlify_bandwidth_usage():
-    resp = netlify_client.get("bandwidth")
+    team_slug = get_password("netlify", "team_slug")
+    analytics_token = get_password("netlify", "analytics_token")
+
+    resp = netlify_client.get(
+        base_url=f"https://api.netlify.com/api/v1/accounts/{team_slug}/bandwidth",
+        headers={"Authorization": f"Bearer {analytics_token}"},
+    )
     resp.raise_for_status()
 
     data = resp.json()
