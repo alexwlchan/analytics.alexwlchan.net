@@ -160,7 +160,7 @@
       {% for p in recent_posts %}
       <tr>
         <td>
-          <a href="{{ p.url }}">{{ p.title }}</a>
+          <a href="{{ p.url }}">{{ p.title|replace(" &rarr;", "") }}</a>
           <span class="date">({{ p.date_posted.strftime("%-d %b") }})</span>
         </td>
         <td class="count">{{ p.count|intcomma }}</td>
