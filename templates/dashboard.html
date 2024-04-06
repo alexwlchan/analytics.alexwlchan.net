@@ -167,9 +167,22 @@
       </tr>
       {% endfor %}
     </table>
+
+    <h1 style="margin-top: 2em;">Missing pages</h1>
+
+    <table>
+      {% for p in missing_pages %}
+      <tr>
+        <td>
+          <code>{{ p.path }}</p>
+        </td>
+        <td class="count">{{ p.count }}</td>
+      </tr>
+      {% endfor %}
+    </table>
   </div>
 
-  <div class="chart" style="grid-row: span 2;">
+  <div class="chart">
     <h1>Referrers</h1>
 
     <table>
@@ -215,21 +228,6 @@
           <td class="count">{{ count|intcomma }}</td>
         </tr>
       {% endfor %}
-      {% endfor %}
-    </table>
-  </div>
-
-  <div class="chart">
-    <h1>Missing pages</h1>
-
-    <table>
-      {% for p in missing_pages %}
-      <tr>
-        <td>
-          <code>{{ p.path }}</p>
-        </td>
-        <td class="count">{{ p.count }}</td>
-      </tr>
       {% endfor %}
     </table>
   </div>
