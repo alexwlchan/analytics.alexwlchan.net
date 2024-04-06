@@ -465,7 +465,7 @@ def get_netlify_bandwidth_usage():
     analytics_token = get_password("netlify", "analytics_token")
 
     resp = netlify_client.get(
-        base_url=f"https://api.netlify.com/api/v1/accounts/{team_slug}/bandwidth",
+        url=f"https://api.netlify.com/api/v1/accounts/{team_slug}/bandwidth",
         headers={"Authorization": f"Bearer {analytics_token}"},
     )
     resp.raise_for_status()
