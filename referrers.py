@@ -43,6 +43,9 @@ def _is_search_referrer(u: hyperlink.DecodedURL) -> bool:
         "ya.ru",
         "iframe-yang.yandex",
         "m.sogou.com",
+        "online-mobilesearch.com",
+        "search.lilo.org",
+        "oceanhero.today",
     }:
         return True
 
@@ -218,6 +221,7 @@ def normalise_referrer(referrer: str | None) -> str | None:
             "localhost",
             "translate.google.co.jp",
         ],
+        "Baidu": ["m.baidu.com"],
         "Bluesky": ["bsky.app", "staging.bsky.app"],
         "ChatGPT": ["chat.openai.com"],
         "Email": [
@@ -328,6 +332,7 @@ def normalise_referrer(referrer: str | None) -> str | None:
         ],
         "Lemmy": ["io.syncapps.lemmy_sync"],
         "LinkedIn": ["com.linkedin.android"],
+        "Pinterest": ["com.pinterest"],
         "Slack": ["com.slack"],
         "Telegram": [
             "app.nicegram",
@@ -350,6 +355,13 @@ def normalise_referrer(referrer: str | None) -> str | None:
 
     if has_empty_path(u) and u.host == "bbs.boingboing.net":
         return "https://boingboing.net/"
+
+    if u.host == "www.baidu.com" and set(k for k, _ in u.query) == {
+        "url",
+        "wd",
+        "eqid",
+    }:
+        return "Baidu"
 
     for host, query in [
         ("github.com", "tab"),

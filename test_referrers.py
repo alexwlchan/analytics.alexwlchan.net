@@ -51,6 +51,7 @@ def test_referrer_is_search(referrer):
             "https://www.numerama.com/politique/1623224-un-fichier-pdf-grand-comme-lunivers-cest-possible.html",
         ),
         ("android-app://org.telegram.messenger.web/", "Telegram"),
+        ("https://m.baidu.com/", "Baidu"),
     ],
 )
 def test_normalise_referrer(referrer, expected):
