@@ -152,6 +152,7 @@ class AnalyticsDatabase:
         return f"""
             is_me = '0'
             and host != 'localhost'
+            and host != '127.0.0.1'
             and host not like '%--alexwlchan.netlify.app'
             and date >= '{start_date.isoformat()}'
             and date <= '{end_date.isoformat() + 'x'}'
