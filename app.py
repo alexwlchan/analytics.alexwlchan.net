@@ -113,7 +113,7 @@ def update_recent_posts():
     feed = feedparser.parse(resp.text)
 
     for e in feed["entries"]:
-        url = e["links"][0]["href"]
+        url = e["id"]
 
         if not url.endswith("/"):
             url += "/"
