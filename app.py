@@ -56,7 +56,7 @@ def tracking_pixel() -> Response:
     if u.query == (("utm_source", "mastodon"),):
         normalised_referrer = "Mastodon"
     else:
-        normalised_referrer = "Mastodon"
+        normalised_referrer = normalised_referrer(referrer)
 
     row = {
         "id": uuid.uuid4(),
