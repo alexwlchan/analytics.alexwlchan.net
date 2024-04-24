@@ -1,21 +1,18 @@
 import collections
 import datetime
-import functools
 import json
 import math
 import typing
 import uuid
 
-import feedparser
 from flask import abort, Flask, redirect, render_template, request, send_file, url_for
 from flask.wrappers import Response
-import httpx
 import humanize
 import hyperlink
-import keyring
 import pycountry
 from sqlite_utils import Database
 
+from .fetchers import fetch_netlify_bandwidth_usage, fetch_rss_feed_entries
 from .referrers import normalise_referrer
 from .utils import (
     get_country_iso_code,
@@ -84,54 +81,6 @@ def tracking_pixel() -> Response:
 @app.route("/robots.txt")
 def robots_txt():
     return send_file("static/robots.txt")
-
-
-class SingleUrlClient(httpx.Client):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self._cache = {}
-
-    def request(self, *args, **kwargs):
-        resp = super().request(*args, **kwargs)
-
-        if resp.status_code == 304:
-            try:
-                return self._cache[resp.request.url]
-            except KeyError:
-                return resp
-
-        now = datetime.datetime.now(datetime.UTC)
-        self.headers["If-Modified-Since"] = now.strftime("%a, %d %b %Y %H:%M:%S %Z")
-
-        self._cache[resp.request.url] = resp
-
-        return resp
-
-
-rss_client = SingleUrlClient()
-
-
-def update_recent_posts():
-    resp = rss_client.get("https://alexwlchan.net/atom.xml")
-    resp.raise_for_status()
-
-    feed = feedparser.parse(resp.text)
-
-    for e in feed["entries"]:
-        url = e["id"]
-
-        if not url.endswith("/"):
-            url += "/"
-
-        db["posts"].upsert(
-            {
-                "id": e["id"],
-                "date_posted": datetime.datetime.fromisoformat(e["published"]),
-                "title": e["title"],
-                "url": url,
-            },
-            pk="id",
-        )
 
 
 class PerDayCount(typing.TypedDict):
@@ -394,7 +343,8 @@ def get_recent_posts():
     Return a list of the ten most recent posts, and the number of times
     they were viewed.
     """
-    update_recent_posts()
+    for entry in fetch_rss_feed_entries():
+        db["posts"].upsert(entry, pk="id")
 
     query = """
         SELECT p.url, p.title, p.date_posted, COUNT(e.url) AS count
@@ -454,36 +404,6 @@ def get_hex_color_between(hex1, hex2, proportion):
     b_new = int(b1 + (b2 - b1) * proportion)
 
     return "#%02x%02x%02x" % (r_new, g_new, b_new)
-
-
-@functools.cache
-def get_password(service_name, username):
-    password = keyring.get_password(service_name, username)
-    assert password is not None, (service_name, username)
-    return password
-
-
-netlify_client = SingleUrlClient()
-
-
-def get_netlify_bandwidth_usage():
-    team_slug = get_password("netlify", "team_slug")
-    analytics_token = get_password("netlify", "analytics_token")
-
-    resp = netlify_client.get(
-        url=f"https://api.netlify.com/api/v1/accounts/{team_slug}/bandwidth",
-        headers={"Authorization": f"Bearer {analytics_token}"},
-    )
-    resp.raise_for_status()
-
-    data = resp.json()
-
-    data["period_start_date"] = datetime.datetime.fromisoformat(
-        data["period_start_date"]
-    )
-    data["period_end_date"] = datetime.datetime.fromisoformat(data["period_end_date"])
-
-    return data
 
 
 def get_circular_arc_path_command(
@@ -589,7 +509,7 @@ def dashboard():
 
     recent_posts = get_recent_posts()
 
-    netlify_usage = get_netlify_bandwidth_usage()
+    netlify_usage = fetch_netlify_bandwidth_usage()
 
     return render_template(
         "dashboard.html",

@@ -4,6 +4,7 @@ import glob
 import sqlite3
 import uuid
 
+import keyring
 import maxminddb
 from sqlite_utils import Database
 
@@ -76,3 +77,13 @@ def guess_if_bot(user_agent: str) -> bool:
             return True
 
     return False
+
+
+@functools.cache
+def get_password(service_name: str, username: str) -> str:
+    """
+    Retrieve a password from the system keychain.
+    """
+    password = keyring.get_password(service_name, username)
+    assert password is not None, (service_name, username)
+    return password
