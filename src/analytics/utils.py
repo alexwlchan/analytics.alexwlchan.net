@@ -32,9 +32,8 @@ def get_country_iso_code(ip_address: str) -> str | None:
     with maxminddb.open_database(f"{db_folder}/GeoLite2-Country.mmdb") as reader:
         result = reader.get(ip_address)
 
-    if isinstance(result, dict):
-        if isinstance(result["country"], dict):
-            return typing.cast(str, result["country"]["iso_code"])
+    if isinstance(result, dict) and isinstance(result["country"], dict):
+        return typing.cast(str, result["country"]["iso_code"])
 
     return None
 
@@ -84,7 +83,7 @@ def guess_if_bot(user_agent: str) -> bool:
 
 
 @functools.cache
-def get_password(service_name: str, username: str) -> str:
+def get_password(service_name: str, username: str) -> str:  # pragma: no cover
     """
     Retrieve a password from the system keychain.
     """
