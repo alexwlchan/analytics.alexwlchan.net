@@ -16,8 +16,8 @@ import keyring
 import pycountry
 from sqlite_utils import Database
 
-from referrers import normalise_referrer
-from utils import (
+from .referrers import normalise_referrer
+from .utils import (
     get_country_iso_code,
     get_database,
     get_session_identifier,

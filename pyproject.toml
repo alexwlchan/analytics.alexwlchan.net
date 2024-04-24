@@ -1,9 +1,24 @@
+[project]
+name = "analytics"
+version = "1.0"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+analytics = ["static/*", "templates/*"]
+
 [tool.coverage.run]
 branch = true
+source = [
+  "analytics",
+  "tests",
+]
 
 [tool.coverage.report]
 show_missing = true
 skip_covered = true
+fail_under = 100
 
 [tool.pytest.ini_options]
 filterwarnings = [
