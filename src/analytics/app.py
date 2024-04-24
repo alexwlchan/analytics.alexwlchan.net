@@ -15,7 +15,7 @@ from werkzeug.wrappers.response import Response as WerkzeugResponse
 
 from .fetchers import fetch_netlify_bandwidth_usage, fetch_rss_feed_entries
 from .referrers import normalise_referrer
-from .types import MissingPage, RecentPost
+from .types import CountedReferrers, MissingPage, RecentPost
 from .utils import (
     get_circular_arc_path_command,
     get_country_iso_code,
@@ -272,7 +272,7 @@ class AnalyticsDatabase:
 
     def count_referrers(
         self, start_date: datetime.date, end_date: datetime.date
-    ) -> list[tuple[str, dict[str, int]]]:
+    ) -> CountedReferrers:
         """
         Get a list of referrers, grouped by source.  The entries look
         something like

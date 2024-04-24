@@ -12,3 +12,11 @@ class RecentPost(typing.TypedDict):
     title: str
     date_posted: datetime.datetime
     count: int
+
+
+class CountedReferrers(typing.TypedDict):
+    # (referrer, dict(page -> count))
+    grouped_referrers: list[tuple[str, dict[str, int]]]
+
+    # (page, dict(referrer -> count))
+    long_tail: dict[str, dict[str, int]]
