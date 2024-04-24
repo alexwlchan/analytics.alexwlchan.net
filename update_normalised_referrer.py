@@ -2,6 +2,8 @@
 Update the database with the latest definitions of normalise_referrer().
 """
 
+import json
+
 from referrers import normalise_referrer
 from utils import get_database
 
@@ -9,7 +11,7 @@ db = get_database(path="requests.sqlite")
 
 for row in db["events"].rows:
     if (
-        row["query"] == [["utm_source", "mastodon"]]
+        json.loads(row["query"]) == [["utm_source", "mastodon"]]
         and row["normalised_referrer"] != "Mastodon"
     ):
         db["events"].upsert(

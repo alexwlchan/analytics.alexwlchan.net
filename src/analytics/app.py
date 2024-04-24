@@ -1,25 +1,28 @@
 import collections
+from collections.abc import Iterator
 import datetime
-import functools
 import json
-import math
 import typing
 import uuid
 
-import feedparser
 from flask import abort, Flask, redirect, render_template, request, send_file, url_for
-from flask.wrappers import Response
-import httpx
+from flask import Response as FlaskResponse
 import humanize
 import hyperlink
-import keyring
-import pycountry
 from sqlite_utils import Database
+from sqlite_utils.db import Table
+from werkzeug.wrappers.response import Response as WerkzeugResponse
 
-from referrers import normalise_referrer
-from utils import (
+from .fetchers import fetch_netlify_bandwidth_usage, fetch_rss_feed_entries
+from .referrers import normalise_referrer
+from .types import CountedReferrers, MissingPage, RecentPost
+from .utils import (
+    get_circular_arc_path_command,
     get_country_iso_code,
+    get_country_name,
     get_database,
+    get_flag_emoji,
+    get_hex_color_between,
     get_session_identifier,
     guess_if_bot,
 )
@@ -30,16 +33,22 @@ app = Flask(__name__)
 db = get_database(path="requests.sqlite")
 
 
+def db_table(name: str) -> Table:
+    db = app.config.setdefault("DATABASE", get_database(path="requests.sqlite"))
+
+    return Table(db, name)
+
+
 @app.route("/")
-def index():
+def index() -> str | WerkzeugResponse:
     if request.cookies.get("analytics.alexwlchan-isMe") == "true":
         return redirect(url_for("dashboard"))
-
-    return render_template("index.html")
+    else:
+        return render_template("index.html")
 
 
 @app.route("/a.gif")
-def tracking_pixel() -> Response:
+def tracking_pixel() -> FlaskResponse:
     try:
         url = request.args["url"]
         referrer = request.args["referrer"]
@@ -52,6 +61,8 @@ def tracking_pixel() -> Response:
     u = hyperlink.DecodedURL.from_text(url)
 
     ip_address = request.headers["X-Real-IP"]
+
+    n_referrer: str | None
 
     if u.query == (("utm_source", "mastodon"),):
         n_referrer = "Mastodon"
@@ -76,62 +87,14 @@ def tracking_pixel() -> Response:
         "is_me": request.cookies.get("analytics.alexwlchan-isMe") == "true",
     }
 
-    db["events"].insert(row)
+    db_table("events").insert(row)
 
     return send_file("static/a.gif")
 
 
 @app.route("/robots.txt")
-def robots_txt():
+def robots_txt() -> FlaskResponse:
     return send_file("static/robots.txt")
-
-
-class SingleUrlClient(httpx.Client):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self._cache = {}
-
-    def request(self, *args, **kwargs):
-        resp = super().request(*args, **kwargs)
-
-        if resp.status_code == 304:
-            try:
-                return self._cache[resp.request.url]
-            except KeyError:
-                return resp
-
-        now = datetime.datetime.now(datetime.UTC)
-        self.headers["If-Modified-Since"] = now.strftime("%a, %d %b %Y %H:%M:%S %Z")
-
-        self._cache[resp.request.url] = resp
-
-        return resp
-
-
-rss_client = SingleUrlClient()
-
-
-def update_recent_posts():
-    resp = rss_client.get("https://alexwlchan.net/atom.xml")
-    resp.raise_for_status()
-
-    feed = feedparser.parse(resp.text)
-
-    for e in feed["entries"]:
-        url = e["id"]
-
-        if not url.endswith("/"):
-            url += "/"
-
-        db["posts"].upsert(
-            {
-                "id": e["id"],
-                "date_posted": datetime.datetime.fromisoformat(e["published"]),
-                "title": e["title"],
-                "url": url,
-            },
-            pk="id",
-        )
 
 
 class PerDayCount(typing.TypedDict):
@@ -151,7 +114,7 @@ class AnalyticsDatabase:
         self.db = db
 
     @staticmethod
-    def _where_clause(start_date: datetime.date, end_date: datetime.date):
+    def _where_clause(start_date: datetime.date, end_date: datetime.date) -> str:
         # Note: we add the 'x' so that complete datestamps
         # e.g. 2001-02-03T04:56:07Z sort lower than a date like '2001-02-03'
         return f"""
@@ -164,7 +127,9 @@ class AnalyticsDatabase:
         """.strip()
 
     @staticmethod
-    def _days_between(start_date: datetime.date, end_date: datetime.date):
+    def _days_between(
+        start_date: datetime.date, end_date: datetime.date
+    ) -> Iterator[datetime.date]:
         """
         Generate all the days between two dates, including the dates
         themselves.
@@ -294,11 +259,23 @@ class AnalyticsDatabase:
             """
         )
 
-        return list(cursor)
+        result: list[PerPageCount] = []
+
+        for row in cursor:
+            result.append(
+                {
+                    "title": row["title"],
+                    "host": row["host"],
+                    "path": row["path"],
+                    "count": row["count"],
+                }
+            )
+
+        return result
 
     def count_referrers(
         self, start_date: datetime.date, end_date: datetime.date
-    ) -> list[tuple[str, dict[str, int]]]:
+    ) -> CountedReferrers:
         """
         Get a list of referrers, grouped by source.  The entries look
         something like
@@ -330,7 +307,10 @@ class AnalyticsDatabase:
         """
         )
 
-        grouped_referrers = collections.defaultdict(lambda: collections.Counter())
+        # normalised referrer -> dict(page -> count)
+        grouped_referrers: dict[str, dict[str, int]] = collections.defaultdict(
+            lambda: collections.Counter()
+        )
 
         for row in referrers_by_page:
             if row["title"] == "410 Gone – alexwlchan":
@@ -342,28 +322,34 @@ class AnalyticsDatabase:
 
             grouped_referrers[row["normalised_referrer"]][label] = row["count"]
 
-        grouped_referrers = sorted(
+        # (normalised_referrer, dict(page -> count))
+        sorted_grouped_referrers: list[tuple[str, dict[str, int]]] = sorted(
             grouped_referrers.items(), key=lambda kv: sum(kv[1].values()), reverse=True
         )
 
+        # These popular posts will have a long tail of referrers, so
+        # gather up the long tail to display "and these N other sites
+        # had one or two links to this popular post".
         popular_posts = {
             "Making a PDF that’s larger than Germany – alexwlchan",
             "The Collected Works of Ian Flemingo – alexwlchan",
         }
 
-        long_tail = collections.defaultdict(lambda: collections.Counter())
+        long_tail: dict[str, dict[str, int]] = collections.defaultdict(
+            lambda: collections.Counter()
+        )
 
-        for source, tally in list(grouped_referrers):
+        for source, tally in sorted_grouped_referrers:
             if sum(tally.values()) <= 3 and set(tally.keys()).issubset(popular_posts):
                 (dest,) = tally.keys()
                 long_tail[dest][source] = tally[dest]
-                grouped_referrers.remove((source, tally))
+                sorted_grouped_referrers.remove((source, tally))
 
-        return {"grouped_referrers": grouped_referrers, "long_tail": long_tail}
+        return {"grouped_referrers": sorted_grouped_referrers, "long_tail": long_tail}
 
 
-def find_missing_pages():
-    return db.query(
+def find_missing_pages() -> Iterator[MissingPage]:
+    for row in db.query(
         """
         select
           path,
@@ -386,15 +372,20 @@ def find_missing_pages():
                 "%Y-%m-%d"
             )
         },
-    )
+    ):
+        yield {
+            "path": row["path"],
+            "count": row["count"],
+        }
 
 
-def get_recent_posts():
+def get_recent_posts() -> list[RecentPost]:
     """
     Return a list of the ten most recent posts, and the number of times
     they were viewed.
     """
-    update_recent_posts()
+    for entry in fetch_rss_feed_entries():
+        db_table("posts").upsert(entry, pk="id")
 
     query = """
         SELECT p.url, p.title, p.date_posted, COUNT(e.url) AS count
@@ -419,125 +410,6 @@ def get_recent_posts():
 Counter = dict[str, int]
 
 
-def get_flag_emoji(country_id: str) -> str:
-    code_point_start = ord("🇦") - ord("A")
-    assert code_point_start == 127397
-
-    code_points = [code_point_start + ord(char) for char in country_id]
-    return "".join(chr(cp) for cp in code_points)
-
-
-def get_country_name(country_id: str) -> str:
-    if country_id == "US":
-        return "USA"
-
-    if country_id == "GB":
-        return "UK"
-
-    if country_id == "RU":
-        return "Russia"
-
-    c = pycountry.countries.get(alpha_2=country_id)
-
-    if c is not None:
-        return c.name
-    else:
-        return country_id
-
-
-def get_hex_color_between(hex1, hex2, proportion):
-    r1, g1, b1 = int(hex1[1:3], 16), int(hex1[3:5], 16), int(hex1[5:7], 16)
-    r2, g2, b2 = int(hex2[1:3], 16), int(hex2[3:5], 16), int(hex2[5:7], 16)
-
-    r_new = int(r1 + (r2 - r1) * proportion)
-    g_new = int(g1 + (g2 - g1) * proportion)
-    b_new = int(b1 + (b2 - b1) * proportion)
-
-    return "#%02x%02x%02x" % (r_new, g_new, b_new)
-
-
-@functools.cache
-def get_password(service_name, username):
-    password = keyring.get_password(service_name, username)
-    assert password is not None, (service_name, username)
-    return password
-
-
-netlify_client = SingleUrlClient()
-
-
-def get_netlify_bandwidth_usage():
-    team_slug = get_password("netlify", "team_slug")
-    analytics_token = get_password("netlify", "analytics_token")
-
-    resp = netlify_client.get(
-        url=f"https://api.netlify.com/api/v1/accounts/{team_slug}/bandwidth",
-        headers={"Authorization": f"Bearer {analytics_token}"},
-    )
-    resp.raise_for_status()
-
-    data = resp.json()
-
-    data["period_start_date"] = datetime.datetime.fromisoformat(
-        data["period_start_date"]
-    )
-    data["period_end_date"] = datetime.datetime.fromisoformat(data["period_end_date"])
-
-    return data
-
-
-def get_circular_arc_path_command(
-    *, centre_x, centre_y, radius, start_angle, sweep_angle, angle_unit
-):
-    """
-    Returns a path command to draw a circular arc in an SVG <path> element.
-
-    See https://developer.mozilla.org/en-US/docs/Web/SVG/Tutorial/Paths#line_commands
-    See https://alexwlchan.net/2022/circle-party/
-    """
-    if angle_unit == "radians":
-        pass
-    elif angle_unit == "degrees":
-        start_angle = start_angle / 180 * math.pi
-        sweep_angle = sweep_angle / 180 * math.pi
-    else:
-        raise ValueError(f"Unrecognised angle unit: {angle_unit}")
-
-    # Work out the start/end points of the arc using trig identities
-    start_x = centre_x + radius * math.sin(start_angle)
-    start_y = centre_y - radius * math.cos(start_angle)
-
-    end_x = centre_x + radius * math.sin(start_angle + sweep_angle)
-    end_y = centre_y - radius * math.cos(start_angle + sweep_angle)
-
-    # An arc path in SVG defines an ellipse/curve between two points.
-    # The `x_axis_rotation` parameter defines how an ellipse is rotated,
-    # if at all, but circles don't change under rotation, so it's irrelevant.
-    x_axis_rotation = 0
-
-    # For a given radius, there are two circles that intersect the
-    # start/end points.
-    #
-    # The `sweep-flag` parameter determines whether we move in
-    # a positive angle (=clockwise) or negative (=counter-clockwise).
-    # I'only doing clockwise sweeps, so this is constant.
-    sweep_flag = 1
-
-    # There are now two arcs available: one that's more than 180 degrees,
-    # one that's less than 180 degrees (one from each of the two circles).
-    # The `large-arc-flag` decides which to pick.
-    if sweep_angle > math.pi:
-        large_arc_flag = 1
-    else:
-        large_arc_flag = 0
-
-    return (
-        f"M {start_x} {start_y} "
-        f"A {radius} {radius} "
-        f"{x_axis_rotation} {large_arc_flag} {sweep_flag} {end_x} {end_y}"
-    )
-
-
 app.jinja_env.filters["flag_emoji"] = get_flag_emoji
 app.jinja_env.filters["country_name"] = get_country_name
 app.jinja_env.filters["intcomma"] = humanize.intcomma
@@ -556,7 +428,7 @@ def prettydate(d: str) -> str:
 
 
 @app.route("/dashboard/")
-def dashboard():
+def dashboard() -> str:
     try:
         start_date = datetime.date.fromisoformat(request.args["startDate"])
         start_is_default = False
@@ -589,7 +461,7 @@ def dashboard():
 
     recent_posts = get_recent_posts()
 
-    netlify_usage = get_netlify_bandwidth_usage()
+    netlify_usage = fetch_netlify_bandwidth_usage()
 
     return render_template(
         "dashboard.html",

@@ -14,7 +14,7 @@ def invert_dict(d: dict[str, list[str]]) -> dict[str, str]:
     return result
 
 
-def has_empty_path(u):
+def has_empty_path(u: hyperlink.DecodedURL) -> bool:
     return u.path == () or u.path == ("",)
 
 
@@ -207,20 +207,17 @@ def normalise_referrer(referrer: str | None) -> str | None:
         return "Search (Google, Bing, DDG, …)"
 
     if u.host in {
+        "127.0.0.1",
         "alexwlchan.net",
         "analytics.alexwlchan.net",
         "books.alexwlchan.net",
-        "til.alexwlchan.net",
         "localhost",
+        "til.alexwlchan.net",
+        "translate.google.co.jp",
     }:
         return None
 
     hostname_lookup = {
-        None: [
-            "127.0.0.1",
-            "localhost",
-            "translate.google.co.jp",
-        ],
         "Baidu": ["m.baidu.com"],
         "Bluesky": ["bsky.app", "staging.bsky.app"],
         "ChatGPT": ["chat.openai.com"],

@@ -77,9 +77,16 @@ $ cd analytics.alexwlchan.net
 $ python3 -m venv .venv
 $ source .venv/bin/activate
 $ pip install -r requirements.txt
+$ pip install -e .
 ```
 
 ## Usage
+
+To run a local server in debug mode:
+
+```console
+$ flask --app analytics.app run --debug
+```
 
 To start the web server:
 

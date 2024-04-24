@@ -1,15 +1,80 @@
 import datetime
 import random
 
+from flask.testing import FlaskClient
 import pytest
 from sqlite_utils import Database
+from sqlite_utils.db import Table
 
-from app import AnalyticsDatabase, PerDayCount
+from analytics.app import AnalyticsDatabase, PerDayCount
+from analytics.utils import get_database
 
 
-@pytest.fixture
-def analytics_db() -> AnalyticsDatabase:
-    return AnalyticsDatabase(db=Database(":memory:"))
+def test_index_explains_domain(client: FlaskClient) -> None:
+    resp = client.get("/")
+    assert resp.status_code == 200
+    assert b"This website hosts a tracking pixel for alexwlchan.net" in resp.data
+
+
+def test_index_redirects_if_cookie(client: FlaskClient) -> None:
+    client.set_cookie("analytics.alexwlchan-isMe", "true")
+
+    resp = client.get("/")
+    assert resp.status_code == 302
+    assert resp.headers["location"] == "/dashboard/"
+
+
+class TestTrackingPixel:
+    @pytest.mark.parametrize(
+        "query_string",
+        [
+            {},
+            {"url": "example.com", "referrer": "anotherexample.net"},
+            {"referrer": "anotherexample.net", "title": "example page"},
+            {"title": "example page", "url": "example.com"},
+        ],
+    )
+    def test_missing_mandatory_parameter_is_error(
+        self, client: FlaskClient, query_string: dict[str, str]
+    ) -> None:
+        resp = client.get("/a.gif", query_string=query_string)
+        assert resp.status_code == 400
+
+    @pytest.mark.filterwarnings("ignore::ResourceWarning")
+    def test_records_single_event(self, client: FlaskClient) -> None:
+        resp = client.get(
+            "/a.gif",
+            query_string={
+                "url": "https://alexwlchan.net/",
+                "title": "alexwlchan",
+                "referrer": "",
+            },
+            headers={"X-Real-IP": "1.2.3.4"},
+        )
+
+        assert resp.status_code == 200
+
+        db = get_database("requests.sqlite")
+        assert Table(db, "events").count == 1
+
+    @pytest.mark.filterwarnings("ignore::ResourceWarning")
+    def test_utm_source_mastodon(self, client: FlaskClient) -> None:
+        resp = client.get(
+            "/a.gif",
+            query_string={
+                "url": "https://alexwlchan.net/?utm_source=mastodon",
+                "title": "alexwlchan",
+                "referrer": "",
+            },
+            headers={"X-Real-IP": "1.2.3.4"},
+        )
+
+        assert resp.status_code == 200
+
+        db = get_database("requests.sqlite")
+        assert Table(db, "events").count == 1
+        row = next(Table(db, "events").rows)
+        assert row["normalised_referrer"] == "Mastodon"
 
 
 @pytest.mark.parametrize(
@@ -34,7 +99,7 @@ def analytics_db() -> AnalyticsDatabase:
 )
 def test_count_requests_per_day(
     start_date: str, end_date: str, expected_result: list[PerDayCount]
-):
+) -> None:
     db = Database(":memory:")
     analytics_db = AnalyticsDatabase(db)
 
@@ -42,7 +107,7 @@ def test_count_requests_per_day(
 
     for day, count in requests.items():
         for i in range(count):
-            db["events"].insert(
+            Table(db, "events").insert(
                 {"date": day + "T01:23:45Z", "is_me": False, "host": "alexwlchan.net"}
             )
 
@@ -75,7 +140,7 @@ def test_count_requests_per_day(
 )
 def test_count_unique_visitors_per_day(
     start_date: str, end_date: str, expected_result: list[PerDayCount]
-):
+) -> None:
     db = Database(":memory:")
     analytics_db = AnalyticsDatabase(db)
 
@@ -84,7 +149,7 @@ def test_count_unique_visitors_per_day(
     for day, visitor_count in requests.items():
         for visitor_id in range(visitor_count):
             for i in range(random.randint(1, 10)):
-                db["events"].insert(
+                Table(db, "events").insert(
                     {
                         "date": day + "T01:23:45Z",
                         "session_id": visitor_id,
@@ -113,7 +178,7 @@ def test_count_unique_visitors_per_day(
 )
 def test_count_visitors_by_country(
     start_date: str, end_date: str, expected_result: dict[str, int]
-):
+) -> None:
     db = Database(":memory:")
     analytics_db = AnalyticsDatabase(db)
 
@@ -126,18 +191,8 @@ def test_count_visitors_by_country(
 
     for day, country_info in requests.items():
         for country_id, count in country_info.items():
-            print(
-                count,
-                {
-                    "date": day + "T01:23:45Z",
-                    "country": country_id,
-                    "is_me": False,
-                    "host": "alexwlchan.net",
-                },
-            )
-
             for _ in range(count):
-                db["events"].insert(
+                Table(db, "events").insert(
                     {
                         "date": day + "T01:23:45Z",
                         "country": country_id,
@@ -151,3 +206,10 @@ def test_count_visitors_by_country(
         end_date=datetime.date.fromisoformat(end_date),
     )
     assert actual == expected_result
+
+
+@pytest.mark.filterwarnings("ignore::ResourceWarning")
+def test_robots_txt(client: FlaskClient) -> None:
+    resp = client.get("/robots.txt")
+    assert resp.status_code == 200
+    assert resp.data == b"""User-agent: *\nDisallow: /\n"""

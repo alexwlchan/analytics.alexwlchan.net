@@ -1,7 +1,7 @@
 import hyperlink
 import pytest
 
-from referrers import has_empty_path, normalise_referrer
+from analytics.referrers import has_empty_path, normalise_referrer
 
 
 @pytest.mark.parametrize("url", ["android-app://org.telegram.messenger.web/"])
@@ -21,7 +21,7 @@ def test_has_empty_path_is_true(url: str) -> None:
         "https://bing.com/",
     ],
 )
-def test_referrer_is_search(referrer):
+def test_referrer_is_search(referrer: str) -> None:
     assert normalise_referrer(referrer) == "Search (Google, Bing, DDG, …)"
 
 
@@ -54,5 +54,5 @@ def test_referrer_is_search(referrer):
         ("https://m.baidu.com/", "Baidu"),
     ],
 )
-def test_normalise_referrer(referrer, expected):
+def test_normalise_referrer(referrer: str | None, expected: str | None) -> None:
     assert normalise_referrer(referrer) == expected
