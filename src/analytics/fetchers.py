@@ -42,6 +42,10 @@ class CachingClient(httpx.Client):
         if resp.status_code == 304 and cached_resp is not None:
             return cached_resp
 
+        # Note that an HTTP 304 will cause this to throw, so we need to
+        # do this *after* we look for an entry in the cache.
+        resp.raise_for_status()
+
         now = datetime.datetime.now(datetime.UTC)
         self._cache[url] = (now.strftime("%a, %d %b %Y %H:%M:%S %Z"), resp)
 
