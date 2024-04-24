@@ -43,6 +43,7 @@
       {% else %}
       value="{{ start.isoformat() }}"
       {% endif %}
+      max="{{ now().strftime("%Y-%m-%d") }}"
       onchange="updateDates();"
     >
     to
@@ -50,6 +51,7 @@
       id="endDate"
       type="date"
       {% if not end_is_default %}value="{{ end.isoformat() }}"{% endif %}
+      max="{{ now().strftime("%Y-%m-%d") }}"
       onchange="updateDates()"
     >
   </section>
