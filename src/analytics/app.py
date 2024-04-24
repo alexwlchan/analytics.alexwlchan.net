@@ -1,7 +1,6 @@
 import collections
 import datetime
 import json
-import math
 import typing
 import uuid
 
@@ -9,14 +8,18 @@ from flask import abort, Flask, redirect, render_template, request, send_file, u
 from flask.wrappers import Response
 import humanize
 import hyperlink
-import pycountry
 from sqlite_utils import Database
 
 from .fetchers import fetch_netlify_bandwidth_usage, fetch_rss_feed_entries
 from .referrers import normalise_referrer
+from .types import MissingPage, RecentPost
 from .utils import (
+    get_circular_arc_path_command,
     get_country_iso_code,
+    get_country_name,
     get_database,
+    get_flag_emoji,
+    get_hex_color_between,
     get_session_identifier,
     guess_if_bot,
 )
@@ -311,7 +314,7 @@ class AnalyticsDatabase:
         return {"grouped_referrers": grouped_referrers, "long_tail": long_tail}
 
 
-def find_missing_pages():
+def find_missing_pages() -> list[MissingPage]:
     return db.query(
         """
         select
@@ -338,7 +341,7 @@ def find_missing_pages():
     )
 
 
-def get_recent_posts():
+def get_recent_posts() -> list[RecentPost]:
     """
     Return a list of the ten most recent posts, and the number of times
     they were viewed.
@@ -369,95 +372,6 @@ def get_recent_posts():
 Counter = dict[str, int]
 
 
-def get_flag_emoji(country_id: str) -> str:
-    code_point_start = ord("🇦") - ord("A")
-    assert code_point_start == 127397
-
-    code_points = [code_point_start + ord(char) for char in country_id]
-    return "".join(chr(cp) for cp in code_points)
-
-
-def get_country_name(country_id: str) -> str:
-    if country_id == "US":
-        return "USA"
-
-    if country_id == "GB":
-        return "UK"
-
-    if country_id == "RU":
-        return "Russia"
-
-    c = pycountry.countries.get(alpha_2=country_id)
-
-    if c is not None:
-        return c.name
-    else:
-        return country_id
-
-
-def get_hex_color_between(hex1, hex2, proportion):
-    r1, g1, b1 = int(hex1[1:3], 16), int(hex1[3:5], 16), int(hex1[5:7], 16)
-    r2, g2, b2 = int(hex2[1:3], 16), int(hex2[3:5], 16), int(hex2[5:7], 16)
-
-    r_new = int(r1 + (r2 - r1) * proportion)
-    g_new = int(g1 + (g2 - g1) * proportion)
-    b_new = int(b1 + (b2 - b1) * proportion)
-
-    return "#%02x%02x%02x" % (r_new, g_new, b_new)
-
-
-def get_circular_arc_path_command(
-    *, centre_x, centre_y, radius, start_angle, sweep_angle, angle_unit
-):
-    """
-    Returns a path command to draw a circular arc in an SVG <path> element.
-
-    See https://developer.mozilla.org/en-US/docs/Web/SVG/Tutorial/Paths#line_commands
-    See https://alexwlchan.net/2022/circle-party/
-    """
-    if angle_unit == "radians":
-        pass
-    elif angle_unit == "degrees":
-        start_angle = start_angle / 180 * math.pi
-        sweep_angle = sweep_angle / 180 * math.pi
-    else:
-        raise ValueError(f"Unrecognised angle unit: {angle_unit}")
-
-    # Work out the start/end points of the arc using trig identities
-    start_x = centre_x + radius * math.sin(start_angle)
-    start_y = centre_y - radius * math.cos(start_angle)
-
-    end_x = centre_x + radius * math.sin(start_angle + sweep_angle)
-    end_y = centre_y - radius * math.cos(start_angle + sweep_angle)
-
-    # An arc path in SVG defines an ellipse/curve between two points.
-    # The `x_axis_rotation` parameter defines how an ellipse is rotated,
-    # if at all, but circles don't change under rotation, so it's irrelevant.
-    x_axis_rotation = 0
-
-    # For a given radius, there are two circles that intersect the
-    # start/end points.
-    #
-    # The `sweep-flag` parameter determines whether we move in
-    # a positive angle (=clockwise) or negative (=counter-clockwise).
-    # I'only doing clockwise sweeps, so this is constant.
-    sweep_flag = 1
-
-    # There are now two arcs available: one that's more than 180 degrees,
-    # one that's less than 180 degrees (one from each of the two circles).
-    # The `large-arc-flag` decides which to pick.
-    if sweep_angle > math.pi:
-        large_arc_flag = 1
-    else:
-        large_arc_flag = 0
-
-    return (
-        f"M {start_x} {start_y} "
-        f"A {radius} {radius} "
-        f"{x_axis_rotation} {large_arc_flag} {sweep_flag} {end_x} {end_y}"
-    )
-
-
 app.jinja_env.filters["flag_emoji"] = get_flag_emoji
 app.jinja_env.filters["country_name"] = get_country_name
 app.jinja_env.filters["intcomma"] = humanize.intcomma
@@ -476,7 +390,7 @@ def prettydate(d: str) -> str:
 
 
 @app.route("/dashboard/")
-def dashboard():
+def dashboard() -> str:
     try:
         start_date = datetime.date.fromisoformat(request.args["startDate"])
         start_is_default = False

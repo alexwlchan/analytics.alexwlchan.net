@@ -1,11 +1,14 @@
 import datetime
 import functools
 import glob
+import math
 import sqlite3
+import typing
 import uuid
 
 import keyring
 import maxminddb
+import pycountry
 from sqlite_utils import Database
 
 
@@ -87,3 +90,105 @@ def get_password(service_name: str, username: str) -> str:
     password = keyring.get_password(service_name, username)
     assert password is not None, (service_name, username)
     return password
+
+
+def get_hex_color_between(hex1: str, hex2: str, proportion: float) -> str:
+    """
+    Interpolate a colour between two hex strings.
+
+    This is used to shade areas on the world map.
+
+    TODO: Is there a better way to do this?
+    """
+    r1, g1, b1 = int(hex1[1:3], 16), int(hex1[3:5], 16), int(hex1[5:7], 16)
+    r2, g2, b2 = int(hex2[1:3], 16), int(hex2[3:5], 16), int(hex2[5:7], 16)
+
+    r_new = int(r1 + (r2 - r1) * proportion)
+    g_new = int(g1 + (g2 - g1) * proportion)
+    b_new = int(b1 + (b2 - b1) * proportion)
+
+    return "#%02x%02x%02x" % (r_new, g_new, b_new)
+
+
+def get_flag_emoji(country_id: str) -> str:
+    code_point_start = ord("🇦") - ord("A")
+    assert code_point_start == 127397
+
+    code_points = [code_point_start + ord(char) for char in country_id]
+    return "".join(chr(cp) for cp in code_points)
+
+
+def get_country_name(country_id: str) -> str:
+    if country_id == "US":
+        return "USA"
+
+    if country_id == "GB":
+        return "UK"
+
+    if country_id == "RU":
+        return "Russia"
+
+    c = pycountry.countries.get(alpha_2=country_id)
+
+    if c is not None:
+        return c.name
+    else:
+        return country_id
+
+
+def get_circular_arc_path_command(
+    *,
+    centre_x: float,
+    centre_y: float,
+    radius: float,
+    start_angle: float,
+    sweep_angle: float,
+    angle_unit: typing.Literal["radians", "degrees"],
+) -> str:
+    """
+    Returns a path command to draw a circular arc in an SVG <path> element.
+
+    See https://developer.mozilla.org/en-US/docs/Web/SVG/Tutorial/Paths#line_commands
+    See https://alexwlchan.net/2022/circle-party/
+    """
+    if angle_unit == "radians":
+        pass
+    elif angle_unit == "degrees":
+        start_angle = start_angle / 180 * math.pi
+        sweep_angle = sweep_angle / 180 * math.pi
+    else:
+        raise ValueError(f"Unrecognised angle unit: {angle_unit}")
+
+    # Work out the start/end points of the arc using trig identities
+    start_x = centre_x + radius * math.sin(start_angle)
+    start_y = centre_y - radius * math.cos(start_angle)
+
+    end_x = centre_x + radius * math.sin(start_angle + sweep_angle)
+    end_y = centre_y - radius * math.cos(start_angle + sweep_angle)
+
+    # An arc path in SVG defines an ellipse/curve between two points.
+    # The `x_axis_rotation` parameter defines how an ellipse is rotated,
+    # if at all, but circles don't change under rotation, so it's irrelevant.
+    x_axis_rotation = 0
+
+    # For a given radius, there are two circles that intersect the
+    # start/end points.
+    #
+    # The `sweep-flag` parameter determines whether we move in
+    # a positive angle (=clockwise) or negative (=counter-clockwise).
+    # I'only doing clockwise sweeps, so this is constant.
+    sweep_flag = 1
+
+    # There are now two arcs available: one that's more than 180 degrees,
+    # one that's less than 180 degrees (one from each of the two circles).
+    # The `large-arc-flag` decides which to pick.
+    if sweep_angle > math.pi:
+        large_arc_flag = 1
+    else:
+        large_arc_flag = 0
+
+    return (
+        f"M {start_x} {start_y} "
+        f"A {radius} {radius} "
+        f"{x_axis_rotation} {large_arc_flag} {sweep_flag} {end_x} {end_y}"
+    )

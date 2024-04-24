@@ -4,7 +4,7 @@ import sys
 import hyperlink
 
 
-def invert_dict(d: dict[str, list[str]]) -> dict[str, str]:
+def invert_dict(d: dict[str | None, list[str]]) -> dict[str, str | None]:
     result: dict[str, str] = {}
 
     for key, values in d.items():
@@ -14,7 +14,7 @@ def invert_dict(d: dict[str, list[str]]) -> dict[str, str]:
     return result
 
 
-def has_empty_path(u):
+def has_empty_path(u: hyperlink.DecodedURL) -> bool:
     return u.path == () or u.path == ("",)
 
 
