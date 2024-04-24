@@ -5,7 +5,7 @@ import hyperlink
 
 
 def invert_dict(d: dict[str | None, list[str]]) -> dict[str, str | None]:
-    result: dict[str, str] = {}
+    result: dict[str, str | None] = {}
 
     for key, values in d.items():
         for v in values:
