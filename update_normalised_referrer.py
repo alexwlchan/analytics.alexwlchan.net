@@ -4,8 +4,8 @@ Update the database with the latest definitions of normalise_referrer().
 
 import json
 
-from referrers import normalise_referrer
-from utils import get_database
+from analytics.referrers import normalise_referrer
+from analytics.utils import get_database
 
 db = get_database(path="requests.sqlite")
 
