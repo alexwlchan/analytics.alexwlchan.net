@@ -1,4 +1,5 @@
 import collections
+from collections.abc import Iterator
 import datetime
 import json
 import typing
@@ -9,6 +10,7 @@ from flask.wrappers import Response
 import humanize
 import hyperlink
 from sqlite_utils import Database
+from sqlite_utils.db import Table
 
 from .fetchers import fetch_netlify_bandwidth_usage, fetch_rss_feed_entries
 from .referrers import normalise_referrer
@@ -28,6 +30,7 @@ from .utils import (
 app = Flask(__name__)
 
 db = get_database(path="requests.sqlite")
+posts_table = Table(db, "posts")
 
 
 @app.route("/")
@@ -314,8 +317,8 @@ class AnalyticsDatabase:
         return {"grouped_referrers": grouped_referrers, "long_tail": long_tail}
 
 
-def find_missing_pages() -> list[MissingPage]:
-    return db.query(
+def find_missing_pages() -> Iterator[MissingPage]:
+    for row in db.query(
         """
         select
           path,
@@ -338,7 +341,11 @@ def find_missing_pages() -> list[MissingPage]:
                 "%Y-%m-%d"
             )
         },
-    )
+    ):
+        yield {
+            "path": row["path"],
+            "count": row["count"],
+        }
 
 
 def get_recent_posts() -> list[RecentPost]:
@@ -347,7 +354,7 @@ def get_recent_posts() -> list[RecentPost]:
     they were viewed.
     """
     for entry in fetch_rss_feed_entries():
-        db["posts"].upsert(entry, pk="id")
+        posts_table.upsert(entry, pk="id")
 
     query = """
         SELECT p.url, p.title, p.date_posted, COUNT(e.url) AS count
