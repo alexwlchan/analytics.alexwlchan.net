@@ -2,6 +2,8 @@
 Update the database with the latest definitions of normalise_referrer().
 """
 
+import json
+
 from referrers import normalise_referrer
 from utils import get_database
 
