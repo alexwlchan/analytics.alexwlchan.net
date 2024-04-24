@@ -13,37 +13,42 @@ import httpx
 from .utils import get_password
 
 
-class SingleUrlClient(httpx.Client):
+class CachingClient(httpx.Client):
     """
-    An HTTP client which will only ever be used to fetch a single URL.
-
-    This does caching of the URL with the If-Modified-Since header
+    An HTTP client which does caching using the If-Modified-Since header
     to get faster responses.
     """
 
     def __init__(self) -> None:
         super().__init__()
-        self._cache: dict[httpx.URL, httpx.Response] = {}
 
-    def fetch(self, url: str, headers: dict[str, str] | None = None) -> httpx.Response:
-        resp = super().get(url, headers=headers)
-        resp.raise_for_status()
+        # (URL) -> (If-Modified-At, response)
+        self._cache: dict[httpx.URL | str, tuple[str, httpx.Response]] = {}
 
-        if resp.status_code == 304:
-            try:
-                return self._cache[resp.request.url]
-            except KeyError:
-                return resp
+    def get_with_caching(
+        self, url: httpx.URL | str, headers: dict[str, str] | None = None
+    ) -> httpx.Response:
+        new_headers = headers or {}
+
+        try:
+            if_modified_since, cached_resp = self._cache[url]
+            new_headers["If-Modified-Since"] = if_modified_since
+        except KeyError:
+            cached_resp = None
+            pass
+
+        resp = super().get(url, headers=new_headers)
+
+        if resp.status_code == 304 and cached_resp is not None:
+            return cached_resp
 
         now = datetime.datetime.now(datetime.UTC)
-        self.headers["If-Modified-Since"] = now.strftime("%a, %d %b %Y %H:%M:%S %Z")
-
-        self._cache[resp.request.url] = resp
+        self._cache[url] = (now.strftime("%a, %d %b %Y %H:%M:%S %Z"), resp)
 
         return resp
 
 
-rss_client = SingleUrlClient()
+client = CachingClient()
 
 
 class RssEntry(typing.TypedDict):
@@ -57,7 +62,7 @@ def fetch_rss_feed_entries() -> Iterator[RssEntry]:
     """
     Returns recent entries from the RSS feed for my main website.
     """
-    resp = rss_client.fetch("https://alexwlchan.net/atom.xml")
+    resp = client.get_with_caching("https://alexwlchan.net/atom.xml")
 
     feed = feedparser.parse(resp.text)
 
@@ -73,9 +78,6 @@ def fetch_rss_feed_entries() -> Iterator[RssEntry]:
             "title": e["title"],
             "url": url,
         }
-
-
-netlify_client = SingleUrlClient()
 
 
 class NetlifyBandwidthUsage(typing.TypedDict):
@@ -94,7 +96,7 @@ def fetch_netlify_bandwidth_usage() -> NetlifyBandwidthUsage:
     team_slug = get_password("netlify", "team_slug")
     analytics_token = get_password("netlify", "analytics_token")
 
-    resp = netlify_client.fetch(
+    resp = client.get_with_caching(
         url=f"https://api.netlify.com/api/v1/accounts/{team_slug}/bandwidth",
         headers={"Authorization": f"Bearer {analytics_token}"},
     )
