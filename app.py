@@ -54,9 +54,9 @@ def tracking_pixel() -> Response:
     ip_address = request.headers["X-Real-IP"]
 
     if u.query == (("utm_source", "mastodon"),):
-        normalised_referrer = "Mastodon"
+        n_referrer = "Mastodon"
     else:
-        normalised_referrer = normalised_referrer(referrer)
+        n_referrer = normalise_referrer(referrer)
 
     row = {
         "id": uuid.uuid4(),
@@ -69,7 +69,7 @@ def tracking_pixel() -> Response:
         "country": get_country_iso_code(ip_address),
         "host": u.host,
         "referrer": referrer,
-        "normalised_referrer": normalised_referrer,
+        "normalised_referrer": n_referrer,
         "path": "/" + "/".join(u.path),
         "query": json.dumps(u.query),
         "is_bot": guess_if_bot(user_agent),
