@@ -57,6 +57,25 @@ class TestTrackingPixel:
         db = get_database("requests.sqlite")
         assert Table(db, "events").count == 1
 
+    @pytest.mark.filterwarnings("ignore::ResourceWarning")
+    def test_utm_source_mastodon(self, client: FlaskClient) -> None:
+        resp = client.get(
+            "/a.gif",
+            query_string={
+                "url": "https://alexwlchan.net/?utm_source=mastodon",
+                "title": "alexwlchan",
+                "referrer": "",
+            },
+            headers={"X-Real-IP": "1.2.3.4"},
+        )
+
+        assert resp.status_code == 200
+
+        db = get_database("requests.sqlite")
+        assert Table(db, "events").count == 1
+        row = next(Table(db, "events").rows)
+        assert row["normalised_referrer"] == "Mastodon"
+
 
 @pytest.mark.parametrize(
     ["start_date", "end_date", "expected_result"],
@@ -187,3 +206,10 @@ def test_count_visitors_by_country(
         end_date=datetime.date.fromisoformat(end_date),
     )
     assert actual == expected_result
+
+
+@pytest.mark.filterwarnings("ignore::ResourceWarning")
+def test_robots_txt(client: FlaskClient) -> None:
+    resp = client.get("/robots.txt")
+    assert resp.status_code == 200
+    assert resp.data == b"""User-agent: *\r\nDisallow: /\r\n"""
