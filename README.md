@@ -93,19 +93,19 @@ To start the web server:
 <!-- TODO: Store session IDs in SQLite so they can be shared across threads -->
 
 ```console
-gunicorn app:app \
+gunicorn analytics:app \
   --workers 1 \
   --bind 127.0.0.1:8007 \
   --access-logfile access.log \
   --log-file app.log \
+  --pid analytics.pid \
   --daemon
 ```
 
 To restart the server:
 
 ```console
-$ ps -eaf | grep app
-$ kill -HUP [app_id]
+$ kill -HUP (cat analytics.pid)
 ```
 
 After you restart the server, load a page (e.g. /privacy/) and use this snippet to see the last recorded hit:
