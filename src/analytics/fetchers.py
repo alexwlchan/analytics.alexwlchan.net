@@ -21,12 +21,12 @@ class SingleUrlClient(httpx.Client):
     to get faster responses.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
-        self._cache = {}
+        self._cache: dict[httpx.URL, httpx.Response] = {}
 
-    def fetch(self, url: str) -> httpx.Response:
-        resp = super().get(url)
+    def fetch(self, url: str, headers: dict[str, str] | None = None) -> httpx.Response:
+        resp = super().get(url, headers=headers)
         resp.raise_for_status()
 
         if resp.status_code == 304:

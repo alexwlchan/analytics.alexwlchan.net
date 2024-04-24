@@ -32,10 +32,11 @@ def get_country_iso_code(ip_address: str) -> str | None:
     with maxminddb.open_database(f"{db_folder}/GeoLite2-Country.mmdb") as reader:
         result = reader.get(ip_address)
 
-    if result is None:
-        return None
-    else:
-        return result["country"]["iso_code"]
+    if isinstance(result, dict):
+        if isinstance(result["country"], dict):
+            return typing.cast(str, result["country"]["iso_code"])
+
+    return None
 
 
 def get_database(path: str) -> Database:
@@ -68,7 +69,7 @@ def get_session_identifier(d: datetime.date, ip_address: str, user_agent: str) -
     This identifiers are anonymous and only last for a single day -- after
     that, the session gets a new identifier.
     """
-    return uuid.uuid4()
+    return str(uuid.uuid4())
 
 
 def guess_if_bot(user_agent: str) -> bool:
@@ -131,7 +132,8 @@ def get_country_name(country_id: str) -> str:
     c = pycountry.countries.get(alpha_2=country_id)
 
     if c is not None:
-        return c.name
+        country_name: str = c.name
+        return country_name
     else:
         return country_id
 

@@ -6,11 +6,12 @@ import typing
 import uuid
 
 from flask import abort, Flask, redirect, render_template, request, send_file, url_for
-from flask.wrappers import Response
+from flask import Response as FlaskResponse
 import humanize
 import hyperlink
 from sqlite_utils import Database
 from sqlite_utils.db import Table
+from werkzeug.wrappers.response import Response as WerkzeugResponse
 
 from .fetchers import fetch_netlify_bandwidth_usage, fetch_rss_feed_entries
 from .referrers import normalise_referrer
@@ -30,11 +31,13 @@ from .utils import (
 app = Flask(__name__)
 
 db = get_database(path="requests.sqlite")
+
+events_table = Table(db, "events")
 posts_table = Table(db, "posts")
 
 
 @app.route("/")
-def index():
+def index() -> str | WerkzeugResponse:
     if request.cookies.get("analytics.alexwlchan-isMe") == "true":
         return redirect(url_for("dashboard"))
 
@@ -42,7 +45,7 @@ def index():
 
 
 @app.route("/a.gif")
-def tracking_pixel() -> Response:
+def tracking_pixel() -> FlaskResponse:
     try:
         url = request.args["url"]
         referrer = request.args["referrer"]
@@ -55,6 +58,8 @@ def tracking_pixel() -> Response:
     u = hyperlink.DecodedURL.from_text(url)
 
     ip_address = request.headers["X-Real-IP"]
+
+    n_referrer: str | None
 
     if u.query == (("utm_source", "mastodon"),):
         n_referrer = "Mastodon"
@@ -79,13 +84,13 @@ def tracking_pixel() -> Response:
         "is_me": request.cookies.get("analytics.alexwlchan-isMe") == "true",
     }
 
-    db["events"].insert(row)
+    events_table.insert(row)
 
     return send_file("static/a.gif")
 
 
 @app.route("/robots.txt")
-def robots_txt():
+def robots_txt() -> FlaskResponse:
     return send_file("static/robots.txt")
 
 
@@ -106,7 +111,7 @@ class AnalyticsDatabase:
         self.db = db
 
     @staticmethod
-    def _where_clause(start_date: datetime.date, end_date: datetime.date):
+    def _where_clause(start_date: datetime.date, end_date: datetime.date) -> str:
         # Note: we add the 'x' so that complete datestamps
         # e.g. 2001-02-03T04:56:07Z sort lower than a date like '2001-02-03'
         return f"""
@@ -119,7 +124,9 @@ class AnalyticsDatabase:
         """.strip()
 
     @staticmethod
-    def _days_between(start_date: datetime.date, end_date: datetime.date):
+    def _days_between(
+        start_date: datetime.date, end_date: datetime.date
+    ) -> Iterator[datetime.date]:
         """
         Generate all the days between two dates, including the dates
         themselves.
@@ -249,7 +256,19 @@ class AnalyticsDatabase:
             """
         )
 
-        return list(cursor)
+        result: list[PerPageCount] = []
+
+        for row in cursor:
+            result.append(
+                {
+                    "title": row["title"],
+                    "host": row["host"],
+                    "path": row["path"],
+                    "count": row["count"],
+                }
+            )
+
+        return result
 
     def count_referrers(
         self, start_date: datetime.date, end_date: datetime.date
@@ -285,7 +304,10 @@ class AnalyticsDatabase:
         """
         )
 
-        grouped_referrers = collections.defaultdict(lambda: collections.Counter())
+        # normalised referrer -> dict(page -> count)
+        grouped_referrers: dict[str, dict[str, int]] = collections.defaultdict(
+            lambda: collections.Counter()
+        )
 
         for row in referrers_by_page:
             if row["title"] == "410 Gone – alexwlchan":
@@ -297,24 +319,30 @@ class AnalyticsDatabase:
 
             grouped_referrers[row["normalised_referrer"]][label] = row["count"]
 
-        grouped_referrers = sorted(
+        # (normalised_referrer, dict(page -> count))
+        sorted_grouped_referrers: list[tuple[str, dict[str, int]]] = sorted(
             grouped_referrers.items(), key=lambda kv: sum(kv[1].values()), reverse=True
         )
 
+        # These popular posts will have a long tail of referrers, so
+        # gather up the long tail to display "and these N other sites
+        # had one or two links to this popular post".
         popular_posts = {
             "Making a PDF that’s larger than Germany – alexwlchan",
             "The Collected Works of Ian Flemingo – alexwlchan",
         }
 
-        long_tail = collections.defaultdict(lambda: collections.Counter())
+        long_tail: dict[str, dict[str, int]] = collections.defaultdict(
+            lambda: collections.Counter()
+        )
 
-        for source, tally in list(grouped_referrers):
+        for source, tally in sorted_grouped_referrers:
             if sum(tally.values()) <= 3 and set(tally.keys()).issubset(popular_posts):
                 (dest,) = tally.keys()
                 long_tail[dest][source] = tally[dest]
-                grouped_referrers.remove((source, tally))
+                sorted_grouped_referrers.remove((source, tally))
 
-        return {"grouped_referrers": grouped_referrers, "long_tail": long_tail}
+        return {"grouped_referrers": sorted_grouped_referrers, "long_tail": long_tail}
 
 
 def find_missing_pages() -> Iterator[MissingPage]:

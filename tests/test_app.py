@@ -3,8 +3,9 @@ import random
 
 import pytest
 from sqlite_utils import Database
+from sqlite_utils.db import Table
 
-from app import AnalyticsDatabase, PerDayCount
+from analytics.app import AnalyticsDatabase, PerDayCount
 
 
 @pytest.fixture
@@ -34,7 +35,7 @@ def analytics_db() -> AnalyticsDatabase:
 )
 def test_count_requests_per_day(
     start_date: str, end_date: str, expected_result: list[PerDayCount]
-):
+) -> None:
     db = Database(":memory:")
     analytics_db = AnalyticsDatabase(db)
 
@@ -42,7 +43,7 @@ def test_count_requests_per_day(
 
     for day, count in requests.items():
         for i in range(count):
-            db["events"].insert(
+            Table(db, "events").insert(
                 {"date": day + "T01:23:45Z", "is_me": False, "host": "alexwlchan.net"}
             )
 
@@ -75,7 +76,7 @@ def test_count_requests_per_day(
 )
 def test_count_unique_visitors_per_day(
     start_date: str, end_date: str, expected_result: list[PerDayCount]
-):
+) -> None:
     db = Database(":memory:")
     analytics_db = AnalyticsDatabase(db)
 
@@ -84,7 +85,7 @@ def test_count_unique_visitors_per_day(
     for day, visitor_count in requests.items():
         for visitor_id in range(visitor_count):
             for i in range(random.randint(1, 10)):
-                db["events"].insert(
+                Table(db, "events").insert(
                     {
                         "date": day + "T01:23:45Z",
                         "session_id": visitor_id,
@@ -113,7 +114,7 @@ def test_count_unique_visitors_per_day(
 )
 def test_count_visitors_by_country(
     start_date: str, end_date: str, expected_result: dict[str, int]
-):
+) -> None:
     db = Database(":memory:")
     analytics_db = AnalyticsDatabase(db)
 
@@ -127,7 +128,7 @@ def test_count_visitors_by_country(
     for day, country_info in requests.items():
         for country_id, count in country_info.items():
             for _ in range(count):
-                db["events"].insert(
+                Table(db, "events").insert(
                     {
                         "date": day + "T01:23:45Z",
                         "country": country_id,
