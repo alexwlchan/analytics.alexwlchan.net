@@ -13,48 +13,6 @@ import httpx
 from .utils import get_password
 
 
-class CachingClient(httpx.Client):
-    """
-    An HTTP client which does caching using the If-Modified-Since header
-    to get faster responses.
-    """
-
-    def __init__(self) -> None:
-        super().__init__()
-
-        # (URL) -> (If-Modified-At, response)
-        self._cache: dict[httpx.URL | str, tuple[str, httpx.Response]] = {}
-
-    def get_with_caching(
-        self, url: httpx.URL | str, headers: dict[str, str] | None = None
-    ) -> httpx.Response:
-        new_headers = headers or {}
-
-        try:
-            if_modified_since, cached_resp = self._cache[url]
-            new_headers["If-Modified-Since"] = if_modified_since
-        except KeyError:
-            cached_resp = None
-            pass
-
-        resp = super().get(url, headers=new_headers)
-
-        if resp.status_code == 304 and cached_resp is not None:
-            return cached_resp
-
-        # Note that an HTTP 304 will cause this to throw, so we need to
-        # do this *after* we look for an entry in the cache.
-        resp.raise_for_status()
-
-        now = datetime.datetime.now(datetime.UTC)
-        self._cache[url] = (now.strftime("%a, %d %b %Y %H:%M:%S %Z"), resp)
-
-        return resp
-
-
-client = CachingClient()
-
-
 class RssEntry(typing.TypedDict):
     id: str
     date_posted: datetime.datetime
@@ -66,7 +24,8 @@ def fetch_rss_feed_entries() -> Iterator[RssEntry]:
     """
     Returns recent entries from the RSS feed for my main website.
     """
-    resp = client.get_with_caching("https://alexwlchan.net/atom.xml")
+    resp = httpx.get("https://alexwlchan.net/atom.xml")
+    resp.raise_for_status()
 
     feed = feedparser.parse(resp.text)
 
@@ -100,10 +59,11 @@ def fetch_netlify_bandwidth_usage() -> NetlifyBandwidthUsage:
     team_slug = get_password("netlify", "team_slug")
     analytics_token = get_password("netlify", "analytics_token")
 
-    resp = client.get_with_caching(
+    resp = httpx.get(
         url=f"https://api.netlify.com/api/v1/accounts/{team_slug}/bandwidth",
         headers={"Authorization": f"Bearer {analytics_token}"},
     )
+    resp.raise_for_status()
 
     data = resp.json()
 

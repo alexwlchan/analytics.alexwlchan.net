@@ -212,4 +212,4 @@ def test_count_visitors_by_country(
 def test_robots_txt(client: FlaskClient) -> None:
     resp = client.get("/robots.txt")
     assert resp.status_code == 200
-    assert resp.data == b"""User-agent: *\nDisallow: /\n"""
+    assert resp.data.splitlines() == [b"User-agent: *", b"Disallow: /"]
