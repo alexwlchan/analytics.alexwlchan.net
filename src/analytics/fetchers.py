@@ -13,39 +13,6 @@ import httpx
 from .utils import get_password
 
 
-class SingleUrlClient(httpx.Client):
-    """
-    An HTTP client which will only ever be used to fetch a single URL.
-
-    This does caching of the URL with the If-Modified-Since header
-    to get faster responses.
-    """
-
-    def __init__(self) -> None:
-        super().__init__()
-        self._cache: dict[httpx.URL, httpx.Response] = {}
-
-    def fetch(self, url: str, headers: dict[str, str] | None = None) -> httpx.Response:
-        resp = super().get(url, headers=headers)
-        resp.raise_for_status()
-
-        if resp.status_code == 304:
-            try:
-                return self._cache[resp.request.url]
-            except KeyError:
-                return resp
-
-        now = datetime.datetime.now(datetime.UTC)
-        self.headers["If-Modified-Since"] = now.strftime("%a, %d %b %Y %H:%M:%S %Z")
-
-        self._cache[resp.request.url] = resp
-
-        return resp
-
-
-rss_client = SingleUrlClient()
-
-
 class RssEntry(typing.TypedDict):
     id: str
     date_posted: datetime.datetime
@@ -57,7 +24,8 @@ def fetch_rss_feed_entries() -> Iterator[RssEntry]:
     """
     Returns recent entries from the RSS feed for my main website.
     """
-    resp = rss_client.fetch("https://alexwlchan.net/atom.xml")
+    resp = httpx.get("https://alexwlchan.net/atom.xml")
+    resp.raise_for_status()
 
     feed = feedparser.parse(resp.text)
 
@@ -73,9 +41,6 @@ def fetch_rss_feed_entries() -> Iterator[RssEntry]:
             "title": e["title"],
             "url": url,
         }
-
-
-netlify_client = SingleUrlClient()
 
 
 class NetlifyBandwidthUsage(typing.TypedDict):
@@ -94,10 +59,11 @@ def fetch_netlify_bandwidth_usage() -> NetlifyBandwidthUsage:
     team_slug = get_password("netlify", "team_slug")
     analytics_token = get_password("netlify", "analytics_token")
 
-    resp = netlify_client.fetch(
+    resp = httpx.get(
         url=f"https://api.netlify.com/api/v1/accounts/{team_slug}/bandwidth",
         headers={"Authorization": f"Bearer {analytics_token}"},
     )
+    resp.raise_for_status()
 
     data = resp.json()
 
