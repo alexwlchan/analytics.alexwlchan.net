@@ -36,7 +36,7 @@ filterwarnings = [
   # There's a fix for this in main, but it's not been released to PyPI yet,
   # e.g. see https://github.com/dateutil/dateutil/issues/1284
   #
-  # When we upgrade to a version of python-dateutile that includes
+  # When we upgrade to a version of python-dateutil that includes
   # this fix (>2.8.2), we can remove this filter.
   "ignore::DeprecationWarning:dateutil*:",
 ]
