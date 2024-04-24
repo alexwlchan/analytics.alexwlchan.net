@@ -23,7 +23,7 @@ for row in db["events"].rows:
         )
         continue
 
-    if row["normalised_referrer"] != normalise_referrer(row["referrer"]):
+    elif row["normalised_referrer"] != normalise_referrer(row["referrer"]):
         db["events"].upsert(
             {
                 "id": row["id"],
