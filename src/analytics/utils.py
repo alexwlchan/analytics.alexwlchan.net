@@ -2,6 +2,8 @@ import datetime
 import functools
 import glob
 import math
+import os
+import pathlib
 import sqlite3
 import typing
 import uuid
@@ -48,7 +50,9 @@ def get_database(path: str) -> Database:
     assert sqlite3.threadsafety == 3
     con = sqlite3.connect(path, check_same_thread=False)
 
-    with open("schema.sql") as f:
+    this_file = pathlib.Path(os.path.abspath(__file__))
+
+    with open(this_file.parent / "schema.sql") as f:
         schema = f.read()
         con.executescript(schema)
 

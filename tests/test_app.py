@@ -1,11 +1,43 @@
 import datetime
 import random
 
+from flask.testing import FlaskClient
 import pytest
 from sqlite_utils import Database
 from sqlite_utils.db import Table
 
 from analytics.app import AnalyticsDatabase, PerDayCount
+
+
+def test_index_explains_domain(client: FlaskClient) -> None:
+    resp = client.get("/")
+    assert resp.status_code == 200
+    assert b"This website hosts a tracking pixel for alexwlchan.net" in resp.data
+
+
+def test_index_redirects_if_cookie(client: FlaskClient) -> None:
+    client.set_cookie("analytics.alexwlchan-isMe", "true")
+
+    resp = client.get("/")
+    assert resp.status_code == 302
+    assert resp.headers["location"] == "/dashboard/"
+
+
+class TestTrackingPixel:
+    @pytest.mark.parametrize(
+        "query_string",
+        [
+            {},
+            {"url": "example.com", "referrer": "anotherexample.net"},
+            {"referrer": "anotherexample.net", "title": "example page"},
+            {"title": "example page", "url": "example.com"},
+        ],
+    )
+    def test_missing_mandatory_parameter_is_error(
+        self, client: FlaskClient, query_string: dict[str, str]
+    ) -> None:
+        resp = client.get("/a.gif", query_string=query_string)
+        assert resp.status_code == 400
 
 
 @pytest.mark.parametrize(

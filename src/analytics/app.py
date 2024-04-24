@@ -40,8 +40,8 @@ posts_table = Table(db, "posts")
 def index() -> str | WerkzeugResponse:
     if request.cookies.get("analytics.alexwlchan-isMe") == "true":
         return redirect(url_for("dashboard"))
-
-    return render_template("index.html")
+    else:
+        return render_template("index.html")
 
 
 @app.route("/a.gif")
