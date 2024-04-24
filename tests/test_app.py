@@ -7,6 +7,7 @@ from sqlite_utils import Database
 from sqlite_utils.db import Table
 
 from analytics.app import AnalyticsDatabase, PerDayCount
+from analytics.utils import get_database
 
 
 def test_index_explains_domain(client: FlaskClient) -> None:
@@ -38,6 +39,23 @@ class TestTrackingPixel:
     ) -> None:
         resp = client.get("/a.gif", query_string=query_string)
         assert resp.status_code == 400
+
+    @pytest.mark.filterwarnings("ignore::ResourceWarning")
+    def test_records_single_event(self, client: FlaskClient) -> None:
+        resp = client.get(
+            "/a.gif",
+            query_string={
+                "url": "https://alexwlchan.net/",
+                "title": "alexwlchan",
+                "referrer": "",
+            },
+            headers={"X-Real-IP": "1.2.3.4"},
+        )
+
+        assert resp.status_code == 200
+
+        db = get_database("requests.sqlite")
+        assert Table(db, "events").count == 1
 
 
 @pytest.mark.parametrize(

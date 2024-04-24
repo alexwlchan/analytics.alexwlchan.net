@@ -32,8 +32,11 @@ app = Flask(__name__)
 
 db = get_database(path="requests.sqlite")
 
-events_table = Table(db, "events")
-posts_table = Table(db, "posts")
+
+def db_table(name: str) -> Table:
+    db = app.config.setdefault("DATABASE", get_database(path="requests.sqlite"))
+
+    return Table(db, name)
 
 
 @app.route("/")
@@ -84,7 +87,7 @@ def tracking_pixel() -> FlaskResponse:
         "is_me": request.cookies.get("analytics.alexwlchan-isMe") == "true",
     }
 
-    events_table.insert(row)
+    db_table("events").insert(row)
 
     return send_file("static/a.gif")
 
@@ -382,7 +385,7 @@ def get_recent_posts() -> list[RecentPost]:
     they were viewed.
     """
     for entry in fetch_rss_feed_entries():
-        posts_table.upsert(entry, pk="id")
+        db_table("posts").upsert(entry, pk="id")
 
     query = """
         SELECT p.url, p.title, p.date_posted, COUNT(e.url) AS count
