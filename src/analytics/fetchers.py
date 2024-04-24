@@ -25,8 +25,9 @@ class SingleUrlClient(httpx.Client):
         super().__init__()
         self._cache = {}
 
-    def get(self, url: str):
+    def get(self, url: str) -> httpx.Response:
         resp = super().get(url)
+        resp.raise_for_status()
 
         if resp.status_code == 304:
             try:
@@ -57,7 +58,6 @@ def fetch_rss_feed_entries() -> Iterator[RssEntry]:
     Returns recent entries from the RSS feed for my main website.
     """
     resp = rss_client.get("https://alexwlchan.net/atom.xml")
-    resp.raise_for_status()
 
     feed = feedparser.parse(resp.text)
 
@@ -98,7 +98,6 @@ def fetch_netlify_bandwidth_usage() -> NetlifyBandwidthUsage:
         url=f"https://api.netlify.com/api/v1/accounts/{team_slug}/bandwidth",
         headers={"Authorization": f"Bearer {analytics_token}"},
     )
-    resp.raise_for_status()
 
     data = resp.json()
 
