@@ -1,0 +1,9 @@
+import pathlib
+import typing
+
+from netaddr import IPSet
+
+class MMDBWriter:
+    def __init__(self) -> None: ...
+    def insert_network(self, network: IPSet, content: typing.Any) -> None: ...
+    def to_db_file(self, filename: pathlib.Path) -> None: ...

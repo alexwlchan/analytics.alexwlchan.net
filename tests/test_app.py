@@ -8,11 +8,6 @@ from sqlite_utils.db import Table
 from analytics.app import AnalyticsDatabase, PerDayCount
 
 
-@pytest.fixture
-def analytics_db() -> AnalyticsDatabase:
-    return AnalyticsDatabase(db=Database(":memory:"))
-
-
 @pytest.mark.parametrize(
     ["start_date", "end_date", "expected_result"],
     [
