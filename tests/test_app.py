@@ -126,16 +126,6 @@ def test_count_visitors_by_country(
 
     for day, country_info in requests.items():
         for country_id, count in country_info.items():
-            print(
-                count,
-                {
-                    "date": day + "T01:23:45Z",
-                    "country": country_id,
-                    "is_me": False,
-                    "host": "alexwlchan.net",
-                },
-            )
-
             for _ in range(count):
                 db["events"].insert(
                     {
