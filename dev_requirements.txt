@@ -120,7 +120,6 @@ idna==3.6
     #   httpx
     #   hyperlink
     #   requests
-    #   yarl
 iniconfig==2.0.0
     # via pytest
 itsdangerous==2.1.2
@@ -166,8 +165,6 @@ more-itertools==10.2.0
     # via
     #   -r requirements.txt
     #   jaraco-classes
-multidict==6.0.4
-    # via yarl
 mypy==1.9.0
     # via -r dev_requirements.in
 mypy-extensions==1.0.0
@@ -242,9 +239,7 @@ pytz==2023.3.post1
     #   certbot
     #   pyrfc3339
 pyyaml==6.0.1
-    # via
-    #    datasette
-    #    vcrpy
+    # via datasette
 requests==2.31.0
     # via
     #   -r requirements.txt
@@ -284,18 +279,12 @@ urllib3==2.1.0
     #   requests
 uvicorn==0.26.0
     # via datasette
-vcrpy==5.1.0
-    # via -r dev_requirements.in
 werkzeug==3.0.1
     # via
     #   -r requirements.txt
     #   flask
 wheel==0.42.0
     # via pip-tools
-wrapt==1.16.0
-    # via vcrpy
-yarl==1.9.4
-    # via vcrpy
 
 # The following packages are considered to be unsafe in a requirements file:
 # pip

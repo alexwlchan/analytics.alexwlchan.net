@@ -10,4 +10,3 @@ mypy
 netaddr
 pip-tools
 pytest-cov
-vcrpy
