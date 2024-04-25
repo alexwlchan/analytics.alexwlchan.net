@@ -42,7 +42,14 @@ a {
 }
 
 a:hover {
-  background: #306b0055;
+  text-decoration: underline;
+  text-decoration-thickness: 4px;
+  text-decoration-skip-ink: none;
+}
+
+a.reset {
+  color: red;
+  text-decoration: none;
 }
 
 code {
