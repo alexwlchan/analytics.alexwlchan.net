@@ -255,7 +255,7 @@ class TestAnalyticsDatabase:
 
         for row in records:
             for _ in range(row["count"]):
-                db["events"].insert(
+                Table(db, "events").insert(
                     {
                         **row,
                         "is_me": False,
