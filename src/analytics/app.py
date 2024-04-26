@@ -293,7 +293,7 @@ class AnalyticsDatabase:
         referrers_by_page = self.db.query(
             f"""
             SELECT
-                *,
+                title, path, normalised_referrer,
                 count(*) as count
             FROM
                 events
