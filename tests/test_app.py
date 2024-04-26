@@ -254,7 +254,8 @@ class TestAnalyticsDatabase:
         ]
 
         for row in records:
-            for _ in range(row["count"]):
+            count: int = row["count"]
+            for _ in range(count):
                 Table(db, "events").insert(
                     {
                         **row,
