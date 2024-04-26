@@ -297,6 +297,7 @@ def normalise_referrer(referrer: str | None) -> str | None:
             "www.reddit.com",
             "old.reddit.com",
             "out.reddit.com",
+            "new.reddit.com",
             "www.reddit.com",
         ],
         "Skype": ["web.skype.com"],
