@@ -76,6 +76,7 @@ def _is_rss_reader(u: hyperlink.DecodedURL) -> bool:
         "theoldreader.com",
         "feedbin.com",
         "newsletters.feedbinusercontent.com",
+        "www.rssheap.com",
     }:
         return True
 
