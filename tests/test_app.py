@@ -1,5 +1,6 @@
 import datetime
 import random
+import typing
 
 from flask.testing import FlaskClient
 import pytest
@@ -215,12 +216,19 @@ def test_robots_txt(client: FlaskClient) -> None:
     assert resp.data.splitlines() == [b"User-agent: *", b"Disallow: /"]
 
 
+class DummyRecord(typing.TypedDict):
+    title: str
+    path: str
+    normalised_referrer: str
+    count: int
+
+
 class TestAnalyticsDatabase:
     def test_count_referrers_gets_all_germany_posts(self) -> None:
         db = Database(":memory:")
         analytics_db = AnalyticsDatabase(db)
 
-        records = [
+        records: list[DummyRecord] = [
             {
                 "title": "Making a PDF that’s larger than Germany – alexwlchan",
                 "path": "/2024/big-pdf/",
@@ -254,8 +262,7 @@ class TestAnalyticsDatabase:
         ]
 
         for row in records:
-            count: int = row["count"]
-            for _ in range(count):
+            for _ in range(row["count"]):
                 Table(db, "events").insert(
                     {
                         **row,
