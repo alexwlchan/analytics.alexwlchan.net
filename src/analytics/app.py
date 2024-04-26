@@ -115,6 +115,8 @@ class AnalyticsDatabase:
 
     @staticmethod
     def _where_clause(start_date: datetime.date, end_date: datetime.date) -> str:
+        # sensibleendowment.com
+
         # Note: we add the 'x' so that complete datestamps
         # e.g. 2001-02-03T04:56:07Z sort lower than a date like '2001-02-03'
         return f"""
@@ -293,7 +295,7 @@ class AnalyticsDatabase:
         referrers_by_page = self.db.query(
             f"""
             SELECT
-                *,
+                title, path, normalised_referrer,
                 count(*) as count
             FROM
                 events
@@ -339,7 +341,7 @@ class AnalyticsDatabase:
             lambda: collections.Counter()
         )
 
-        for source, tally in sorted_grouped_referrers:
+        for source, tally in list(sorted_grouped_referrers):
             if sum(tally.values()) <= 3 and set(tally.keys()).issubset(popular_posts):
                 (dest,) = tally.keys()
                 long_tail[dest][source] = tally[dest]
