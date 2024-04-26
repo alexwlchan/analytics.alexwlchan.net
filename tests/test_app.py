@@ -213,3 +213,79 @@ def test_robots_txt(client: FlaskClient) -> None:
     resp = client.get("/robots.txt")
     assert resp.status_code == 200
     assert resp.data.splitlines() == [b"User-agent: *", b"Disallow: /"]
+
+
+class TestAnalyticsDatabase:
+    def test_count_referrers_gets_all_germany_posts(self) -> None:
+        db = Database(":memory:")
+        analytics_db = AnalyticsDatabase(db)
+
+        records = [
+            {
+                "title": "Making a PDF that’s larger than Germany – alexwlchan",
+                "path": "/2024/big-pdf/",
+                "normalised_referrer": "YouTube",
+                "count": 5,
+            },
+            {
+                "title": "Making a PDF that’s larger than Germany – alexwlchan",
+                "path": "/2024/big-pdf/",
+                "normalised_referrer": "https://example.com/",
+                "count": 1,
+            },
+            {
+                "title": "Making a PDF that’s larger than Germany – alexwlchan",
+                "path": "/2024/big-pdf/",
+                "normalised_referrer": "https://buttondown.email/",
+                "count": 1,
+            },
+            {
+                "title": "alexwlchan",
+                "path": "/",
+                "normalised_referrer": "https://buttondown.email/",
+                "count": 2,
+            },
+            {
+                "title": "Making a PDF that’s larger than Germany – alexwlchan",
+                "path": "/2024/big-pdf/",
+                "normalised_referrer": "https://gigazine.net/",
+                "count": 1,
+            },
+        ]
+
+        for row in records:
+            for _ in range(row["count"]):
+                db["events"].insert(
+                    {
+                        **row,
+                        "is_me": False,
+                        "host": "alexwlchan.net",
+                        "date": datetime.date(2024, 3, 29).isoformat(),
+                    }
+                )
+
+        result = analytics_db.count_referrers(
+            start_date=datetime.date(2024, 3, 28), end_date=datetime.date(2024, 4, 26)
+        )
+
+        assert result == {
+            "grouped_referrers": [
+                (
+                    "YouTube",
+                    {"Making a PDF that’s larger than Germany – alexwlchan": 5},
+                ),
+                (
+                    "https://buttondown.email/",
+                    {
+                        "alexwlchan": 2,
+                        "Making a PDF that’s larger than Germany – alexwlchan": 1,
+                    },
+                ),
+            ],
+            "long_tail": {
+                "Making a PDF that’s larger than Germany – alexwlchan": {
+                    "https://example.com/": 1,
+                    "https://gigazine.net/": 1,
+                }
+            },
+        }

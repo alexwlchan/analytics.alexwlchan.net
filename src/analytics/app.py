@@ -339,7 +339,7 @@ class AnalyticsDatabase:
             lambda: collections.Counter()
         )
 
-        for source, tally in sorted_grouped_referrers:
+        for source, tally in list(sorted_grouped_referrers):
             if sum(tally.values()) <= 3 and set(tally.keys()).issubset(popular_posts):
                 (dest,) = tally.keys()
                 long_tail[dest][source] = tally[dest]
