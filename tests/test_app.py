@@ -183,10 +183,10 @@ def test_count_visitors_by_country(
     db = Database(":memory:")
     analytics_db = AnalyticsDatabase(db)
 
-    requests = {
+    requests: dict[str, dict[str | None, int]] = {
         "2001-01-01": {"US": 10, "GB": 5},
         "2001-01-02": {"US": 3, "GB": 4, "DE": 2},
-        "2001-01-04": {"GB": 7},
+        "2001-01-04": {"GB": 7, None: 3},
         "2001-01-05": {"US": 8, "FI": 6},
     }
 
