@@ -3,8 +3,6 @@
 black
 coverage
 flake8
-datasette
-datasette-vega
 mmdb-writer
 mypy
 netaddr
