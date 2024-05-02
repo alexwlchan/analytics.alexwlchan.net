@@ -78,7 +78,7 @@ flake8==7.0.0
     # via -r dev_requirements.in
 flask==3.0.3
     # via -r requirements.txt
-gunicorn==21.2.0
+gunicorn==22.0.0
     # via -r requirements.txt
 h11==0.14.0
     # via
