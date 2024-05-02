@@ -4,13 +4,13 @@
 #
 #    pip-compile
 #
-acme==2.8.0
+acme==2.10.0
     # via certbot
 anyio==4.2.0
     # via httpx
 blinker==1.7.0
     # via flask
-certbot==2.8.0
+certbot==2.10.0
     # via -r requirements.in
 certifi==2023.11.17
     # via
