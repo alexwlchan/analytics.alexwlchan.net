@@ -40,6 +40,40 @@ def get_country_iso_code(ip_address: str) -> str | None:
     return None
 
 
+def get_flag_emoji(country_id: str) -> str:
+    code_point_start = ord("🇦") - ord("A")
+    assert code_point_start == 127397
+
+    code_points = [code_point_start + ord(char) for char in country_id]
+    return "".join(chr(cp) for cp in code_points)
+
+
+def get_country_name(country_id: str | None) -> str:
+    """
+    Given a 2-digit ISO country code from ``get_country_iso_code()``,
+    return the name of the country.
+    """
+    if country_id is None:
+        return "<unknown>"
+
+    if country_id == "US":
+        return "USA"
+
+    if country_id == "GB":
+        return "UK"
+
+    if country_id == "RU":
+        return "Russia"
+
+    c = pycountry.countries.get(alpha_2=country_id)
+
+    if c is not None:
+        country_name: str = c.name
+        return country_name
+    else:
+        return country_id
+
+
 def get_database(path: str) -> Database:
     """
     Create a SQLite database with the necessary tables.
@@ -112,33 +146,6 @@ def get_hex_color_between(hex1: str, hex2: str, proportion: float) -> str:
     b_new = int(b1 + (b2 - b1) * proportion)
 
     return "#%02x%02x%02x" % (r_new, g_new, b_new)
-
-
-def get_flag_emoji(country_id: str) -> str:
-    code_point_start = ord("🇦") - ord("A")
-    assert code_point_start == 127397
-
-    code_points = [code_point_start + ord(char) for char in country_id]
-    return "".join(chr(cp) for cp in code_points)
-
-
-def get_country_name(country_id: str) -> str:
-    if country_id == "US":
-        return "USA"
-
-    if country_id == "GB":
-        return "UK"
-
-    if country_id == "RU":
-        return "Russia"
-
-    c = pycountry.countries.get(alpha_2=country_id)
-
-    if c is not None:
-        country_name: str = c.name
-        return country_name
-    else:
-        return country_id
 
 
 def get_circular_arc_path_command(
