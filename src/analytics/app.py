@@ -230,6 +230,7 @@ class AnalyticsDatabase:
                 events
             WHERE
                 {self._where_clause(start_date, end_date)}
+                AND country IS NOT NULL
             GROUP BY
                 country
             """
