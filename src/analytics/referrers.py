@@ -77,6 +77,8 @@ def _is_rss_reader(u: hyperlink.DecodedURL) -> bool:
         "feedbin.com",
         "newsletters.feedbinusercontent.com",
         "www.rssheap.com",
+        "dm.hn",
+        "read.readwise.io",
     }:
         return True
 
@@ -289,6 +291,10 @@ def normalise_referrer(referrer: str | None) -> str | None:
         "Lobsters": ["lobste.rs"],
         "MSN": ["www.msn.com"],
         "MetaFilter": ["www.metafilter.com"],
+        "Microsoft Office": [
+            "statics.teams.cdn.office.net",
+            "word-edit.officeapps.live.com",
+        ],
         "Microsoft Teams": ["teams.microsoft.com"],
         "Pinboard": ["pinboard.in", "m.pinboard.in", "www.pinboard.in"],
         "Pinterest": ["www.pinterest.de"],
@@ -311,8 +317,13 @@ def normalise_referrer(referrer: str | None) -> str | None:
         "Tumblr": ["www.tumblr.com"],
         "Twitter": ["t.co", "twitter.com", "nitter.moomoo.me", "nitter.holo-mix.com"],
         "Weibo": ["weibo.cn"],
+        "Wikimedia Commons": [
+            "commons.m.wikimedia.org",
+            "commons.wikimedia.org",
+        ],
         "WordPress": ["wordpress.com"],
         "YouTube": ["www.youtube.com"],
+        "Zenodo": ["zenodo.org"],
     }
 
     hostname_matches = invert_dict(hostname_lookup)
