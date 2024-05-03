@@ -174,7 +174,7 @@ parsedatetime==2.6
     #   certbot
 pathspec==0.12.1
     # via black
-pip-tools==7.3.0
+pip-tools==7.4.1
     # via -r dev_requirements.in
 platformdirs==4.1.0
     # via black
@@ -199,7 +199,9 @@ pyopenssl==23.3.0
     #   acme
     #   josepy
 pyproject-hooks==1.0.0
-    # via build
+    # via
+    #   build
+    #   pip-tools
 pyrfc3339==1.1
     # via
     #   -r requirements.txt
