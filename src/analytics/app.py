@@ -425,7 +425,8 @@ app.jinja_env.globals.update(
 )
 
 app.jinja_env.globals.update(
-    yesterday=lambda: datetime.datetime.now(tz=datetime.timezone.utc) - datetime.timedelta(days=1)
+    yesterday=lambda: datetime.datetime.now(tz=datetime.timezone.utc)
+    - datetime.timedelta(days=1)
 )
 
 
