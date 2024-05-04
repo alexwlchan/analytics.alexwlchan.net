@@ -224,6 +224,10 @@ def normalise_referrer(referrer: str | None) -> str | None:
         "Baidu": ["m.baidu.com"],
         "Bluesky": ["bsky.app", "staging.bsky.app"],
         "ChatGPT": ["chat.openai.com"],
+        "Chat apps (Messenger, Snapchat, etc.)": [
+            "www.snapchat.com",
+            "messages.google.com",
+        ],
         "Email": [
             "email.t-online.de",
             "mailchi.mp",
@@ -298,7 +302,7 @@ def normalise_referrer(referrer: str | None) -> str | None:
         ],
         "Microsoft Teams": ["teams.microsoft.com"],
         "Pinboard": ["pinboard.in", "m.pinboard.in", "www.pinboard.in"],
-        "Pinterest": ["www.pinterest.de"],
+        "Pinterest": ["www.pinterest.de", "www.pinterest.com"],
         "PyPI": ["pypi.org"],
         "Reddit": [
             "reddit.com",
@@ -310,6 +314,7 @@ def normalise_referrer(referrer: str | None) -> str | None:
         ],
         "Skype": ["web.skype.com"],
         "Slashdot": ["slashdot.org", "m.slashdot.org", "it.slashdot.org"],
+        "Spotify": ["open.spotify.com"],
         "Substack": ["link.sbstck.com", "substack.com"],
         "Telegram": ["web.telegram.org", "weba.telegram.org"],
         "Tencent": ["t.cn"],
