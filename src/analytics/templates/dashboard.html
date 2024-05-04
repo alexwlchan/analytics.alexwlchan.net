@@ -59,6 +59,13 @@
     {% if not start_is_default or not end_is_default %}
     <a href="{{ url_for('dashboard') }}" class="reset">[x]</a>
     {% endif %}
+
+    <br/>
+
+    <div style="margin-top: 1em;">
+      Last event was recorded
+      <strong>{{ latest_event|naturaltime }}</strong>
+    </div>
   </section>
 
   <section id="exclusionCookie">

@@ -350,6 +350,30 @@ class AnalyticsDatabase:
 
         return {"grouped_referrers": sorted_grouped_referrers, "long_tail": long_tail}
 
+    def get_latest_recorded_event(self) -> datetime.datetime:
+        """
+        Return the time of the last event recorded in the database.
+        """
+        start_date = datetime.date(1970, 1, 1)
+        end_date = datetime.date(2038, 1, 1)
+        cursor = self.db.query(
+            f"""
+            SELECT
+                MAX(date)
+            FROM
+                events
+            WHERE
+                {self._where_clause(start_date, end_date)}
+            LIMIT
+                1
+        """
+        )
+
+        date_string = next(cursor)['MAX(date)']
+
+        return datetime.datetime.fromisoformat(date_string)
+
+
 
 def find_missing_pages() -> Iterator[MissingPage]:
     for row in db.query(
@@ -418,6 +442,7 @@ app.jinja_env.filters["country_name"] = get_country_name
 app.jinja_env.filters["intcomma"] = humanize.intcomma
 app.jinja_env.filters["interpolate_color"] = get_hex_color_between
 app.jinja_env.filters["naturalsize"] = humanize.naturalsize
+app.jinja_env.filters["naturaltime"] = humanize.naturaltime
 app.jinja_env.globals["circular_arc"] = get_circular_arc_path_command
 
 app.jinja_env.globals.update(
@@ -471,6 +496,8 @@ def dashboard() -> str:
 
     netlify_usage = fetch_netlify_bandwidth_usage()
 
+    latest_event = analytics_db.get_latest_recorded_event()
+
     return render_template(
         "dashboard.html",
         start=start_date,
@@ -486,4 +513,5 @@ def dashboard() -> str:
         country_names=country_names,
         recent_posts=recent_posts,
         netlify_usage=netlify_usage,
+        latest_event=latest_event,
     )
