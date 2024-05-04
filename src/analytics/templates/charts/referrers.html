@@ -1,0 +1,54 @@
+{#
+  This component shows a list of referrers, grouped by referrer name.
+  Parameters:
+
+      :param counted_referrers: an instance of ``CountedReferrers``.
+
+#}
+
+<h1>Referrers</h1>
+
+<table>
+  {% for referrer, pages in counted_referrers.grouped_referrers %}
+    <tr class="referrer_name">
+      <td class="referrer">{{ referrer }}</td>
+      <td class="count">{{ pages.values()|sum|intcomma }}</td>
+    </tr>
+
+    {% set selected_amount = 4 if pages|length <= 4 else 3 %}
+
+    {# A cheap hack to update a variable outside a loop #}
+    {# See https://stackoverflow.com/a/29581974/1558022 #}
+    {% set remaining_total = {'total': pages.values()|sum} %}
+
+    {% for p, c in pages.most_common(selected_amount) %}
+      <tr class="referrer_page">
+        <td>&rarr; {{ p.replace(' – alexwlchan', '') }}</td>
+        {% set _ = remaining_total.update({'total': remaining_total['total'] - c}) %}
+        <td class="count">{{ c|intcomma }}</td>
+
+      </tr>
+    {% endfor %}
+
+    {% if pages|length > selected_amount %}
+      <tr class="referrer_page">
+        <td style="padding-left: 6px;">+ {{ pages|length - selected_amount }} other pages</td>
+        <td class="count">{{ remaining_total['total']|intcomma }}</td>
+      </tr>
+    {% endif %}
+  {% endfor %}
+
+  {% for page_title, source in counted_referrers.long_tail.items() %}
+    <tr class="referrer_name">
+      <td class="referrer">{{ page_title.replace(' – alexwlchan', '') }}</td>
+      <td class="count">{{ source|length|intcomma }}</td>
+    </tr>
+
+    {% for s, count in source.most_common() %}
+      <tr class="referrer_page">
+        <td class="referrer">&larr; {{ s }}</td>
+        <td class="count">{{ count|intcomma }}</td>
+      </tr>
+    {% endfor %}
+  {% endfor %}
+</table>

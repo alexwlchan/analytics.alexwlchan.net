@@ -456,7 +456,7 @@ def dashboard() -> str:
 
     missing_pages = find_missing_pages()
 
-    grouped_referrers = analytics_db.count_referrers(start_date, end_date)
+    counted_referrers = analytics_db.count_referrers(start_date, end_date)
 
     country_names = {
         country: get_country_name(country) for country in visitors_by_country
@@ -476,7 +476,7 @@ def dashboard() -> str:
         unique_visitors=unique_visitors,
         popular_pages=popular_pages,
         missing_pages=list(missing_pages),
-        grouped_referrers=grouped_referrers,
+        counted_referrers=counted_referrers,
         visitors_by_country=visitors_by_country,
         country_names=country_names,
         recent_posts=recent_posts,

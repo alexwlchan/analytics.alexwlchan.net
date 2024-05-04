@@ -289,6 +289,7 @@ def normalise_referrer(referrer: str | None) -> str | None:
         "LinkedIn": ["www.linkedin.com", "lnkd.in"],
         "Linkhut": ["ln.ht"],
         "Lobsters": ["lobste.rs"],
+        "Mastodon": ["hachyderm.io"],
         "MSN": ["www.msn.com"],
         "MetaFilter": ["www.metafilter.com"],
         "Microsoft Office": [
