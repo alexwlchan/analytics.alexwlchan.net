@@ -369,10 +369,9 @@ class AnalyticsDatabase:
         """
         )
 
-        date_string = next(cursor)['MAX(date)']
+        date_string = next(cursor)["MAX(date)"]
 
         return datetime.datetime.fromisoformat(date_string)
-
 
 
 def find_missing_pages() -> Iterator[MissingPage]:
