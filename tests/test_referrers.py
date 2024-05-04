@@ -52,7 +52,10 @@ def test_referrer_is_search(referrer: str) -> None:
             "https://www.numerama.com/politique/1623224-un-fichier-pdf-grand-comme-lunivers-cest-possible.html?utm_source=newsletter_daily&utm_campaign=20240203&utm_medium=e-mail",
             "https://www.numerama.com/politique/1623224-un-fichier-pdf-grand-comme-lunivers-cest-possible.html",
         ),
-        ("android-app://org.telegram.messenger.web/", "Chat apps (Messenger, Snapchat, etc.)"),
+        (
+            "android-app://org.telegram.messenger.web/",
+            "Chat apps (Messenger, Snapchat, etc.)",
+        ),
         ("https://m.baidu.com/", "Baidu"),
     ],
 )
