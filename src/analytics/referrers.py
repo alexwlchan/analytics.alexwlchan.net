@@ -227,8 +227,11 @@ def normalise_referrer(referrer: str | None) -> str | None:
         "Chat apps (Messenger, Snapchat, etc.)": [
             "www.snapchat.com",
             "messages.google.com",
+            "web.telegram.org",
+            "weba.telegram.org",
         ],
         "Email": [
+            "buttondown.email",
             "email.t-online.de",
             "mailchi.mp",
             "mail.missiveapp.com",
@@ -316,7 +319,6 @@ def normalise_referrer(referrer: str | None) -> str | None:
         "Slashdot": ["slashdot.org", "m.slashdot.org", "it.slashdot.org"],
         "Spotify": ["open.spotify.com"],
         "Substack": ["link.sbstck.com", "substack.com"],
-        "Telegram": ["web.telegram.org", "weba.telegram.org"],
         "Tencent": ["t.cn"],
         "The Financial Times": ["www.ft.com"],
         "Threads": ["l.threads.net"],
@@ -341,6 +343,13 @@ def normalise_referrer(referrer: str | None) -> str | None:
             pass
 
     android_app_id_lookup = {
+        "Chat apps (Messenger, Snapchat, etc.)": [
+            "app.nicegram",
+            "org.telegram.messenger",
+            "org.telegram.messenger.web",
+            "org.telegram.plus",
+            "org.telegram.biftogram",
+        ],
         "Hacker News": [
             "io.github.hidroh.materialistic",
             "com.jiaqifeng.hacki",
@@ -350,13 +359,6 @@ def normalise_referrer(referrer: str | None) -> str | None:
         "LinkedIn": ["com.linkedin.android"],
         "Pinterest": ["com.pinterest"],
         "Slack": ["com.slack"],
-        "Telegram": [
-            "app.nicegram",
-            "org.telegram.messenger",
-            "org.telegram.messenger.web",
-            "org.telegram.plus",
-            "org.telegram.biftogram",
-        ],
         "The Financial Times": ["com.ft.news"],
         "Twitter": ["com.twitter.android"],
     }
