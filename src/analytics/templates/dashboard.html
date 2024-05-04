@@ -35,6 +35,8 @@
 
   <section style="grid-column: 1 / span 2;">
     Get hits from:
+    <a href="{{ url_for('dashboard', startDate=now().strftime('%Y-%m-%d')) }}">today</a> /
+    <a href="{{ url_for('dashboard', startDate=yesterday().strftime('%Y-%m-%d'), endDate=yesterday().strftime('%Y-%m-%d')) }}">yesterday</a> /
     <input
       id="startDate"
       type="date"
