@@ -1,0 +1,39 @@
+<h1>Most popular posts</h1>
+
+<table>
+  {% for p in popular_pages %}
+  <tr>
+    <td>
+      <a href="https://{{ p.host }}{{ p.path }}">{{ p.title.replace(' – alexwlchan', '') }}</a>
+    </td>
+    <td class="count">{{ p.count|intcomma }}</td>
+  </tr>
+  {% endfor %}
+</table>
+
+<h1 style="margin-top: 2em;">Recent posts</h1>
+
+<table>
+  {% for p in recent_posts %}
+  <tr>
+    <td>
+      <a href="{{ p.url }}">{{ p.title|replace(" &rarr;", "") }}</a>
+      <span class="date">({{ p.date_posted.strftime("%-d %b") }})</span>
+    </td>
+    <td class="count">{{ p.count|intcomma }}</td>
+  </tr>
+  {% endfor %}
+</table>
+
+<h1 style="margin-top: 2em;">Missing pages</h1>
+
+<table>
+  {% for p in missing_pages %}
+  <tr>
+    <td>
+      <code style="overflow-wrap: anywhere;">{{ p.path }}</p>
+    </td>
+    <td class="count">{{ p.count }}</td>
+  </tr>
+  {% endfor %}
+</table>

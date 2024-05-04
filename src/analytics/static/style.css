@@ -1,5 +1,6 @@
 body {
   background: #0e1f00;
+  padding: 1em;
 }
 
 main {
@@ -7,11 +8,23 @@ main {
   margin-left:  auto;
   margin-right: auto;
   font-family: sans-serif;
-  padding: 1em;
-
   display: grid;
   grid-gap: 1.5em;
   grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+@media screen and (min-width: 600px) {
+  .double_width {
+    grid-column: 1 / span 2;
+  }
+}
+
+@media screen and (max-width: 600px) {
+  .chart, section {
+    margin-left: -0.5em;
+    margin-right: 1em;
+    max-width: calc(100% - 2em);
+  }
 }
 
 .chart, section {
@@ -78,19 +91,26 @@ tbody:not(:first-child) .referrer_name td {
 
 .referrer_name {
   max-width: 440px;
+  overflow-wrap: anywhere;
 }
 
 .referrer {
   max-width: 440px;
+  overflow-wrap: anywhere;
 }
 
 .referrer_page {
   font-size: small;
 }
 
+.world_info svg {
+  max-width: 100%;
+}
+
 .world_info {
   display: grid;
-  grid-template-columns: auto auto;
+  grid-template-columns: 1fr 250px;
+  grid-gap: 1em;
 }
 
 .world_info table {
@@ -131,6 +151,10 @@ tbody:not(:first-child) .referrer_name td {
 
   .world_info {
     grid-template-columns: auto;
+  }
+
+  .world_info svg {
+    margin-bottom: 1em;
   }
 
   #exclusionCookie, #visitorsByCountry {
