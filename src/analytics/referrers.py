@@ -46,6 +46,7 @@ def _is_search_referrer(u: hyperlink.DecodedURL) -> bool:
         "online-mobilesearch.com",
         "search.lilo.org",
         "oceanhero.today",
+        "yep.com",
     }:
         return True
 
