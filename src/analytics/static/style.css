@@ -52,12 +52,28 @@ a.reset {
   text-decoration: none;
 }
 
+button {
+  background: #ddd;
+  border: none;
+  border-radius: 5px;
+  padding: 4px 6px;
+}
+
+button:active {
+  margin-top: 2px;
+  margin-bottom: -2px;
+}
+
+button:hover {
+  background: #306b0077;
+}
+
 code {
   font-size: 1.2em;
 }
 
-.referrer_name:not(:first-child) td {
-  padding-top: 16px;
+tbody:not(:first-child) .referrer_name td {
+  padding-top: 24px;
 }
 
 .referrer_name {
