@@ -41,6 +41,8 @@ def test_referrer_is_search(referrer: str) -> None:
         ("https://news.ycombinator.com", "Hacker News"),
         ("android-app://io.github.hidroh.materialistic/", "Hacker News"),
         ("https://www.inoreader.com/", "RSS reader (Feedly, Inoreader, …)"),
+        ("android-app://org.fox.ttrss", "RSS reader (Feedly, Inoreader, …)"),
+        ("https://hackurls.com/", "News aggregator (Flipboard, HN, Reddit, …)"),
         ("https://old.reddit.com/?count=75&after=t3_1ag8jtu", "Reddit"),
         (
             "https://old.reddit.com/r/ForAllMankindTV/comments/1ag7bke/i_was_rewatching_season_1/",
@@ -50,7 +52,7 @@ def test_referrer_is_search(referrer: str) -> None:
             "https://www.numerama.com/politique/1623224-un-fichier-pdf-grand-comme-lunivers-cest-possible.html?utm_source=newsletter_daily&utm_campaign=20240203&utm_medium=e-mail",
             "https://www.numerama.com/politique/1623224-un-fichier-pdf-grand-comme-lunivers-cest-possible.html",
         ),
-        ("android-app://org.telegram.messenger.web/", "Telegram"),
+        ("android-app://org.telegram.messenger.web/", "Chat apps (Messenger, Snapchat, etc.)"),
         ("https://m.baidu.com/", "Baidu"),
     ],
 )
