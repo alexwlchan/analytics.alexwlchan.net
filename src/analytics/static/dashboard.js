@@ -28,7 +28,7 @@ function removeExclusionCookie() {
 }
 
 function addExclusionCookie() {
-    document.cookie = `${cookieName}=true;domain=.alexwlchan.net;path=/;expires=2038-01-19 04:14:07`;
+    document.cookie = `${cookieName}=true;domain=.alexwlchan.net;path=/;expires=2035-01-19 03:14:07`;
     hasExclusionCookie();
 }
 
