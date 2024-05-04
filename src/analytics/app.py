@@ -424,6 +424,10 @@ app.jinja_env.globals.update(
     now=lambda: datetime.datetime.now(tz=datetime.timezone.utc)
 )
 
+app.jinja_env.globals.update(
+    yesterday=lambda: datetime.datetime.now(tz=datetime.timezone.utc) - datetime.timedelta(days=1)
+)
+
 
 @app.template_filter("prettydate")
 def prettydate(d: str) -> str:
