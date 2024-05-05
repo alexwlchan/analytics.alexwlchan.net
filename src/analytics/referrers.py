@@ -39,12 +39,19 @@ def get_normalised_referrer(*, referrer: str, query: QueryParams) -> str | None:
         (("secureweb", "Teams"),),
         (("t", None),),
         (("v", "10"),),
-        (('_hsmi', '294404254'),),
+        (("_hsmi", "294404254"),),
     }:
         query = ()
 
-    # localhost referers are never interesting
-    if referrer.startswith('http://localhost:'):
+    # Remove some redundant referrer info
+    if referrer == "https://api.daily.dev/" and query == (("ref", "dailydev"),):
+        query = ()
+
+    if referrer == "https://birchtree.me/" and query == (("ref", "birchtree.me"),):
+        query = ()
+
+    # localhost or private sites aren't interesting
+    if referrer.startswith(("http://localhost:", "http://192.168.2.112:")):
         referrer = ""
 
     # If we don't have any referrer or query info, we can stop here.
@@ -118,7 +125,7 @@ def get_normalised_referrer(*, referrer: str, query: QueryParams) -> str | None:
     # not to save just because it got weird data.
     try:
         u = hyperlink.DecodedURL.from_text(referrer)
-    except Exception as e:
+    except Exception as e:  # pragma: no cover
         print(f"Unable to parse {referrer}: {e}", file=sys.stderr)
         return referrer
 
@@ -262,8 +269,10 @@ def get_normalised_referrer(*, referrer: str, query: QueryParams) -> str | None:
                 "theoldreader.com",
                 "www.inoreader.com",
                 "www.newsblur.com",
+                "www.rssheap.com",
             ],
             "Pinboard": ["pinboard.in", "m.pinboard.in", "www.pinboard.in"],
+            "Pinterest": ["www.pinterest.com"],
             "Search (Google, Bing, DDG, …)": [
                 "au.search.yahoo.com",
                 "bing.com",
@@ -285,8 +294,15 @@ def get_normalised_referrer(*, referrer: str, query: QueryParams) -> str | None:
                 "ya.ru",
             ],
             "Slashdot": ["slashdot.org", "m.slashdot.org", "it.slashdot.org"],
+            "Snapchat": ["www.snapchat.com"],
+            "Spotify": ["open.spotify.com"],
             "Substack": ["substack.com"],
-            "Reddit": ["old.reddit.com", "out.reddit.com", "www.reddit.com"],
+            "Reddit": [
+                "old.reddit.com",
+                "out.reddit.com",
+                "new.reddit.com",
+                "www.reddit.com",
+            ],
             "Telegram": ["web.telegram.org", "weba.telegram.org"],
             "Threads": ["l.threads.net"],
             "Tumblr": ["www.tumblr.com"],
@@ -334,6 +350,9 @@ def get_normalised_referrer(*, referrer: str, query: QueryParams) -> str | None:
     }:
         return "Search (Google, Bing, DDG, …)"
 
+    if u.scheme in {"http", "https"} and u.host == "www.baidu.com":
+        return "Baidu"
+
     # Now look for referrers which have an Android user agent string.
     #
     # I don't know what these are, but I'm guessing they're apps on
@@ -371,7 +390,8 @@ def _get_referrer_from_query(query: QueryParams) -> str | None:
             "Email newsletter": ["newsletter"],
             "Hacker News": ["hackernewsletter"],
             "Mastodon": ["mastodon"],
-            "Pocket": ["pocket_reader", "pocket_saves"],
+            "News aggregator (Flipboard, HN, Reddit, …)": ["cloudhiker.net"],
+            "Pocket": ["pocket_mylist", "pocket_reader", "pocket_saves"],
             "Substack": ["substack"],
             "TLDR Newsletter (https://tldr.tech/)": ["tldrnewsletter", "tldrwebdev"],
         }

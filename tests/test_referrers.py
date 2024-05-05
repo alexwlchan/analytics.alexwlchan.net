@@ -7,14 +7,16 @@ def test_empty_referrer_data_is_none() -> None:
     assert get_normalised_referrer(referrer="", query=()) is None
 
 
-def test_non_url_referrer_is_preserved() -> None:
-    assert get_normalised_referrer(referrer=1, query=()) == 1  # type: ignore
-
-
 @pytest.mark.parametrize(
-    "referrer", ["https://alexwlchan.net/", "https://books.alexwlchan.net/reviews/"]
+    "referrer",
+    [
+        "https://alexwlchan.net/",
+        "https://books.alexwlchan.net/reviews/",
+        "http://localhost:3000",
+        "http://192.168.2.112:3000/",
+    ],
 )
-def test_referrer_from_self_is_none(referrer: str) -> None:
+def test_it_drops_boring_referrers(referrer: str) -> None:
     assert get_normalised_referrer(referrer=referrer, query=()) is None
 
 
@@ -46,6 +48,7 @@ def test_unrecognised_domain_is_preserved(referrer: str) -> None:
         ("https://t.co/", "Twitter"),
         ("android-app://com.slack/", "Slack"),
         ("https://news.hada.io/", "News aggregator (Flipboard, HN, Reddit, …)"),
+        ("https://www.baidu.com/link?url=F8luxqXIkN5B7W", "Baidu"),
     ],
 )
 def test_domain_with_recognised_referrer_is_mapped(referrer: str, name: str) -> None:
@@ -269,3 +272,16 @@ def test_it_tidies_up_urls(referrer: str, normalised_referrer: str) -> None:
         )
         == normalised_referrer
     )
+
+
+@pytest.mark.parametrize(
+    ["referrer", "query"],
+    [
+        ("https://api.daily.dev/", (("ref", "dailydev"),)),
+        ("https://birchtree.me/", (("ref", "birchtree.me"),)),
+    ],
+)
+def test_it_removes_redundant_query_info(
+    referrer: str, query: tuple[tuple[str, str | None], ...]
+) -> None:
+    assert get_normalised_referrer(referrer=referrer, query=query) == referrer
