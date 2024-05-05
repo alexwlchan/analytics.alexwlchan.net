@@ -7,6 +7,7 @@ those broken out in detail -- it's enough to know the traffic came from
 Google.
 """
 
+import functools
 import re
 import sys
 import typing
@@ -17,6 +18,7 @@ import hyperlink
 QueryParams: typing.TypeAlias = tuple[tuple[str, str | None], ...]
 
 
+@functools.cache
 def get_normalised_referrer(*, referrer: str, query: QueryParams) -> str | None:
     """
     Given referrer information from the original request, convert it
@@ -120,11 +122,17 @@ def get_normalised_referrer(*, referrer: str, query: QueryParams) -> str | None:
     except KeyError:
         pass
 
+    # Now use the query string to see if it contains referrer info.
+    query_referrer = _get_referrer_from_query(query)
+
+    if query_referrer is not None:
+        return query_referrer
+
     # Note: this branch is somewhat theoretical.  I've never had a referrer
     # which didn't parse as a URL, but I don't want the tracking pixel
     # not to save just because it got weird data.
     try:
-        u = hyperlink.DecodedURL.from_text(referrer)
+        u = parse_url(referrer)
     except Exception as e:  # pragma: no cover
         print(f"Unable to parse {referrer}: {e}", file=sys.stderr)
         return referrer
@@ -157,12 +165,39 @@ def get_normalised_referrer(*, referrer: str, query: QueryParams) -> str | None:
         u = u.remove("cb")
         u = u.remove("force_isolation")
 
-    # Now use the query string to see if it contains referrer info.
-    query_referrer = _get_referrer_from_query(query)
+    # Now use the referrer header to see what, if anything, we learn.
+    header_referrer = _get_referrer_from_header(u)
 
-    if query_referrer is not None:
-        return query_referrer
+    if header_referrer is not None:
+        return header_referrer
 
+    # Now look for referrers which have an Android user agent string.
+    #
+    # I don't know what these are, but I'm guessing they're apps on
+    # Android devices, or browsers running in-app.
+    android_referrer = _get_referrer_from_android_app_name(u)
+
+    if android_referrer is not None:
+        return android_referrer
+
+    # If we can't map it, return the original referer data, and include
+    # the UTM source so I know if there are more values I should be mapping.
+    if referrer and query:
+        return f"{u.to_text()} (query={query})"
+    elif referrer:
+        return u.to_text()
+    elif query:
+        return f"(query={query})"
+    else:  # pragma: no cover
+        assert 0, "Unreachable"
+
+
+@functools.cache
+def _get_referrer_from_header(u: hyperlink.DecodedURL) -> str | None:
+    """
+    Given the value of the Referer header, look to see if that tells
+    us the source.
+    """
     # Now look for referrers which match a hostname, and don't send any
     # path or query information.  This usually suggests the originating
     # domain has a Referer-Policy of `origin`.
@@ -356,25 +391,7 @@ def get_normalised_referrer(*, referrer: str, query: QueryParams) -> str | None:
     if u.scheme in {"http", "https"} and u.host == "www.baidu.com":
         return "Baidu"
 
-    # Now look for referrers which have an Android user agent string.
-    #
-    # I don't know what these are, but I'm guessing they're apps on
-    # Android devices, or browsers running in-app.
-    android_referrer = _get_referrer_from_android_app_name(u)
-
-    if android_referrer is not None:
-        return android_referrer
-
-    # If we can't map it, return the original referer data, and include
-    # the UTM source so I know if there are more values I should be mapping.
-    if referrer and query:
-        return f"{u.to_text()} (query={query})"
-    elif referrer:
-        return u.to_text()
-    elif query:
-        return f"(query={query})"
-    else:  # pragma: no cover
-        assert 0, "Unreachable"
+    return None
 
 
 def _get_referrer_from_query(query: QueryParams) -> str | None:
@@ -557,3 +574,15 @@ def is_origin_referrer(u: hyperlink.DecodedURL) -> bool:
     has_empty_query = bool(not u.query)
 
     return has_empty_path and has_empty_query
+
+
+@functools.cache
+def parse_url(text: str) -> hyperlink.DecodedURL:
+    """
+    Parse a ``str`` as a ``hyperlink.DecodedURL``.
+
+    This is wrapped in a function so it can be cached; this speeds up
+    the performance of the ``update_normalised_referrer.py`` script by
+    about a third.
+    """
+    return hyperlink.DecodedURL.from_text(text)
