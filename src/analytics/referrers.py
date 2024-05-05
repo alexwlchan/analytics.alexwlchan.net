@@ -250,6 +250,7 @@ def get_normalised_referrer(*, referrer: str, query: QueryParams) -> str | None:
                 "old.thenews.im",
                 "readspike.com",
                 "refind.com",
+                "serializer.io",
                 "spike.news",
                 "techurls.com",
                 "upstract.com",
@@ -258,6 +259,7 @@ def get_normalised_referrer(*, referrer: str, query: QueryParams) -> str | None:
                 "app.usepanda.com",
                 "base.usepanda.com",
                 "bazqux.com",
+                "dm.hn",
                 "feedbin.com",
                 "feeder.co",
                 "feedly.com",
@@ -290,6 +292,7 @@ def get_normalised_referrer(*, referrer: str, query: QueryParams) -> str | None:
                 "www.ecosia.org",
                 "www.qwant.com",
                 "www.startpage.com",
+                "yep.com",
                 # I think this is to do with Yandex?
                 "ya.ru",
             ],
@@ -477,6 +480,9 @@ def _get_referrer_from_query(query: QueryParams) -> str | None:
 
     if query_dict == {"ref": "stachu.net"}:
         return "https://stachu.net/"
+
+    if query_dict == {"ref": "cloudhiker.net"}:
+        return "News aggregator (Flipboard, HN, Reddit, …)"
 
     # hs_email stands for HubSpot.  If we get here and we don't have any
     # more useful info, toss them all into one bucket.
