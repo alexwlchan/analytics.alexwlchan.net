@@ -12,7 +12,7 @@ from werkzeug.wrappers.response import Response as WerkzeugResponse
 
 from .database import AnalyticsDatabase
 from .fetchers import fetch_netlify_bandwidth_usage, fetch_rss_feed_entries
-from .referrers import normalise_referrer
+from .referrers import get_normalised_referrer
 from .types import MissingPage, RecentPost
 from .utils import (
     get_circular_arc_path_command,
@@ -60,12 +60,7 @@ def tracking_pixel() -> FlaskResponse:
 
     ip_address = request.headers["X-Real-IP"]
 
-    n_referrer: str | None
-
-    if u.query == (("utm_source", "mastodon"),):
-        n_referrer = "Mastodon"
-    else:
-        n_referrer = normalise_referrer(referrer)
+    normalised_referrer = get_normalised_referrer(referrer=referrer, query=u.query)
 
     row = {
         "id": uuid.uuid4(),
@@ -78,7 +73,7 @@ def tracking_pixel() -> FlaskResponse:
         "country": get_country_iso_code(ip_address),
         "host": u.host,
         "referrer": referrer,
-        "normalised_referrer": n_referrer,
+        "normalised_referrer": normalised_referrer,
         "path": "/" + "/".join(u.path),
         "query": json.dumps(u.query),
         "is_bot": guess_if_bot(user_agent),

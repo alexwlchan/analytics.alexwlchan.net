@@ -1,33 +1,33 @@
 """
-Update the database with the latest definitions of normalise_referrer().
+Update the database with the latest definitions of get_normalised_referrer().
 """
 
 import json
 
-from analytics.referrers import normalise_referrer
+import tqdm
+
+from analytics.referrers import get_normalised_referrer
 from analytics.utils import get_database
 
-db = get_database(path="requests.sqlite")
 
-for row in db["events"].rows:
-    if (
-        json.loads(row["query"]) == [["utm_source", "mastodon"]]
-        and row["normalised_referrer"] != "Mastodon"
-    ):
-        db["events"].upsert(
-            {
-                "id": row["id"],
-                "normalised_referrer": "Mastodon",
-            },
-            pk="id",
+def get_events_to_upsert(db):
+    for row in tqdm.tqdm(db["events"].rows, total=db["events"].count):
+        normalised_referrer = get_normalised_referrer(
+            referrer=row["referrer"],
+            query=tuple(tuple(q) for q in json.loads(row["query"])),
         )
-        continue
 
-    elif row["normalised_referrer"] != normalise_referrer(row["referrer"]):
-        db["events"].upsert(
-            {
+        if normalised_referrer != row["normalised_referrer"]:
+            yield {
                 "id": row["id"],
-                "normalised_referrer": normalise_referrer(row["referrer"]),
-            },
-            pk="id",
-        )
+                "normalised_referrer": normalised_referrer,
+            }
+
+
+if __name__ == "__main__":
+
+    db = get_database(path="requests.sqlite")
+
+    events = list(get_events_to_upsert(db))
+
+    db["events"].upsert_all(events, pk="id")

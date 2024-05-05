@@ -8,3 +8,4 @@ mypy
 netaddr
 pip-tools
 pytest-cov
+tqdm
