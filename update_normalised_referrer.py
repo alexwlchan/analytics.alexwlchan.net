@@ -36,7 +36,6 @@ def get_events_to_upsert(db):
 
 
 if __name__ == "__main__":
-
     db = get_database(path="requests.sqlite")
 
     events = list(get_events_to_upsert(db))
