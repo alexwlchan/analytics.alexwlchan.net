@@ -26,6 +26,28 @@ def test_referrer_is_search(referrer: str) -> None:
 
 
 @pytest.mark.parametrize(
+    "referrer",
+    [
+        "https://b.hatena.ne.jp/hotentry/it",
+        "https://b.hatena.ne.jp/hotentry/fun",
+        "https://b.hatena.ne.jp/entrylist/it",
+        "https://hackurls.com/",
+    ],
+)
+def test_is_news_aggregator(referrer: str) -> None:
+    assert normalise_referrer(referrer) == "News aggregator (Flipboard, HN, Reddit, …)"
+
+
+def test_non_url_referrer_is_preserved() -> None:
+    assert normalise_referrer(1) == 1  # type: ignore
+
+
+def test_unrecognised_android_url_is_preserved() -> None:
+    url = "android-app://a-brand-new-app"
+    assert normalise_referrer(url) == url
+
+
+@pytest.mark.parametrize(
     ["referrer", "expected"],
     [
         ("https://l.facebook.com/", "Facebook"),
@@ -42,7 +64,6 @@ def test_referrer_is_search(referrer: str) -> None:
         ("android-app://io.github.hidroh.materialistic/", "Hacker News"),
         ("https://www.inoreader.com/", "RSS reader (Feedly, Inoreader, …)"),
         ("android-app://org.fox.ttrss", "RSS reader (Feedly, Inoreader, …)"),
-        ("https://hackurls.com/", "News aggregator (Flipboard, HN, Reddit, …)"),
         ("https://old.reddit.com/?count=75&after=t3_1ag8jtu", "Reddit"),
         (
             "https://old.reddit.com/r/ForAllMankindTV/comments/1ag7bke/i_was_rewatching_season_1/",
@@ -57,6 +78,12 @@ def test_referrer_is_search(referrer: str) -> None:
             "Chat apps (Messenger, Snapchat, etc.)",
         ),
         ("https://m.baidu.com/", "Baidu"),
+        ("https://www.baidu.com/link?url=1&wd=2&eqid=3", "Baidu"),
+        ("https://bbs.boingboing.net/", "https://boingboing.net/"),
+        (
+            "https://www.baidu.com/?query=somethingUnexpected",
+            "https://www.baidu.com/?query=somethingUnexpected",
+        ),
     ],
 )
 def test_normalise_referrer(referrer: str | None, expected: str | None) -> None:
