@@ -13,8 +13,6 @@ class AnalyticsDatabase:
 
     @staticmethod
     def _where_clause(start_date: datetime.date, end_date: datetime.date) -> str:
-        # sensibleendowment.com
-
         # Note: we add the 'x' so that complete datestamps
         # e.g. 2001-02-03T04:56:07Z sort lower than a date like '2001-02-03'
         return f"""
