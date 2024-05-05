@@ -1,6 +1,7 @@
 import collections
 from collections.abc import Iterator
 import datetime
+import typing
 
 from sqlite_utils import Database
 
@@ -158,19 +159,7 @@ class AnalyticsDatabase:
             """
         )
 
-        result: list[PerPageCount] = []
-
-        for row in cursor:
-            result.append(
-                {
-                    "title": row["title"],
-                    "host": row["host"],
-                    "path": row["path"],
-                    "count": row["count"],
-                }
-            )
-
-        return result
+        return [typing.cast(PerPageCount, row) for row in cursor]
 
     def count_referrers(
         self, start_date: datetime.date, end_date: datetime.date

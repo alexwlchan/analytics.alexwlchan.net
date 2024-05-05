@@ -107,43 +107,44 @@ class DummyRecord(typing.TypedDict):
     count: int
 
 
+records: list[DummyRecord] = [
+    {
+        "title": "Making a PDF that’s larger than Germany – alexwlchan",
+        "path": "/2024/big-pdf/",
+        "normalised_referrer": "YouTube",
+        "count": 5,
+    },
+    {
+        "title": "Making a PDF that’s larger than Germany – alexwlchan",
+        "path": "/2024/big-pdf/",
+        "normalised_referrer": "https://example.com/",
+        "count": 1,
+    },
+    {
+        "title": "Making a PDF that’s larger than Germany – alexwlchan",
+        "path": "/2024/big-pdf/",
+        "normalised_referrer": "https://buttondown.email/",
+        "count": 1,
+    },
+    {
+        "title": "alexwlchan",
+        "path": "/",
+        "normalised_referrer": "https://buttondown.email/",
+        "count": 2,
+    },
+    {
+        "title": "Making a PDF that’s larger than Germany – alexwlchan",
+        "path": "/2024/big-pdf/",
+        "normalised_referrer": "https://gigazine.net/",
+        "count": 1,
+    },
+]
+
+
 class TestAnalyticsDatabase:
     def test_count_referrers_gets_all_germany_posts(self) -> None:
         db = Database(":memory:")
         analytics_db = AnalyticsDatabase(db)
-
-        records: list[DummyRecord] = [
-            {
-                "title": "Making a PDF that’s larger than Germany – alexwlchan",
-                "path": "/2024/big-pdf/",
-                "normalised_referrer": "YouTube",
-                "count": 5,
-            },
-            {
-                "title": "Making a PDF that’s larger than Germany – alexwlchan",
-                "path": "/2024/big-pdf/",
-                "normalised_referrer": "https://example.com/",
-                "count": 1,
-            },
-            {
-                "title": "Making a PDF that’s larger than Germany – alexwlchan",
-                "path": "/2024/big-pdf/",
-                "normalised_referrer": "https://buttondown.email/",
-                "count": 1,
-            },
-            {
-                "title": "alexwlchan",
-                "path": "/",
-                "normalised_referrer": "https://buttondown.email/",
-                "count": 2,
-            },
-            {
-                "title": "Making a PDF that’s larger than Germany – alexwlchan",
-                "path": "/2024/big-pdf/",
-                "normalised_referrer": "https://gigazine.net/",
-                "count": 1,
-            },
-        ]
 
         for row in records:
             for _ in range(row["count"]):
@@ -181,3 +182,34 @@ class TestAnalyticsDatabase:
                 }
             },
         }
+
+    def test_count_hits_per_page(self) -> None:
+        db = Database(":memory:")
+        analytics_db = AnalyticsDatabase(db)
+
+        for row in records:
+            for _ in range(row["count"]):
+                Table(db, "events").insert(
+                    {
+                        **row,
+                        "is_me": False,
+                        "host": "alexwlchan.net",
+                        "date": datetime.date(2024, 3, 29).isoformat(),
+                    }
+                )
+
+        result = analytics_db.count_hits_per_page(
+            start_date=datetime.date(2024, 3, 28),
+            end_date=datetime.date(2024, 4, 26),
+            limit=10,
+        )
+
+        assert result == [
+            {
+                "count": 8,
+                "host": "alexwlchan.net",
+                "path": "/2024/big-pdf/",
+                "title": "Making a PDF that’s larger than Germany – alexwlchan",
+            },
+            {"count": 2, "host": "alexwlchan.net", "path": "/", "title": "alexwlchan"},
+        ]
