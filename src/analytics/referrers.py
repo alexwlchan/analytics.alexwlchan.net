@@ -201,11 +201,14 @@ def normalise_referrer(referrer: str | None) -> str | None:
     except KeyError:
         pass
 
+    # Note: this branch is somewhat theoretical.  I've never had a referrer
+    # which didn't parse as a URL, but I don't want the tracking pixel
+    # not to save just because it got weird data.
     try:
         u = hyperlink.DecodedURL.from_text(referrer)
     except Exception as e:
         print(f"Unable to parse {referrer}: {e}", file=sys.stderr)
-        return None
+        return referrer
 
     if _is_search_referrer(u):
         return "Search (Google, Bing, DDG, …)"
@@ -402,8 +405,5 @@ def normalise_referrer(referrer: str | None) -> str | None:
     for param, _ in u.query:
         if param.startswith("utm_"):
             u = u.remove(param)
-
-    if u.host in {"m.slashdot.org", "it.slashdot.org"}:
-        u = u.replace(host="slashdot.org")
 
     return u.to_text()
