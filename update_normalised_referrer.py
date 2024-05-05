@@ -18,7 +18,8 @@ def parse_query(qs: str) -> QueryParams:
 
 def get_events_to_upsert(db):
     cursor = db["events"].rows_where(
-        "referrer != '' or query != '[]'", select="id, referrer, normalised_referrer, query"
+        "referrer != '' or query != '[]'",
+        select="id, referrer, normalised_referrer, query",
     )
     total = db["events"].count_where("referrer != '' or query != '[]'")
 
