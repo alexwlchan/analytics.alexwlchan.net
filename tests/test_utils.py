@@ -1,6 +1,6 @@
 import pytest
 
-from analytics.utils import get_country_iso_code, get_country_name
+from analytics.utils import get_country_iso_code, get_country_name, get_flag_emoji
 
 
 @pytest.mark.parametrize(
@@ -25,3 +25,8 @@ def test_get_country_iso_code(
 )
 def test_get_country_name(country_id: str | None, country_name: str) -> None:
     assert get_country_name(country_id) == country_name
+
+
+@pytest.mark.parametrize(["country_id", "emoji"], [("US", "🇺🇸")])
+def test_get_flag_emoji(country_id: str, emoji: str) -> None:
+    assert get_flag_emoji(country_id) == emoji

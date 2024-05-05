@@ -41,6 +41,10 @@ def get_country_iso_code(ip_address: str) -> str | None:
 
 
 def get_flag_emoji(country_id: str) -> str:
+    """
+    Given a 2-digit ISO country code from ``get_country_iso_code()``,
+    return a flag for that country.
+    """
     code_point_start = ord("🇦") - ord("A")
     assert code_point_start == 127397
 
