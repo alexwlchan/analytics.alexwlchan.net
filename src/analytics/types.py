@@ -20,3 +20,15 @@ class CountedReferrers(typing.TypedDict):
 
     # (page, dict(referrer -> count))
     long_tail: dict[str, dict[str, int]]
+
+
+class PerDayCount(typing.TypedDict):
+    day: str
+    count: int
+
+
+class PerPageCount(typing.TypedDict):
+    host: str
+    path: str
+    title: str
+    count: int
