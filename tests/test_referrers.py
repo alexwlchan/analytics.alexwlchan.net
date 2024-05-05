@@ -193,6 +193,7 @@ def test_utm_source_is_mapped(utm_source: str, name: str) -> None:
             ),
             "Email newsletter",
         ),
+        ((("ref", "cloudhiker.net"),), "News aggregator (Flipboard, HN, Reddit, …)"),
     ],
 )
 def test_query_is_mapped(query: QueryParams, name: str) -> None:
