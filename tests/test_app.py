@@ -58,6 +58,25 @@ class TestTrackingPixel:
         assert Table(db, "events").count == 1
 
     @pytest.mark.filterwarnings("ignore::ResourceWarning")
+    def test_records_bot_event(self, client: FlaskClient) -> None:
+        resp = client.get(
+            "/a.gif",
+            query_string={
+                "url": "https://alexwlchan.net/",
+                "title": "alexwlchan",
+                "referrer": "",
+            },
+            headers={"X-Real-IP": "1.2.3.4", "User-Agent": "Googlebot/1.0"},
+        )
+
+        assert resp.status_code == 200
+
+        db = get_database("requests.sqlite")
+        assert Table(db, "events").count == 1
+        row = next(Table(db, "events").rows)
+        assert row["is_bot"]
+
+    @pytest.mark.filterwarnings("ignore::ResourceWarning")
     def test_utm_source_mastodon(self, client: FlaskClient) -> None:
         resp = client.get(
             "/a.gif",
