@@ -139,6 +139,14 @@ def test_utm_source_is_mapped(utm_source: str, name: str) -> None:
             "https://www.stefanjudis.com/blog/web-weekly-122/",
         ),
         (
+            (
+                ("utm_source", "stefanjudis"),
+                ("utm_medium", "email"),
+                ("utm_campaign", "web-weekly-130-why-is-centering-text-vertically"),
+            ),
+            "https://www.stefanjudis.com/blog/web-weekly-130/",
+        ),
+        (
             (("source", "weeklyVueNews"), ("campaign", "133")),
             "https://weekly-vue.news/issues/133",
         ),

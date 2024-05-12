@@ -33,15 +33,17 @@ def get_normalised_referrer(*, referrer: str, query: QueryParams) -> str | None:
 
     if query in {
         (("force_isolation", "true"),),
+        (("homescreen", "1"),),
         (("s", "03"),),
         (("s", "08"),),
         (("s", "09"),),
-        (("homescreen", "1"),),
-        (("seed", "202404"),),
         (("secureweb", "Teams"),),
+        (("seed", "202404"),),
         (("t", None),),
+        (("trk", "article-ssr-frontend-pulse_little-text-block"),),
         (("v", "10"),),
         (("_hsmi", "294404254"),),
+        (('ref', 'sidebar'),)
     }:
         query = ()
 
@@ -394,6 +396,11 @@ def _get_referrer_from_header(u: hyperlink.DecodedURL) -> str | None:
     return None
 
 
+class ReferrerMatch(typing.TypedDict):
+    referrer: str
+    params: dict[str, str]
+
+
 def _get_referrer_from_query(query: QueryParams) -> str | None:
     """
     Given the query string appended to the URL, look to see if it tells
@@ -418,15 +425,93 @@ def _get_referrer_from_query(query: QueryParams) -> str | None:
     )
 
     query_dict = {k: v for k, v in query}
+
+    utm_source = query_dict.get("utm_source", "")
+
     try:
-        utm_source = query_dict["utm_source"]
+        return utm_source_lookup[utm_source]  # type: ignore
     except KeyError:
-        utm_source = None
-    else:
-        try:
-            return utm_source_lookup[utm_source]  # type: ignore
-        except KeyError:
-            pass
+        pass
+
+    # Look for a ``utm_source`` and ``utm_campaign`` parameters in the
+    # query string.
+    #
+    # These aren't URLs but I can map the common examples.
+    matches: list[ReferrerMatch] = [
+        {
+            "referrer": "News reader (Feedly, Inoreader, …)",
+            "params": {"ref": "usepanda.com"},
+        },
+        {
+            "referrer": "News aggregator (Flipboard, HN, Reddit, …)",
+            "params": {"ref": "cloudhiker.net"},
+        },
+        {
+            "referrer": "https://www.stefanjudis.com/blog/web-weekly-122/",
+            "params": {
+                "utm_source": "stefanjudis",
+                "utm_campaign": "web-weekly-121-will-there-be-an-eu-only-web-3254",
+            },
+        },
+        {
+            "referrer": "https://www.stefanjudis.com/blog/web-weekly-130/",
+            "params": {
+                "utm_source": "stefanjudis",
+                "utm_campaign": "web-weekly-130-why-is-centering-text-vertically",
+            },
+        },
+        {
+            "referrer": "https://weekly-vue.news/issues/133",
+            "params": {
+                "source": "weeklyVueNews",
+                "campaign": "133",
+            },
+        },
+        {
+            "referrer": "https://newsletter.readbalancesheet.com/p/cum-ex-conviction",
+            "params": {
+                "utm_source": "newsletter.readbalancesheet.com",
+                "utm_campaign": "cum-ex-conviction",
+            },
+        },
+        {
+            "referrer": "https://linklatte.beehiiv.com/p/super-bowl-2024-comerciales-michael-cera-cerave-temu-song",
+            "params": {
+                "utm_source": "linklatte.beehiiv.com",
+                "utm_campaign": "169-ya-soy-el-target-demografico-del-super-bowl",
+            },
+        },
+        {
+            "referrer": "https://thefutureislikepie.beehiiv.com/p/water-seeking-roots",
+            "params": {
+                "utm_source": "thefutureislikepie.beehiiv.com",
+                "utm_campaign": "water-seeking-roots",
+            },
+        },
+        {
+            "referrer": "https://www.alexhyett.com/newsletter/building-a-new-home-server/",
+            "params": {
+                "utm_source": "alexhyett",
+                "utm_campaign": "building-a-new-home-server",
+            },
+        },
+        {"referrer": "https://stachu.net/", "params": {"ref": "stachu.net"}},
+        {
+            "referrer": "https://thisisanitsupportgroup.beehiiv.com/p/it-salary-report-open",
+            "params": {
+                "utm_source": "thisisanitsupportgroup.beehiiv.com",
+                "utm_campaign": "2024-it-salary-report-open",
+            },
+        },
+        {
+            "referrer": "https://jekyll-themes.com",
+            "params": {"ref": "jekyll-themes.com"},
+        },
+    ]
+
+    for m in matches:
+        if all(query_dict.get(k) == v for k, v in m["params"].items()):
+            return m["referrer"]
 
     # fbclid is a tracking parameter added to outbound links on Facebook.
     #
@@ -441,65 +526,12 @@ def _get_referrer_from_query(query: QueryParams) -> str | None:
         return "Email newsletter"
 
     # Look for any other useful query string values which might help us.
-    if query_dict.get("ref") == "usepanda.com":
-        return "News reader (Feedly, Inoreader, …)"
-
-    if (
-        utm_source == "stefanjudis"
-        and query_dict.get("utm_campaign")
-        == "web-weekly-121-will-there-be-an-eu-only-web-3254"
-    ):
-        return "https://www.stefanjudis.com/blog/web-weekly-122/"
-
     if (
         utm_source == "efanjudis"
         and "weekly-121-will-there-be-an-eu-only-web-3254"
-        in query_dict.get("utm_campaign")  # type: ignore
+        in (query_dict.get("utm_campaign") or "")
     ):
         return "https://www.stefanjudis.com/blog/web-weekly-122/"
-
-    if (
-        query_dict.get("source") == "weeklyVueNews"
-        and query_dict.get("campaign") == "133"
-    ):
-        return "https://weekly-vue.news/issues/133"
-
-    if (
-        utm_source == "newsletter.readbalancesheet.com"
-        and query_dict.get("utm_campaign") == "cum-ex-conviction"
-    ):
-        return "https://newsletter.readbalancesheet.com/p/cum-ex-conviction"
-
-    if (
-        utm_source == "linklatte.beehiiv.com"
-        and query_dict.get("utm_campaign")
-        == "169-ya-soy-el-target-demografico-del-super-bowl"
-    ):
-        return "https://linklatte.beehiiv.com/p/super-bowl-2024-comerciales-michael-cera-cerave-temu-song"
-
-    if (
-        utm_source == "thefutureislikepie.beehiiv.com"
-        and query_dict.get("utm_campaign") == "water-seeking-roots"
-    ):
-        return "https://thefutureislikepie.beehiiv.com/p/water-seeking-roots"
-
-    if (
-        utm_source == "alexhyett"
-        and query_dict.get("utm_campaign") == "building-a-new-home-server"
-    ):
-        return "https://www.alexhyett.com/newsletter/building-a-new-home-server/"
-
-    if (
-        utm_source == "thisisanitsupportgroup.beehiiv.com"
-        and query_dict.get("utm_campaign") == "2024-it-salary-report-open"
-    ):
-        return "https://thisisanitsupportgroup.beehiiv.com/p/it-salary-report-open"
-
-    if query_dict == {"ref": "stachu.net"}:
-        return "https://stachu.net/"
-
-    if query_dict == {"ref": "cloudhiker.net"}:
-        return "News aggregator (Flipboard, HN, Reddit, …)"
 
     # hs_email stands for HubSpot.  If we get here and we don't have any
     # more useful info, toss them all into one bucket.
