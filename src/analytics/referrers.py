@@ -43,7 +43,7 @@ def get_normalised_referrer(*, referrer: str, query: QueryParams) -> str | None:
         (("trk", "article-ssr-frontend-pulse_little-text-block"),),
         (("v", "10"),),
         (("_hsmi", "294404254"),),
-        (('ref', 'sidebar'),)
+        (("ref", "sidebar"),),
     }:
         query = ()
 
