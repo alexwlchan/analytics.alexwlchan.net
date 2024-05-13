@@ -9,6 +9,7 @@ import typing
 
 import feedparser
 import httpx
+import hyperlink
 
 from .utils import get_password
 
@@ -40,6 +41,8 @@ def fetch_rss_feed_entries() -> Iterator[RssEntry]:
             "date_posted": datetime.datetime.fromisoformat(e["published"]),
             "title": e["title"],
             "url": url,
+            "host": hyperlink.DecodedURL.from_text(url).host,
+            "path": "/" + "/".join(hyperlink.DecodedURL.from_text(url).path),
         }
 
 

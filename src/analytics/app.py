@@ -126,21 +126,24 @@ def get_recent_posts() -> list[RecentPost]:
     Return a list of the ten most recent posts, and the number of times
     they were viewed.
     """
+    db_table("posts").drop()
+
     for entry in fetch_rss_feed_entries():
         db_table("posts").upsert(entry, pk="id")
 
     query = """
-        SELECT p.url, p.title, p.date_posted, COUNT(e.url) AS count
+        SELECT p.host, p.path, p.title, p.date_posted, COUNT(e.url) AS count
         FROM posts p
-        LEFT JOIN events e ON p.url = e.url
-        GROUP BY p.url, p.date_posted
+        LEFT JOIN events e ON p.host = e.host AND p.path = e.path
+        GROUP BY p.host, p.path, p.date_posted
         ORDER BY p.date_posted DESC
         LIMIT 10;
     """
 
     return [
         {
-            "url": row["url"],
+            "host": row["host"],
+            "path": row["path"],
             "title": row["title"],
             "date_posted": datetime.datetime.fromisoformat(row["date_posted"]),
             "count": row["count"],
