@@ -8,7 +8,8 @@ class MissingPage(typing.TypedDict):
 
 
 class RecentPost(typing.TypedDict):
-    url: str
+    host: str
+    path: str
     title: str
     date_posted: datetime.datetime
     count: int

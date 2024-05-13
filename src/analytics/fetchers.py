@@ -19,6 +19,8 @@ class RssEntry(typing.TypedDict):
     date_posted: datetime.datetime
     title: str
     url: str
+    host: str
+    path: str
 
 
 def fetch_rss_feed_entries() -> Iterator[RssEntry]:
