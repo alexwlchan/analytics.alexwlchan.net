@@ -507,6 +507,14 @@ def _get_referrer_from_query(query: QueryParams) -> str | None:
             "referrer": "https://jekyll-themes.com",
             "params": {"ref": "jekyll-themes.com"},
         },
+        {
+            "referrer": "https://weeklyfoo.com",
+            "params": {"utm_source": "weeklyfoo", "utm_campaign": "weeklyfoo"},
+        },
+        {
+            "referrer": "https://weeklyfoo.com/foos/foo-032/",
+            "params": {"utm_source": "weeklyfoo", "utm_campaign": "weeklyfoo-32"},
+        },
     ]
 
     for m in matches:
