@@ -85,7 +85,7 @@ josepy==1.14.0
     # via
     #   acme
     #   certbot
-keyring==25.2.0
+keyring==25.2.1
     # via -r requirements.in
 keyrings-alt==5.0.1
     # via -r requirements.in
