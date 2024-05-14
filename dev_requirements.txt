@@ -124,6 +124,7 @@ jaraco-functools==4.0.1
 jeepney==0.8.0
     # via
     #   -r requirements.txt
+    #   keyring
     #   secretstorage
 jinja2==3.1.3
     # via
@@ -134,7 +135,7 @@ josepy==1.14.0
     #   -r requirements.txt
     #   acme
     #   certbot
-keyring==25.2.0
+keyring==25.2.1
     # via -r requirements.txt
 keyrings-alt==5.0.1
     # via -r requirements.txt
@@ -231,7 +232,9 @@ requests==2.31.0
     #   -r requirements.txt
     #   acme
 secretstorage==3.3.3
-    # via -r requirements.txt
+    # via
+    #   -r requirements.txt
+    #   keyring
 sgmllib3k==1.0.0
     # via
     #   -r requirements.txt
