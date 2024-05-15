@@ -249,5 +249,4 @@ class TestAnalyticsDatabase:
         assert result == [
             {"path": "/not-found", "count": 5},
             {"path": "/404", "count": 2},
-            {"path": "/files/2021/null", "count": 1},
         ]

@@ -244,6 +244,11 @@ class AnalyticsDatabase:
         We can't see the page status code in JavaScript, so we can't sent it to the
         tracking pixel -- we have to look for the 404 page title.
         """
+        # Skip paths that end in `/null`.
+        #
+        # I see a handful of URLs like this -- I don't really know where
+        # they're coming from, but they're infrequent enough that I think
+        # it's a client issue rather than an issue on my site.
         cursor = self.db.query(
             f"""
             SELECT
@@ -253,6 +258,7 @@ class AnalyticsDatabase:
             WHERE
                 {self._where_clause(start_date, end_date)}
                 and title = '404 Not Found – alexwlchan'
+                and path NOT LIKE '%/null'
             GROUP BY
                 path
             ORDER BY
