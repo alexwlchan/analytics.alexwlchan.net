@@ -157,6 +157,9 @@ def get_normalised_referrer(*, referrer: str, query: QueryParams) -> str | None:
         for param_name, _ in list(u.query):
             u = u.remove(param_name)
 
+    if u.host == "old.reddit.com":
+        u = u.replace(host="www.reddit.com")
+
     if u.host == "www.numerama.com":
         u = u.remove("utm_source")
         u = u.remove("utm_param")
@@ -330,6 +333,7 @@ def _get_referrer_from_header(u: hyperlink.DecodedURL) -> str | None:
                 "www.qwant.com",
                 "www.startpage.com",
                 "yep.com",
+                "you.com",
                 # I think this is to do with Yandex?
                 "ya.ru",
             ],
@@ -360,6 +364,7 @@ def _get_referrer_from_header(u: hyperlink.DecodedURL) -> str | None:
                 "statics.gov.teams.microsoft.us",
                 "statics.teams.cdn.office.net",
                 "teams.microsoft.com",
+                "ukc-word-edit.officeapps.live.com",
                 "word-edit.officeapps.live.com",
             ],
         }
