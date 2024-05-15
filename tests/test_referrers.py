@@ -271,6 +271,10 @@ def test_bad_queries_are_ignored(query: QueryParams) -> None:
             "https://stackoverflow.blog/2024/02/09/building-a-pdf-larger-than-the-known-universe/?cb=1&force_isolation=true",
             "https://stackoverflow.blog/2024/02/09/building-a-pdf-larger-than-the-known-universe/",
         ),
+        (
+            "https://old.reddit.com/r/logitech/comments/pi5flh/anyone_know_how_to_fix_this_inactive_problem_with/",
+            "https://www.reddit.com/r/logitech/comments/pi5flh/anyone_know_how_to_fix_this_inactive_problem_with/",
+        ),
     ],
 )
 def test_it_tidies_up_urls(referrer: str, normalised_referrer: str) -> None:
