@@ -27,13 +27,17 @@
 
 <h1 style="margin-top: 2em;">Missing pages</h1>
 
-<table>
-  {% for p in missing_pages %}
-  <tr>
-    <td>
-      <code style="overflow-wrap: anywhere;">{{ p.path }}</p>
-    </td>
-    <td class="count">{{ p.count }}</td>
-  </tr>
-  {% endfor %}
-</table>
+{% if missing_pages %}
+  <table>
+    {% for p in missing_pages %}
+    <tr>
+      <td>
+        <code style="overflow-wrap: anywhere;">{{ p.path }}</p>
+      </td>
+      <td class="count">{{ p.count }}</td>
+    </tr>
+    {% endfor %}
+  </table>
+{% else %}
+  <p>Nobody got a 404 page in this period! 🥳</p>
+{% endif %}

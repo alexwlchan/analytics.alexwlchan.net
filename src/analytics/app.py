@@ -1,4 +1,3 @@
-from collections.abc import Iterator
 import datetime
 import json
 import uuid
@@ -13,7 +12,7 @@ from werkzeug.wrappers.response import Response as WerkzeugResponse
 from .database import AnalyticsDatabase
 from .fetchers import fetch_netlify_bandwidth_usage, fetch_rss_feed_entries
 from .referrers import get_normalised_referrer
-from .types import MissingPage, RecentPost
+from .types import RecentPost
 from .utils import (
     get_circular_arc_path_command,
     get_country_iso_code,
@@ -88,37 +87,6 @@ def tracking_pixel() -> FlaskResponse:
 @app.route("/robots.txt")
 def robots_txt() -> FlaskResponse:
     return send_file("static/robots.txt")
-
-
-def find_missing_pages() -> Iterator[MissingPage]:
-    for row in db.query(
-        """
-        select
-          path,
-          count(*) as count
-        from
-          events
-        where
-          date >= :date
-          and title = '404 Not Found – alexwlchan'
-          and is_me = '0' and host != 'localhost' and host not like '%--alexwlchan.netlify.app'
-        group by
-          path
-        order by
-          count desc
-        limit
-          25
-    """,
-        {
-            "date": (datetime.date.today() - datetime.timedelta(days=29)).strftime(
-                "%Y-%m-%d"
-            )
-        },
-    ):
-        yield {
-            "path": row["path"],
-            "count": row["count"],
-        }
 
 
 def get_recent_posts() -> list[RecentPost]:
@@ -202,7 +170,7 @@ def dashboard() -> str:
 
     popular_pages = analytics_db.count_hits_per_page(start_date, end_date, limit=25)
 
-    missing_pages = find_missing_pages()
+    missing_pages = analytics_db.count_missing_pages(start_date, end_date)
 
     counted_referrers = analytics_db.count_referrers(start_date, end_date)
 
