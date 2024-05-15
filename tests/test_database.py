@@ -213,3 +213,41 @@ class TestAnalyticsDatabase:
             },
             {"count": 2, "host": "alexwlchan.net", "path": "/", "title": "alexwlchan"},
         ]
+
+    def test_count_missing_pages(self) -> None:
+        db = Database(":memory:")
+        analytics_db = AnalyticsDatabase(db)
+
+        for row in records:
+            for _ in range(row["count"]):
+                Table(db, "events").insert(
+                    {
+                        **row,
+                        "is_me": False,
+                        "host": "alexwlchan.net",
+                        "date": datetime.date(2024, 3, 29).isoformat(),
+                    }
+                )
+
+        for path, count in [("/404", 2), ("/not-found", 5), ("/files/2021/null", 1)]:
+            for _ in range(count):
+                Table(db, "events").insert(
+                    {
+                        "title": "404 Not Found – alexwlchan",
+                        "path": path,
+                        "is_me": False,
+                        "host": "alexwlchan.net",
+                        "date": datetime.date(2024, 3, 29).isoformat(),
+                    }
+                )
+
+        result = analytics_db.count_missing_pages(
+            start_date=datetime.date(2024, 3, 28),
+            end_date=datetime.date(2024, 4, 26),
+        )
+
+        assert result == [
+            {"path": "/not-found", "count": 5},
+            {"path": "/404", "count": 2},
+            {"path": "/files/2021/null", "count": 1},
+        ]
