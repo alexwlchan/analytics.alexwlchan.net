@@ -191,7 +191,7 @@ class AnalyticsDatabase:
             GROUP BY
                 path, normalised_referrer
             ORDER BY
-              count desc
+                count desc
         """
         )
 
