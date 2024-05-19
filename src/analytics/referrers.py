@@ -328,14 +328,14 @@ def _get_referrer_from_header(u: hyperlink.DecodedURL) -> str | None:
                 "search.brave.com",
                 "search.lilo.org",
                 "searchmysite.net",
+                "sogou.com",
                 "www.bing.com",
                 "www.ecosia.org",
                 "www.qwant.com",
                 "www.startpage.com",
+                "ya.ru",  # I think this is to do with Yandex?
                 "yep.com",
                 "you.com",
-                # I think this is to do with Yandex?
-                "ya.ru",
             ],
             "Slashdot": ["slashdot.org", "m.slashdot.org", "it.slashdot.org"],
             "Snapchat": ["www.snapchat.com"],
