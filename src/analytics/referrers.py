@@ -8,6 +8,7 @@ Google.
 """
 
 import functools
+import ipaddress
 import re
 import sys
 import typing
@@ -53,10 +54,6 @@ def get_normalised_referrer(*, referrer: str, query: QueryParams) -> str | None:
 
     if referrer == "https://birchtree.me/" and query == (("ref", "birchtree.me"),):
         query = ()
-
-    # localhost or private sites aren't interesting
-    if referrer.startswith(("http://localhost:", "http://192.168.2.112:")):
-        referrer = ""
 
     # If we don't have any referrer or query info, we can stop here.
     if not referrer and not query:
@@ -138,6 +135,17 @@ def get_normalised_referrer(*, referrer: str, query: QueryParams) -> str | None:
     except Exception as e:  # pragma: no cover
         print(f"Unable to parse {referrer}: {e}", file=sys.stderr)
         return referrer
+
+    # Ignore any requests coming from local IP addresses; I can't do
+    # anything with this.
+    if u.host == "localhost":
+        return None
+
+    try:
+        if ipaddress.ip_address(u.host).is_private:
+            return None
+    except ValueError:
+        pass
 
     # Ignore any referrer data from my own domain -- I'm more interested
     # in who's linking to me than how people are moving about my site.

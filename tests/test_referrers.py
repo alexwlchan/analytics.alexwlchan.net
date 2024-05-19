@@ -14,6 +14,7 @@ def test_empty_referrer_data_is_none() -> None:
         "https://books.alexwlchan.net/reviews/",
         "http://localhost:3000",
         "http://192.168.2.112:3000/",
+        "https://192.168.0.230/",
     ],
 )
 def test_it_drops_boring_referrers(referrer: str) -> None:
@@ -99,6 +100,11 @@ def test_spots_a_substack_email() -> None:
         query=(("utm_source", "substack"), ("utm_medium", "email")),
     )
     assert result == "Substack"
+
+
+def test_leaves_a_non_local_ip_address_as_is() -> None:
+    referrer = "http://1.2.3.4:8080"
+    assert get_normalised_referrer(referrer=referrer, query=()) == referrer
 
 
 @pytest.mark.parametrize(
