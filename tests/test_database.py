@@ -294,3 +294,55 @@ class TestAnalyticsDatabase:
                 "long_tail": {},
             },
         )
+
+    @pytest.mark.parametrize(
+        ["start_date", "end_date", "expected_result"],
+        [
+            ("2001-01-01", "2001-01-01", [{"day": "2001-01-01", "count": 10}]),
+            (
+                "2001-01-01",
+                "2001-01-02",
+                [
+                    {"day": "2001-01-01", "count": 10},
+                    {"day": "2001-01-02", "count": 15},
+                ],
+            ),
+            (
+                "2001-01-02",
+                "2001-01-04",
+                [
+                    {"day": "2001-01-02", "count": 15},
+                    {"day": "2001-01-03", "count": 0},
+                    {"day": "2001-01-04", "count": 17},
+                ],
+            ),
+        ],
+    )
+    def test_count_requests_per_day(
+        self, start_date: str, end_date: str, expected_result: list[PerDayCount]
+    ) -> None:
+        db = Database(":memory:")
+        analytics_db = AnalyticsDatabase(db)
+
+        requests = {
+            "2001-01-01": 10,
+            "2001-01-02": 15,
+            "2001-01-04": 17,
+            "2001-01-05": 16,
+        }
+
+        for day, count in requests.items():
+            for i in range(count):
+                Table(db, "events").insert(
+                    {
+                        "date": day + "T01:23:45Z",
+                        "is_me": False,
+                        "host": "alexwlchan.net",
+                    }
+                )
+
+        actual = analytics_db.count_requests_per_day(
+            start_date=datetime.date.fromisoformat(start_date),
+            end_date=datetime.date.fromisoformat(end_date),
+        )
+        assert actual == expected_result
