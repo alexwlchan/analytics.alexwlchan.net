@@ -432,6 +432,7 @@ def _get_referrer_from_query(query: QueryParams) -> str | None:
             "Mastodon": ["mastodon"],
             "News aggregator (Flipboard, HN, Reddit, …)": ["cloudhiker.net"],
             "Pocket": ["pocket_mylist", "pocket_reader", "pocket_saves"],
+            "RSS subscribers": ["rss"],
             "Substack": ["substack"],
             "TLDR Newsletter (https://tldr.tech/)": ["tldrnewsletter", "tldrwebdev"],
         }
