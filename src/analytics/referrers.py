@@ -287,6 +287,7 @@ def _get_referrer_from_header(u: hyperlink.DecodedURL) -> str | None:
                 "boredreading.com",
                 "devurls.com",
                 "flipboard.com",
+                "freshnews.org",
                 "habr.com",
                 "hackurls.com",
                 "ios.feeddler.com",
@@ -301,7 +302,9 @@ def _get_referrer_from_header(u: hyperlink.DecodedURL) -> str | None:
                 "serializer.io",
                 "spike.news",
                 "techurls.com",
+                "tuxurls.com",
                 "upstract.com",
+                "www.freshnews.org",
             ],
             "News reader (Feedly, Inoreader, …)": [
                 "app.usepanda.com",
