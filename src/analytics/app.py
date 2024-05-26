@@ -9,6 +9,7 @@ import hyperlink
 from sqlite_utils.db import Table
 from werkzeug.wrappers.response import Response as WerkzeugResponse
 
+from . import date_helpers
 from .database import AnalyticsDatabase
 from .fetchers import fetch_netlify_bandwidth_usage, fetch_rss_feed_entries
 from .referrers import get_normalised_referrer
@@ -131,15 +132,6 @@ app.jinja_env.filters["naturalsize"] = humanize.naturalsize
 app.jinja_env.filters["naturaltime"] = humanize.naturaltime
 app.jinja_env.globals["circular_arc"] = get_circular_arc_path_command
 
-app.jinja_env.globals.update(
-    now=lambda: datetime.datetime.now(tz=datetime.timezone.utc)
-)
-
-app.jinja_env.globals.update(
-    yesterday=lambda: datetime.datetime.now(tz=datetime.timezone.utc)
-    - datetime.timedelta(days=1)
-)
-
 
 @app.template_filter("prettydate")
 def prettydate(d: str) -> str:
@@ -200,4 +192,7 @@ def dashboard() -> str:
         recent_posts=recent_posts,
         netlify_usage=netlify_usage,
         latest_event=latest_event,
+        now=date_helpers.now(),
+        today=datetime.date.today(),
+        yesterday=date_helpers.yesterday(),
     )

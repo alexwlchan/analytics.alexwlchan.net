@@ -1,10 +1,10 @@
 import collections
-from collections.abc import Iterator
 import datetime
 import typing
 
 from sqlite_utils import Database
 
+from .date_helpers import days_between
 from .types import CountedReferrers, MissingPage, PerDayCount, PerPageCount
 
 
@@ -24,20 +24,6 @@ class AnalyticsDatabase:
             and date >= '{start_date.isoformat()}'
             and date <= '{end_date.isoformat() + 'x'}'
         """.strip()
-
-    @staticmethod
-    def _days_between(
-        start_date: datetime.date, end_date: datetime.date
-    ) -> Iterator[datetime.date]:
-        """
-        Generate all the days between two dates, including the dates
-        themselves.
-        """
-        d = start_date
-
-        while d <= end_date:
-            yield d
-            d += datetime.timedelta(days=1)
 
     def count_requests_per_day(
         self, start_date: datetime.date, end_date: datetime.date
@@ -70,7 +56,7 @@ class AnalyticsDatabase:
 
         return [
             {"day": day.isoformat(), "count": count_lookup.get(day.isoformat(), 0)}
-            for day in self._days_between(start_date, end_date)
+            for day in days_between(start_date, end_date)
         ]
 
     def count_unique_visitors_per_day(
@@ -104,7 +90,7 @@ class AnalyticsDatabase:
 
         return [
             {"day": day.isoformat(), "count": count_lookup.get(day.isoformat(), 0)}
-            for day in self._days_between(start_date, end_date)
+            for day in days_between(start_date, end_date)
         ]
 
     def count_visitors_by_country(
