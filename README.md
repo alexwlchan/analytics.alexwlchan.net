@@ -131,6 +131,13 @@ To send data to the server, add the following tracking snippet to the page:
 </script>
 ```
 
+## UTM parameters
+
+I have a small number of `utm_source` parameters I add to my own links I share:
+
+* `utm_source=mastodon` – links I post on Mastodon
+* `utm_source=rss` – links in my RSS feed
+
 ## Analysing the data
 
 Because the data is in a SQLite database, I can analyse it using Datasette.
