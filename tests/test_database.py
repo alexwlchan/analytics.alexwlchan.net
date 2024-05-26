@@ -7,7 +7,7 @@ from sqlite_utils import Database
 from sqlite_utils.db import Table
 
 from analytics.database import AnalyticsDatabase
-from analytics.types import PerDayCount
+from analytics.types import CountedReferrers, PerDayCount
 
 
 @pytest.mark.parametrize(
@@ -250,3 +250,47 @@ class TestAnalyticsDatabase:
             {"path": "/not-found", "count": 5},
             {"path": "/404", "count": 2},
         ]
+
+    def test_count_referrers_gets_missing_pages(self) -> None:
+        db = Database(":memory:")
+        analytics_db = AnalyticsDatabase(db)
+
+        Table(db, "events").insert(
+            {
+                "is_me": False,
+                "host": "alexwlchan.net",
+                "date": datetime.date(2024, 5, 26),
+                "title": "410 Gone – alexwlchan",
+                "path": "/2019/08/a-post-that-has-been-removed",
+                "normalised_referrer": "example.com",
+            }
+        )
+
+        for _ in range(3):
+            Table(db, "events").insert(
+                {
+                    "is_me": False,
+                    "host": "alexwlchan.net",
+                    "date": datetime.date(2024, 5, 26),
+                    "title": "404 Not Found – alexwlchan",
+                    "path": "/2019/08/a-post-that-never-existed",
+                    "normalised_referrer": "example.net",
+                }
+            )
+
+        result = analytics_db.count_referrers(
+            start_date=datetime.date(2024, 5, 25), end_date=datetime.date(2024, 5, 27)
+        )
+
+        # assert result ==
+
+        assert result == typing.cast(
+            CountedReferrers,
+            {
+                "grouped_referrers": [
+                    ("example.net", {"/2019/08/a-post-that-never-existed (404)": 3}),
+                    ("example.com", {"/2019/08/a-post-that-has-been-removed (410)": 1}),
+                ],
+                "long_tail": {},
+            },
+        )
