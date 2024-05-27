@@ -48,6 +48,7 @@ td {
 
 td.count {
   text-align: right;
+  overflow-wrap: normal;
 }
 
 a {
