@@ -221,6 +221,7 @@ def _get_referrer_from_header(u: hyperlink.DecodedURL) -> str | None:
             "Baidu": ["baidu.com", "m.baidu.com"],
             "Bluesky": ["bsky.app", "staging.bsky.app"],
             "Email": [
+                "deref-gmx.com",
                 "e.mail.ru",
                 "email.t-online.de",
                 "mail.google.com",
@@ -432,7 +433,7 @@ def _get_referrer_from_query(query: QueryParams) -> str | None:
     utm_source_lookup = invert_dict(
         {
             "Email newsletter": ["newsletter"],
-            "Hacker News": ["hackernewsletter"],
+            "Hacker News": ["hackernewsletter", "hnblogs.substack.com"],
             "Mastodon": ["mastodon"],
             "News aggregator (Flipboard, HN, Reddit, …)": ["cloudhiker.net"],
             "Pocket": ["pocket_mylist", "pocket_reader", "pocket_saves"],
