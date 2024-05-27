@@ -218,7 +218,7 @@ def _get_referrer_from_header(u: hyperlink.DecodedURL) -> str | None:
     # See https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Referrer-Policy
     hostname_lookup = invert_dict(
         {
-            "Baidu": ["baidu.com"],
+            "Baidu": ["baidu.com", "m.baidu.com"],
             "Bluesky": ["bsky.app", "staging.bsky.app"],
             "Email": [
                 "e.mail.ru",
@@ -235,6 +235,7 @@ def _get_referrer_from_header(u: hyperlink.DecodedURL) -> str | None:
                 "mailchi.mp",
                 "us1.campaign-archive.com",
             ],
+            "Evernote": ["www.evernote.com"],
             "GitHub": ["gist.github.com", "github.com"],
             "Facebook": ["l.facebook.com", "m.facebook.com", "lm.facebook.com"],
             "Fark": ["www.fark.com", "m.fark.com"],
