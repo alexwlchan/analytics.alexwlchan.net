@@ -1,5 +1,4 @@
 certbot
-feedparser
 flask
 gunicorn
 httpx

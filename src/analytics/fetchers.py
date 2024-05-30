@@ -6,8 +6,8 @@ anything that can't come from the local database.
 from collections.abc import Iterator
 import datetime
 import typing
+from xml.etree import ElementTree as ET
 
-import feedparser
 import httpx
 import hyperlink
 
@@ -30,18 +30,26 @@ def fetch_rss_feed_entries() -> Iterator[RssEntry]:
     resp = httpx.get("https://alexwlchan.net/atom.xml")
     resp.raise_for_status()
 
-    feed = feedparser.parse(resp.text)
+    # Note: ET.fromstring() is not safe against maliciously constructed XML,
+    # but this is my RSS feed!  So I trust it.
+    xml = ET.fromstring(resp.text)
 
-    for e in feed["entries"]:
-        url = e["id"]
+    for entry in xml.findall("{http://www.w3.org/2005/Atom}entry"):
+        url = entry.find("{http://www.w3.org/2005/Atom}id").text
 
+        # See https://github.com/alexwlchan/alexwlchan.net/issues/787
         if not url.endswith("/"):
             url += "/"
 
+        title = entry.find("{http://www.w3.org/2005/Atom}title").text
+        date_posted = datetime.datetime.fromisoformat(
+            entry.find("{http://www.w3.org/2005/Atom}published").text
+        )
+
         yield {
-            "id": e["id"],
-            "date_posted": datetime.datetime.fromisoformat(e["published"]),
-            "title": e["title"],
+            "id": url,
+            "date_posted": date_posted,
+            "title": title,
             "url": url,
             "host": hyperlink.DecodedURL.from_text(url).host,
             "path": "/" + "/".join(hyperlink.DecodedURL.from_text(url).path),
