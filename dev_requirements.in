@@ -6,6 +6,6 @@ flake8
 mmdb-writer
 mypy
 netaddr
-pip-tools
 pytest-cov
+pytest-vcr
 tqdm
