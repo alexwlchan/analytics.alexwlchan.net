@@ -8,4 +8,4 @@ scp alexwlchan@harmonia.linode:repos/analytics.alexwlchan.net/requests.sqlite .
 
 cp \
   requests.sqlite \
-  /Volumes/Media\ \(Sapphire\)/backups/alexwlchan.net/requests.$(date +"%Y-%m-%d").sqlite
+  /Volumes/Media\ \(Sapphire\)/backups/alexwlchan.net/analytics/requests.$(date +"%Y-%m-%d").sqlite
