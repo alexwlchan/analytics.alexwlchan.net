@@ -4,19 +4,19 @@ acme==2.10.0
     # via
     #   -r requirements.txt
     #   certbot
-anyio==4.2.0
+anyio==4.4.0
     # via
     #   -r requirements.txt
     #   httpx
 black==24.4.2
     # via -r dev_requirements.in
-blinker==1.7.0
+blinker==1.8.2
     # via
     #   -r requirements.txt
     #   flask
 certbot==2.10.0
     # via -r requirements.txt
-certifi==2023.11.17
+certifi==2024.2.2
     # via
     #   -r requirements.txt
     #   httpcore
@@ -53,7 +53,7 @@ coverage==7.5.3
     # via
     #   -r dev_requirements.in
     #   pytest-cov
-cryptography==41.0.7
+cryptography==42.0.7
     # via
     #   -r requirements.txt
     #   acme
@@ -76,7 +76,7 @@ h11==0.14.0
     # via
     #   -r requirements.txt
     #   httpcore
-httpcore==1.0.2
+httpcore==1.0.5
     # via
     #   -r requirements.txt
     #   httpx
@@ -86,7 +86,7 @@ humanize==4.9.0
     # via -r requirements.txt
 hyperlink==21.0.0
     # via -r requirements.txt
-idna==3.6
+idna==3.7
     # via
     #   -r requirements.txt
     #   anyio
@@ -96,11 +96,11 @@ idna==3.6
     #   yarl
 iniconfig==2.0.0
     # via pytest
-itsdangerous==2.1.2
+itsdangerous==2.2.0
     # via
     #   -r requirements.txt
     #   flask
-jaraco-classes==3.3.1
+jaraco-classes==3.4.0
     # via
     #   -r requirements.txt
     #   keyring
@@ -114,7 +114,7 @@ jaraco-functools==4.0.1
     # via
     #   -r requirements.txt
     #   keyring
-jinja2==3.1.3
+jinja2==3.1.4
     # via
     #   -r requirements.txt
     #   flask
@@ -127,7 +127,7 @@ keyring==25.2.1
     # via -r requirements.txt
 keyrings-alt==5.0.1
     # via -r requirements.txt
-markupsafe==2.1.3
+markupsafe==2.1.5
     # via
     #   -r requirements.txt
     #   jinja2
@@ -157,7 +157,7 @@ netaddr==0.10.1
     # via
     #   -r dev_requirements.in
     #   mmdb-writer
-packaging==23.2
+packaging==24.0
     # via
     #   -r requirements.txt
     #   black
@@ -171,22 +171,22 @@ pathspec==0.12.1
     # via black
 platformdirs==4.1.0
     # via black
-pluggy==1.3.0
+pluggy==1.5.0
     # via
     #   -r requirements.txt
     #   pytest
     #   sqlite-utils
 pycodestyle==2.11.1
     # via flake8
-pycountry==23.12.11
+pycountry==24.6.1
     # via -r requirements.txt
-pycparser==2.21
+pycparser==2.22
     # via
     #   -r requirements.txt
     #   cffi
 pyflakes==3.2.0
     # via flake8
-pyopenssl==23.3.0
+pyopenssl==24.1.0
     # via
     #   -r requirements.txt
     #   acme
@@ -204,11 +204,11 @@ pytest-cov==5.0.0
     # via -r dev_requirements.in
 pytest-vcr==1.0.2
     # via -r dev_requirements.in
-python-dateutil==2.8.2
+python-dateutil==2.9.0.post0
     # via
     #   -r requirements.txt
     #   sqlite-utils
-pytz==2023.3.post1
+pytz==2024.1
     # via
     #   -r requirements.txt
     #   acme
@@ -216,7 +216,7 @@ pytz==2023.3.post1
     #   pyrfc3339
 pyyaml==6.0.1
     # via vcrpy
-requests==2.31.0
+requests==2.32.3
     # via
     #   -r requirements.txt
     #   acme
@@ -234,7 +234,7 @@ six==1.16.0
     #   -r requirements.txt
     #   configobj
     #   python-dateutil
-sniffio==1.3.0
+sniffio==1.3.1
     # via
     #   -r requirements.txt
     #   anyio
@@ -253,13 +253,13 @@ tqdm==4.66.4
     # via -r dev_requirements.in
 typing-extensions==4.9.0
     # via mypy
-urllib3==2.1.0
+urllib3==2.2.1
     # via
     #   -r requirements.txt
     #   requests
 vcrpy==6.0.1
     # via pytest-vcr
-werkzeug==3.0.1
+werkzeug==3.0.3
     # via
     #   -r requirements.txt
     #   flask
