@@ -8,8 +8,6 @@ anyio==4.4.0
     # via
     #   -r requirements.txt
     #   httpx
-black==24.4.2
-    # via -r dev_requirements.in
 blinker==1.8.2
     # via
     #   -r requirements.txt
@@ -33,7 +31,6 @@ charset-normalizer==3.3.2
 click==8.1.7
     # via
     #   -r requirements.txt
-    #   black
     #   click-default-group
     #   flask
     #   sqlite-utils
@@ -50,9 +47,7 @@ configobj==5.0.8
     #   -r requirements.txt
     #   certbot
 coverage==7.5.3
-    # via
-    #   -r dev_requirements.in
-    #   pytest-cov
+    # via pytest-cov
 cryptography==42.0.7
     # via
     #   -r requirements.txt
@@ -66,8 +61,6 @@ distro==1.9.0
     #   certbot
 feedparser==6.0.11
     # via -r requirements.txt
-flake8==7.0.0
-    # via -r dev_requirements.in
 flask==3.0.3
     # via -r requirements.txt
 gunicorn==22.0.0
@@ -136,8 +129,6 @@ maxminddb==2.6.1
     # via
     #   -r requirements.txt
     #   mmdb-writer
-mccabe==0.7.0
-    # via flake8
 mmdb-writer==0.1.1
     # via -r dev_requirements.in
 more-itertools==10.2.0
@@ -150,9 +141,7 @@ multidict==6.0.5
 mypy==1.10.0
     # via -r dev_requirements.in
 mypy-extensions==1.0.0
-    # via
-    #   black
-    #   mypy
+    # via mypy
 netaddr==0.10.1
     # via
     #   -r dev_requirements.in
@@ -160,32 +149,23 @@ netaddr==0.10.1
 packaging==24.0
     # via
     #   -r requirements.txt
-    #   black
     #   gunicorn
     #   pytest
 parsedatetime==2.6
     # via
     #   -r requirements.txt
     #   certbot
-pathspec==0.12.1
-    # via black
-platformdirs==4.1.0
-    # via black
 pluggy==1.5.0
     # via
     #   -r requirements.txt
     #   pytest
     #   sqlite-utils
-pycodestyle==2.11.1
-    # via flake8
 pycountry==24.6.1
     # via -r requirements.txt
 pycparser==2.22
     # via
     #   -r requirements.txt
     #   cffi
-pyflakes==3.2.0
-    # via flake8
 pyopenssl==24.1.0
     # via
     #   -r requirements.txt
@@ -220,6 +200,8 @@ requests==2.32.3
     # via
     #   -r requirements.txt
     #   acme
+ruff==0.4.7
+    # via -r dev_requirements.in
 setuptools==70.0.0
     # via
     #   -r requirements.txt
