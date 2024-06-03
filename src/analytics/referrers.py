@@ -553,10 +553,8 @@ def _get_referrer_from_query(query: QueryParams) -> str | None:
         return "Email newsletter"
 
     # Look for any other useful query string values which might help us.
-    if (
-        utm_source == "efanjudis"
-        and "weekly-121-will-there-be-an-eu-only-web-3254"
-        in (query_dict.get("utm_campaign") or "")
+    if utm_source == "efanjudis" and "weekly-121-will-there-be-an-eu-only-web-3254" in (
+        query_dict.get("utm_campaign") or ""
     ):
         return "https://www.stefanjudis.com/blog/web-weekly-122/"
 
