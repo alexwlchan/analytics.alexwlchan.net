@@ -230,6 +230,12 @@ def test_an_unrecognised_referrer_and_utm_source_are_preserved() -> None:
     assert result == "example.com (query=(('utm_source', 'unrecognised'),))"
 
 
+def test_an_irrelevant_query_param_is_ignored() -> None:
+    result = get_normalised_referrer(referrer="", query=(("commit", None),))
+
+    assert result is None
+
+
 def test_prioritises_utm_source_over_android_app() -> None:
     result = get_normalised_referrer(
         referrer="android-app://com.google.android.gm/",

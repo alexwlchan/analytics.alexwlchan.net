@@ -45,6 +45,7 @@ def get_normalised_referrer(*, referrer: str, query: QueryParams) -> str | None:
         (("v", "10"),),
         (("_hsmi", "294404254"),),
         (("ref", "sidebar"),),
+        (("commit", None),),
     }:
         query = ()
 
@@ -249,6 +250,7 @@ def _get_referrer_from_header(u: hyperlink.DecodedURL) -> str | None:
                 # I don't care about them individually, but I do care about
                 # the aggregate effect of HN over other aggregation sites,
                 # so throw them all into one bucket.
+                "brutalisthackernews.com",
                 "fresh-hacker-news.deno.dev",
                 "gm-hackernewsreader.pages.dev",
                 "hacker-news.news",
@@ -271,6 +273,7 @@ def _get_referrer_from_header(u: hyperlink.DecodedURL) -> str | None:
                 "hnapp.com",
                 "hntoplinks.com",
                 "news-ycombinator-com.translate.goog",
+                "news.workers.tools",
                 "sveltekit-hacker-news-pwa.vercel.app",
                 "www.buzzing.cc",
                 "www.hackernewz.com",
@@ -327,6 +330,7 @@ def _get_referrer_from_header(u: hyperlink.DecodedURL) -> str | None:
                 "newsletters.feedbinusercontent.com",
                 "read.readwise.io",
                 "read.squidapp.co",
+                "readclip.site",
                 "theoldreader.com",
                 "www.inoreader.com",
                 "www.newsblur.com",
@@ -601,6 +605,7 @@ def _get_referrer_from_android_app_name(u: hyperlink.DecodedURL) -> str | None:
                 "com.google.android.gm",
                 "com.google.android.googlequicksearchbox",
             ],
+            "News reader (Feedly, Inoreader, …)": ["org.fox.ttrss"],
             "Slack": ["com.slack"],
             "Telegram": [
                 "app.nicegram",
