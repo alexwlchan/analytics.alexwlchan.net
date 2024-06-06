@@ -206,7 +206,7 @@ requests==2.32.3
     # via
     #   -r requirements.txt
     #   acme
-ruff==0.4.7
+ruff==0.4.8
     # via -r dev_requirements.in
 secretstorage==3.3.3
     # via
