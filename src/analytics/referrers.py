@@ -346,6 +346,7 @@ def _get_referrer_from_header(u: hyperlink.DecodedURL) -> str | None:
                 "edgeservices.bing.com",
                 "iframe-yang.yandex",
                 "lens.google.com",
+                "next.duckduckgo.com",
                 "online-mobilesearch.com",
                 "presearch.com",
                 "search.brave.com",
