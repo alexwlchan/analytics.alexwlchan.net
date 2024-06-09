@@ -56,6 +56,10 @@
     </tbody>
   {% endfor %}
 
+    <tr>
+      <td colspan="2"><hr style="margin-top: 2em;"/></td>
+    </tr>
+
   {% for page_title, source in counted_referrers.long_tail.items() %}
     <tr class="referrer_name">
       <td class="referrer">{{ page_title.replace(' – alexwlchan', '') }}</td>
