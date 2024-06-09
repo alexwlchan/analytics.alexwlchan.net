@@ -36,6 +36,5 @@ jobs:
 
     - name: Run tests
       run: |
-        pip install -e .
         coverage run -m pytest tests
         coverage report
