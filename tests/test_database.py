@@ -282,8 +282,6 @@ class TestAnalyticsDatabase:
             start_date=datetime.date(2024, 5, 25), end_date=datetime.date(2024, 5, 27)
         )
 
-        # assert result ==
-
         assert result == typing.cast(
             CountedReferrers,
             {
