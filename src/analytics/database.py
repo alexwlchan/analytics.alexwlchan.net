@@ -207,6 +207,9 @@ class AnalyticsDatabase:
         popular_posts = {
             "Making a PDF that’s larger than Germany – alexwlchan",
             "The Collected Works of Ian Flemingo – alexwlchan",
+            "You should take more screenshots – alexwlchan",
+            "Creating a Safari webarchive from the command line – alexwlchan",
+            "Documenting my DNS records – alexwlchan",
         }
 
         long_tail: dict[str, dict[str, int]] = collections.defaultdict(
