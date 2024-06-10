@@ -282,8 +282,6 @@ class TestAnalyticsDatabase:
             start_date=datetime.date(2024, 5, 25), end_date=datetime.date(2024, 5, 27)
         )
 
-        # assert result ==
-
         assert result == typing.cast(
             CountedReferrers,
             {
@@ -294,6 +292,43 @@ class TestAnalyticsDatabase:
                 "long_tail": {},
             },
         )
+
+    def test_count_referrers_handles_multiple_pages_in_long_tail(self) -> None:
+        db = Database(":memory:")
+        analytics_db = AnalyticsDatabase(db)
+
+        for title in (
+            "Making a PDF that’s larger than Germany – alexwlchan",
+            "Documenting my DNS records – alexwlchan",
+        ):
+            Table(db, "events").insert(
+                {
+                    "title": title,
+                    "path": f"/{title}",
+                    "normalised_referrer": "https://example.com/",
+                    "is_me": False,
+                    "host": "alexwlchan.net",
+                    "date": datetime.date(2024, 3, 29).isoformat(),
+                },
+            )
+
+        actual = analytics_db.count_referrers(
+            start_date=datetime.date(2024, 3, 28), end_date=datetime.date(2024, 4, 26)
+        )
+
+        expected: CountedReferrers = {
+            "grouped_referrers": [],
+            "long_tail": {
+                "Making a PDF that’s larger than Germany – alexwlchan": {
+                    "https://example.com/": 1,
+                },
+                "Documenting my DNS records – alexwlchan": {
+                    "https://example.com/": 1,
+                },
+            },
+        }
+
+        assert actual == expected
 
     @pytest.mark.parametrize(
         ["start_date", "end_date", "expected_result"],
