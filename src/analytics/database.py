@@ -218,8 +218,8 @@ class AnalyticsDatabase:
 
         for source, tally in list(sorted_grouped_referrers):
             if sum(tally.values()) <= 3 and set(tally.keys()).issubset(popular_posts):
-                (dest,) = tally.keys()
-                long_tail[dest][source] = tally[dest]
+                for dest, dest_count in tally.items():
+                    long_tail[dest][source] = dest_count
                 sorted_grouped_referrers.remove((source, tally))
 
         return {"grouped_referrers": sorted_grouped_referrers, "long_tail": long_tail}
