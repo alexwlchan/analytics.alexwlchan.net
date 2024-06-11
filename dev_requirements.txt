@@ -48,7 +48,7 @@ configobj==5.0.8
     # via
     #   -r requirements.txt
     #   certbot
-coverage==7.5.3
+coverage[toml]==7.5.3
     # via pytest-cov
 cryptography==42.0.7
     # via
@@ -57,6 +57,7 @@ cryptography==42.0.7
     #   certbot
     #   josepy
     #   pyopenssl
+    #   secretstorage
 distro==1.9.0
     # via
     #   -r requirements.txt
@@ -109,6 +110,11 @@ jaraco-functools==4.0.1
     # via
     #   -r requirements.txt
     #   keyring
+jeepney==0.8.0
+    # via
+    #   -r requirements.txt
+    #   keyring
+    #   secretstorage
 jinja2==3.1.4
     # via
     #   -r requirements.txt
@@ -127,7 +133,7 @@ markupsafe==2.1.5
     #   -r requirements.txt
     #   jinja2
     #   werkzeug
-maxminddb==2.6.1
+maxminddb==2.6.2
     # via
     #   -r requirements.txt
     #   mmdb-writer
@@ -204,11 +210,10 @@ requests==2.32.3
     #   acme
 ruff==0.4.8
     # via -r dev_requirements.in
-setuptools==70.0.0
+secretstorage==3.3.3
     # via
     #   -r requirements.txt
-    #   acme
-    #   certbot
+    #   keyring
 sgmllib3k==1.0.0
     # via
     #   -r requirements.txt

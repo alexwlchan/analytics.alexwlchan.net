@@ -36,6 +36,7 @@ cryptography==42.0.7
     #   certbot
     #   josepy
     #   pyopenssl
+    #   secretstorage
 distro==1.9.0
     # via certbot
 feedparser==6.0.11
@@ -72,6 +73,10 @@ jaraco-context==5.3.0
     #   keyrings-alt
 jaraco-functools==4.0.1
     # via keyring
+jeepney==0.8.0
+    # via
+    #   keyring
+    #   secretstorage
 jinja2==3.1.4
     # via flask
 josepy==1.14.0
@@ -86,7 +91,7 @@ markupsafe==2.1.5
     # via
     #   jinja2
     #   werkzeug
-maxminddb==2.6.1
+maxminddb==2.6.2
     # via -r requirements.in
 more-itertools==10.2.0
     # via
@@ -119,10 +124,8 @@ pytz==2024.1
     #   pyrfc3339
 requests==2.32.3
     # via acme
-setuptools==70.0.0
-    # via
-    #   acme
-    #   certbot
+secretstorage==3.3.3
+    # via keyring
 sgmllib3k==1.0.0
     # via feedparser
 six==1.16.0
