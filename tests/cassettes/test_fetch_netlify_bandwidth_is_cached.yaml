@@ -1,0 +1,116 @@
+interactions:
+- request:
+    body: ''
+    headers:
+      accept:
+      - '*/*'
+      accept-encoding:
+      - gzip, deflate
+      connection:
+      - keep-alive
+      host:
+      - api.netlify.com
+      user-agent:
+      - python-httpx/0.27.0
+    method: GET
+    uri: https://api.netlify.com/api/v1/accounts/netlify-mi34feu/bandwidth
+  response:
+    body:
+      string: '{"used":55865320374,"included":107374182400,"additional":0,"last_updated_at":"2024-06-13T17:20:46.860+00:00","period_start_date":"2024-05-17T00:00:00.000-07:00","period_end_date":"2024-06-17T00:00:00.000-07:00"}'
+    headers:
+      Cache-Control:
+      - max-age=0, private, must-revalidate
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '211'
+      Content-Type:
+      - application/json; charset=utf-8
+      Date:
+      - Thu, 13 Jun 2024 17:39:18 GMT
+      Etag:
+      - W/"af3d7ca3f784011d6ee3e505723fea69"
+      Retry-After:
+      - 2024-06-13 17:40:18 UTC
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains; preload
+      Timing-Allow-Origin:
+      - https://app.netlify.com, https://www.netlify.com
+      Vary:
+      - Accept, Origin
+      X-Content-Type-Options:
+      - nosniff
+      X-Frame-Options:
+      - ALLOWALL
+      X-Nf-Srv-Version:
+      - 4ebc2a2f
+      X-Ratelimit-Limit:
+      - '500'
+      X-Ratelimit-Remaining:
+      - '499'
+      X-Ratelimit-Reset:
+      - 2024-06-13 17:40:18 UTC
+      X-Request-Id:
+      - f1ade813-479f-45da-b501-42851d94da7b
+      X-Runtime:
+      - '0.037878'
+    status:
+      code: 200
+      message: OK
+- request:
+    body: ''
+    headers:
+      accept:
+      - '*/*'
+      accept-encoding:
+      - gzip, deflate
+      connection:
+      - keep-alive
+      host:
+      - api.netlify.com
+      if-none-match:
+      - W/"af3d7ca3f784011d6ee3e505723fea69"
+      user-agent:
+      - python-httpx/0.27.0
+    method: GET
+    uri: https://api.netlify.com/api/v1/accounts/netlify-mi34feu/bandwidth
+  response:
+    body:
+      string: ''
+    headers:
+      Cache-Control:
+      - max-age=0, private, must-revalidate
+      Connection:
+      - keep-alive
+      Date:
+      - Thu, 13 Jun 2024 17:39:19 GMT
+      Etag:
+      - W/"af3d7ca3f784011d6ee3e505723fea69"
+      Retry-After:
+      - 2024-06-13 17:40:19 UTC
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains; preload
+      Timing-Allow-Origin:
+      - https://app.netlify.com, https://www.netlify.com
+      Vary:
+      - Accept, Origin
+      X-Content-Type-Options:
+      - nosniff
+      X-Frame-Options:
+      - ALLOWALL
+      X-Nf-Srv-Version:
+      - 4ebc2a2f
+      X-Ratelimit-Limit:
+      - '500'
+      X-Ratelimit-Remaining:
+      - '498'
+      X-Ratelimit-Reset:
+      - 2024-06-13 17:40:19 UTC
+      X-Request-Id:
+      - a81d3a7e-c2d1-438d-b5fe-12f68c8f833c
+      X-Runtime:
+      - '0.036037'
+    status:
+      code: 304
+      message: Not Modified
+version: 1

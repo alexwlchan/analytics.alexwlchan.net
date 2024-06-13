@@ -11,7 +11,8 @@ from werkzeug.wrappers.response import Response as WerkzeugResponse
 
 from . import date_helpers
 from .database import AnalyticsDatabase
-from .fetchers import fetch_netlify_bandwidth_usage, fetch_rss_feed_entries
+from .fetch_netlify_bandwidth import fetch_netlify_bandwidth_usage
+from .fetch_rss_feed import fetch_rss_feed_entries, NoNewEntries
 from .referrers import get_normalised_referrer
 from .types import RecentPost
 from .utils import (
@@ -95,10 +96,11 @@ def get_recent_posts() -> list[RecentPost]:
     Return a list of the ten most recent posts, and the number of times
     they were viewed.
     """
-    db_table("posts").drop()
-
-    for entry in fetch_rss_feed_entries():
-        db_table("posts").upsert(entry, pk="id")
+    try:
+        entries = fetch_rss_feed_entries()
+        db_table("posts").upsert_all(entries, pk="id")
+    except NoNewEntries:
+        pass
 
     query = """
         SELECT p.host, p.path, p.title, p.date_posted, COUNT(e.url) AS count

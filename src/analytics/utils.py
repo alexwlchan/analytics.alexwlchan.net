@@ -130,8 +130,7 @@ def get_password(service_name: str, username: str) -> str:  # pragma: no cover
     Retrieve a password from the system keychain.
     """
     password = keyring.get_password(service_name, username)
-    assert password is not None, (service_name, username)
-    return password
+    return typing.cast(str, password)
 
 
 def get_hex_color_between(hex1: str, hex2: str, proportion: float) -> str:
