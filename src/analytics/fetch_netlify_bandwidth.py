@@ -29,7 +29,7 @@ def fetch_netlify_bandwidth_usage() -> NetlifyBandwidthUsage:
 
     See https://alexwlchan.net/til/2024/get-netlify-usage-from-api/
     """
-    team_slug = get_password("netlify", "team_slug")
+    team_slug = "netlify-mi34feu"
     analytics_token = get_password("netlify", "analytics_token")
 
     headers = {"Authorization": f"Bearer {analytics_token}"}
