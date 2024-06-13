@@ -5,3 +5,5 @@
 *.log
 
 GeoLite2*
+
+rss_feed.etag.txt

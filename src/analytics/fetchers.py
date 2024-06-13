@@ -1,51 +1,9 @@
-"""
-This file has a couple of functions for fetching data from remote sources --
-anything that can't come from the local database.
-"""
-
-from collections.abc import Iterator
 import datetime
 import typing
 
-import feedparser
 import httpx
-import hyperlink
 
 from .utils import get_password
-
-
-class RssEntry(typing.TypedDict):
-    id: str
-    date_posted: datetime.datetime
-    title: str
-    url: str
-    host: str
-    path: str
-
-
-def fetch_rss_feed_entries() -> Iterator[RssEntry]:
-    """
-    Returns recent entries from the RSS feed for my main website.
-    """
-    resp = httpx.get("https://alexwlchan.net/atom.xml")
-    resp.raise_for_status()
-
-    feed = feedparser.parse(resp.text)
-
-    for e in feed["entries"]:
-        url = e["id"]
-
-        if not url.endswith("/"):
-            url += "/"
-
-        yield {
-            "id": e["id"],
-            "date_posted": datetime.datetime.fromisoformat(e["published"]),
-            "title": e["title"],
-            "url": url,
-            "host": hyperlink.DecodedURL.from_text(url).host,
-            "path": "/" + "/".join(hyperlink.DecodedURL.from_text(url).path),
-        }
 
 
 class NetlifyBandwidthUsage(typing.TypedDict):
