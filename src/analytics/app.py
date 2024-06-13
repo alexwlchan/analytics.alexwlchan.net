@@ -11,8 +11,8 @@ from werkzeug.wrappers.response import Response as WerkzeugResponse
 
 from . import date_helpers
 from .database import AnalyticsDatabase
+from .fetch_netlify_bandwidth import fetch_netlify_bandwidth_usage
 from .fetch_rss_feed import fetch_rss_feed_entries, NoNewEntries
-from .fetchers import fetch_netlify_bandwidth_usage
 from .referrers import get_normalised_referrer
 from .types import RecentPost
 from .utils import (
