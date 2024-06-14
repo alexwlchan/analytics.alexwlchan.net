@@ -47,6 +47,6 @@ def test_it_skips_if_no_new_entries(tmp_working_dir: pathlib.Path) -> None:
 
     with pytest.raises(NoNewEntries):
         for _ in fetch_rss_feed_entries():
-            pass
+            pass  # pragma: no cover
 
     assert (tmp_working_dir / "rss_feed.etag.txt").exists()
