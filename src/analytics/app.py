@@ -57,7 +57,7 @@ def tracking_pixel() -> FlaskResponse:
 
     user_agent = request.user_agent.string
 
-    u = hyperlink.DecodedURL.from_text(url)
+    u = hyperlink.parse(url)
 
     ip_address = request.headers["X-Real-IP"]
 

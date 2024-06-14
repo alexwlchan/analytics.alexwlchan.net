@@ -18,6 +18,8 @@ import hyperlink
 
 QueryParams: typing.TypeAlias = tuple[tuple[str, str | None], ...]
 
+ParsedUrl = hyperlink.DecodedURL | hyperlink.EncodedURL
+
 
 @functools.cache
 def get_normalised_referrer(*, referrer: str, query: QueryParams) -> str | None:
@@ -207,7 +209,7 @@ def get_normalised_referrer(*, referrer: str, query: QueryParams) -> str | None:
 
 
 @functools.cache
-def _get_referrer_from_header(u: hyperlink.DecodedURL) -> str | None:
+def _get_referrer_from_header(u: ParsedUrl) -> str | None:
     """
     Given the value of the Referer header, look to see if that tells
     us the source.
@@ -583,7 +585,7 @@ def _get_referrer_from_query(query: QueryParams) -> str | None:
     return None
 
 
-def _get_referrer_from_android_app_name(u: hyperlink.DecodedURL) -> str | None:
+def _get_referrer_from_android_app_name(u: ParsedUrl) -> str | None:
     """
     Given a parsed referrer URL, look to see if it's the name of an
     Android app.
@@ -635,7 +637,7 @@ def invert_dict(d: dict[str, list[str]]) -> dict[str, str]:
     return result
 
 
-def is_origin_referrer(u: hyperlink.DecodedURL) -> bool:
+def is_origin_referrer(u: ParsedUrl) -> bool:
     """
     Returns True if this URL only contains the origin, and no path
     or query information.
@@ -647,12 +649,12 @@ def is_origin_referrer(u: hyperlink.DecodedURL) -> bool:
 
 
 @functools.cache
-def parse_url(text: str) -> hyperlink.DecodedURL:
+def parse_url(text: str) -> ParsedUrl:
     """
-    Parse a ``str`` as a ``hyperlink.DecodedURL``.
+    Parse a ``str`` as a ``ParsedUrl``.
 
     This is wrapped in a function so it can be cached; this speeds up
     the performance of the ``update_normalised_referrer.py`` script by
     about a third.
     """
-    return hyperlink.DecodedURL.from_text(text)
+    return hyperlink.parse(text)
