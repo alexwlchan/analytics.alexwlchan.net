@@ -50,6 +50,7 @@ def test_unrecognised_domain_is_preserved(referrer: str) -> None:
         ("android-app://com.slack/", "Slack"),
         ("https://news.hada.io/", "News aggregator (Flipboard, HN, Reddit, …)"),
         ("https://www.baidu.com/link?url=F8luxqXIkN5B7W", "Baidu"),
+        ("https://github.com", "GitHub"),
     ],
 )
 def test_domain_with_recognised_referrer_is_mapped(referrer: str, name: str) -> None:
