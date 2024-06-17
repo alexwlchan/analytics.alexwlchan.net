@@ -303,6 +303,20 @@ def test_it_tidies_up_urls(referrer: str, normalised_referrer: str) -> None:
 
 
 @pytest.mark.parametrize(
+    "referrer",
+    [
+        "https://github.com/alexwlchan/safari-webarchiver/?tab=readme-ov-file",
+        "https://github.com/alexwlchan/safari-webarchiver?tab=readme-ov-file",
+    ],
+)
+def test_it_normalises_github_urls(referrer: str) -> None:
+    actual = get_normalised_referrer(referrer=referrer, query=())
+    expected = "https://github.com/alexwlchan/safari-webarchiver"
+
+    assert actual == expected
+
+
+@pytest.mark.parametrize(
     ["referrer", "query"],
     [
         ("https://api.daily.dev/", (("ref", "dailydev"),)),

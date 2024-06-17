@@ -164,6 +164,9 @@ def get_normalised_referrer(*, referrer: str, query: QueryParams) -> str | None:
     if u.host == "github.com":
         u = u.remove("tab")
 
+        while u.path[-1] == "":
+            u = u.replace(path=u.path[:-1])
+
     if u.host == "newsletter.wearedevelopers.com":
         for param_name, _ in list(u.query):
             u = u.remove(param_name)
