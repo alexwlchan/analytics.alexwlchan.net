@@ -304,6 +304,7 @@ def _get_referrer_from_header(u: ParsedUrl) -> str | None:
                 "habr.com",
                 "hackurls.com",
                 "ios.feeddler.com",
+                "jimmyr.com",
                 "narenohatebu.jp",
                 "news.hada.io",
                 "news.social-protocols.org",
