@@ -327,6 +327,7 @@ def _get_referrer_from_header(u: ParsedUrl) -> str | None:
                 "feedbin.com",
                 "feeder.co",
                 "feedly.com",
+                "feedthing.net",
                 "jp.inoreader.com",
                 "newsblur.com",
                 "newsletters.feedbinusercontent.com",
@@ -346,6 +347,7 @@ def _get_referrer_from_header(u: ParsedUrl) -> str | None:
                 "cn.bing.com",
                 "duckduckgo.com",
                 "edgeservices.bing.com",
+                "html.duckduckgo.com",
                 "iframe-yang.yandex",
                 "lens.google.com",
                 "next.duckduckgo.com",
@@ -411,8 +413,8 @@ def _get_referrer_from_header(u: ParsedUrl) -> str | None:
         if re.match(r"^(www\.)?yandex\.[a-z]{1,3}(\.[a-z]{1,3})?$", u.host):
             return "Search (Google, Bing, DDG, …)"
 
-        # e.g. cl.search.yahoo.com, it.search.yahoo.com
-        if re.match(r"^([a-z]{2}\.)?search\.yahoo.com$", u.host):
+        # e.g. cl.search.yahoo.com, malaysia.search.yahoo.com
+        if re.match(r"^([a-z]+\.)?search\.yahoo.com$", u.host):
             return "Search (Google, Bing, DDG, …)"
 
     if u.scheme in {"http", "https"} and u.host in {

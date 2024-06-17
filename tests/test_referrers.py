@@ -59,15 +59,17 @@ def test_domain_with_recognised_referrer_is_mapped(referrer: str, name: str) -> 
 @pytest.mark.parametrize(
     "referrer",
     [
+        "https://cl.search.yahoo.com/",
         "https://duckduckgo.com/",
+        "https://html.duckduckgo.com/",
+        "https://m.sogou.com/web/searchList.jsp?s_from=hint_last",
+        "https://malaysia.search.yahoo.com/",
+        "https://r.search.yahoo.com/_ylt=Awr1RUZ",
         "https://search.brave.com/",
+        "https://search.yahoo.com/",
         "https://www.google.co.uk/",
         "https://www.google.com/",
         "https://www.google.com/search?sca_esv=6457b5ff455aa099",
-        "https://r.search.yahoo.com/_ylt=Awr1RUZ",
-        "https://m.sogou.com/web/searchList.jsp?s_from=hint_last",
-        "https://search.yahoo.com/",
-        "https://cl.search.yahoo.com/",
         # Yandex and its subdomains
         "https://yandex.ru/",
         "https://yandex.kz",
