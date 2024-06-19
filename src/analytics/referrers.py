@@ -554,6 +554,14 @@ def _get_referrer_from_query(query: QueryParams) -> str | None:
             "referrer": "https://weeklyfoo.com/foos/foo-032/",
             "params": {"utm_source": "weeklyfoo", "utm_campaign": "weeklyfoo-32"},
         },
+        {
+            "referrer": "https://buttondown.email/vincentjrx/archive/242-remember/",
+            "params": {
+                "utm_source": "vincentjrx",
+                "utm_medium": "email",
+                "utm_campaign": "242-remember",
+            },
+        },
     ]
 
     for m in matches:
