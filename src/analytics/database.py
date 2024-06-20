@@ -269,20 +269,7 @@ class AnalyticsDatabase:
         """
         Return the time of the last event recorded in the database.
         """
-        start_date = datetime.date(1970, 1, 1)
-        end_date = datetime.date(2038, 1, 1)
-        cursor = self.db.query(
-            f"""
-            SELECT
-                MAX(date)
-            FROM
-                events
-            WHERE
-                {self._where_clause(start_date, end_date)}
-            LIMIT
-                1
-        """
-        )
+        cursor = self.db.query("SELECT MAX(date) FROM events")
 
         date_string = next(cursor)["MAX(date)"]
 
