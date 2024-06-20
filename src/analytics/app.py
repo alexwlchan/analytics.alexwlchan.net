@@ -132,12 +132,8 @@ app.jinja_env.filters["intcomma"] = humanize.intcomma
 app.jinja_env.filters["interpolate_color"] = get_hex_color_between
 app.jinja_env.filters["naturalsize"] = humanize.naturalsize
 app.jinja_env.filters["naturaltime"] = humanize.naturaltime
+app.jinja_env.filters["prettydate"] = date_helpers.prettydate
 app.jinja_env.globals["circular_arc"] = get_circular_arc_path_command
-
-
-@app.template_filter("prettydate")
-def prettydate(d: str) -> str:
-    return datetime.datetime.strptime(d, "%Y-%m-%d").strftime("%a %-d %b")
 
 
 @app.route("/dashboard/")

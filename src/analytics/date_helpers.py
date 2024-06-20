@@ -28,3 +28,7 @@ def days_between(
     while d <= end_date:
         yield d
         d += datetime.timedelta(days=1)
+
+
+def prettydate(d: str) -> str:
+    return datetime.datetime.strptime(d, "%Y-%m-%d").strftime("%a %-d %b")

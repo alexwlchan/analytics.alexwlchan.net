@@ -353,6 +353,7 @@ def _get_referrer_from_header(u: ParsedUrl) -> str | None:
                 "edgeservices.bing.com",
                 "html.duckduckgo.com",
                 "iframe-yang.yandex",
+                "kagi.com",
                 "lens.google.com",
                 "next.duckduckgo.com",
                 "online-mobilesearch.com",
