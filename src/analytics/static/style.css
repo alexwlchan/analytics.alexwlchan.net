@@ -1,5 +1,5 @@
 body {
-  background: #0e1f00;
+  background: url('/static/denim.png');
   padding: 1em;
 }
 
@@ -31,6 +31,7 @@ main {
   padding: 1.5em;
   background: white;
   border-radius: 6px;
+  box-shadow: 0px 2px 5px black;
 }
 
 .chart h1 {
