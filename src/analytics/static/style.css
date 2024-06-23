@@ -122,6 +122,7 @@ tbody:not(:first-child) .referrer_name td {
 
 .world_info table td {
   padding: 0;
+  padding-bottom: 6px;
 }
 
 #world-map path { fill: #eee; }
