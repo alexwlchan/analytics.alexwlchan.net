@@ -1,6 +1,6 @@
 import pytest
 
-from analytics.utils import get_country_iso_code, get_country_name, get_flag_emoji
+from analytics.countries import get_country_iso_code, get_country_name, get_flag_emoji
 
 
 @pytest.mark.parametrize(
@@ -20,6 +20,7 @@ def test_get_country_iso_code(
         ("RU", "Russia"),
         ("CN", "China"),
         ("XK", "XK"),
+        ("KR", "South Korea"),
         (None, "<unknown>"),
     ],
 )
