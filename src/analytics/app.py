@@ -10,6 +10,7 @@ from sqlite_utils.db import Table
 from werkzeug.wrappers.response import Response as WerkzeugResponse
 
 from . import date_helpers
+from .countries import get_country_iso_code, get_country_name, get_flag_emoji
 from .database import AnalyticsDatabase
 from .fetch_netlify_bandwidth import fetch_netlify_bandwidth_usage
 from .fetch_rss_feed import fetch_rss_feed_entries, NoNewEntries
@@ -17,10 +18,7 @@ from .referrers import get_normalised_referrer
 from .types import RecentPost
 from .utils import (
     get_circular_arc_path_command,
-    get_country_iso_code,
-    get_country_name,
     get_database,
-    get_flag_emoji,
     get_hex_color_between,
     get_session_identifier,
     guess_if_bot,
