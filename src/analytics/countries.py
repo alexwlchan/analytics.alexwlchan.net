@@ -53,20 +53,20 @@ def get_country_name(country_id: str | None) -> str:
         return "<unknown>"
 
     override_names = {
+        "BN": "Brunei",
+        "BO": "Bolivia",
+        "CD": "Democratic Republic of the Congo",
         "GB": "UK",
         "IR": "Iran",
-        "TW": "Taiwan",
-        "MD": "Moldova",
-        "VE": "Venezuela",
-        "BO": "Bolivia",
-        "TZ": "Tanzania",
-        "SY": "Syria",
-        "PS": "Palestine",
-        "BN": "Brunei",
-        "CD": "Democratic Republic of the Congo",
         "KR": "South Korea",
+        "MD": "Moldova",
+        "PS": "Palestine",
         "RU": "Russia",
+        "SY": "Syria",
+        "TW": "Taiwan",
+        "TZ": "Tanzania",
         "US": "USA",
+        "VE": "Venezuela",
     }
 
     try:
