@@ -487,6 +487,10 @@ def _get_referrer_from_query(query: QueryParams) -> str | None:
             "params": {"ref": "cloudhiker.net"},
         },
         {
+            "referrer": "News aggregator (Flipboard, HN, Reddit, …)",
+            "params": {"ref": "upstract.com", "curator": "upstract.com"},
+        },
+        {
             "referrer": "https://www.stefanjudis.com/blog/web-weekly-122/",
             "params": {
                 "utm_source": "stefanjudis",
