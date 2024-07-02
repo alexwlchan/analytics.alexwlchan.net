@@ -111,6 +111,11 @@ def get_normalised_referrer(*, referrer: str, query: QueryParams) -> str | None:
                 "https://old.reddit.com/?count=250&after=t3_1agnhgf",
                 "https://old.reddit.com/?count=75&after=t3_1ag8jtu",
             ],
+            "https://devblogs.microsoft.com/oldnewthing/20240628-01/?p=109945": [
+                "https://devblogs.microsoft.com/oldnewthing/20240628-01/?p=109945&ocid=oldnewthing_eml_tnp_autoid271_title",
+                "https://devblogs.microsoft.com/oldnewthing/20240628-01/?p=109945&ocid=oldnewthing_eml_tnp_autoid271_readmore",
+                "https://devblogs.microsoft.com/oldnewthing/20240628-01/?p=109945/",
+            ],
             # This website seems to be dual-published in Germany/Austria,
             # and the Austrian site is more popular.
             "https://www.derstandard.at/": [
