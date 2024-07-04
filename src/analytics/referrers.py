@@ -294,7 +294,7 @@ def _get_referrer_from_header(u: ParsedUrl) -> str | None:
             "Kottke": ["kottke.org", "www.kottke.org"],
             "LinkedIn": ["www.linkedin.com", "lnkd.in"],
             "Linkhut": ["ln.ht"],
-            "Lobsters": ["lobste.rs"],
+            "Lobsters": ["lobste.rs", "lobste.buzzing.cc"],
             "Mastodon": [
                 "federation.network",
                 "fedia.social",
