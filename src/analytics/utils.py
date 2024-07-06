@@ -84,33 +84,22 @@ def get_hex_color_between(hex1: str, hex2: str, proportion: float) -> str:
     return "#%02x%02x%02x" % (r_new, g_new, b_new)
 
 
-def get_circular_arc_path_command(
-    *,
-    centre_x: float,
-    centre_y: float,
-    radius: float,
-    start_angle: float,
-    sweep_angle: float,
-    angle_unit: typing.Literal["radians", "degrees"],
+def draw_pi_chart_arc(
+    *, centre_x: float, centre_y: float, radius: float, percentage: float
 ) -> str:
     """
-    Returns a path command to draw a circular arc in an SVG <path> element.
+    Return an SVG path to draw a circular arc in an SVG <path> element.
 
     See https://developer.mozilla.org/en-US/docs/Web/SVG/Tutorial/Paths#line_commands
     See https://alexwlchan.net/2022/circle-party/
     """
-    if angle_unit == "radians":
-        pass
-    elif angle_unit == "degrees":
-        start_angle = start_angle / 180 * math.pi
-        sweep_angle = sweep_angle / 180 * math.pi
-    else:
-        raise ValueError(f"Unrecognised angle unit: {angle_unit}")
+    start_angle = 0
+    sweep_angle = 2 * math.pi * percentage
+
+    start_x = centre_x
+    start_y = centre_y - radius
 
     # Work out the start/end points of the arc using trig identities
-    start_x = centre_x + radius * math.sin(start_angle)
-    start_y = centre_y - radius * math.cos(start_angle)
-
     end_x = centre_x + radius * math.sin(start_angle + sweep_angle)
     end_y = centre_y - radius * math.cos(start_angle + sweep_angle)
 

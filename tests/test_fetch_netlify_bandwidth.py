@@ -14,7 +14,7 @@ def tmp_working_dir(tmp_path: pathlib.Path) -> pathlib.Path:
     return tmp_path
 
 
-@pytest.mark.vcr(filter_headers=["authorization"])
+@pytest.mark.vcr()
 def test_fetch_netlify_bandwidth(tmp_working_dir: pathlib.Path) -> None:
     bst = datetime.timezone(datetime.timedelta(days=-1, seconds=61200))
 
@@ -26,7 +26,7 @@ def test_fetch_netlify_bandwidth(tmp_working_dir: pathlib.Path) -> None:
     }
 
 
-@pytest.mark.vcr(filter_headers=["authorization"])
+@pytest.mark.vcr()
 def test_fetch_netlify_bandwidth_is_cached(tmp_working_dir: pathlib.Path) -> None:
     result1 = fetch_netlify_bandwidth_usage()
     result2 = fetch_netlify_bandwidth_usage()

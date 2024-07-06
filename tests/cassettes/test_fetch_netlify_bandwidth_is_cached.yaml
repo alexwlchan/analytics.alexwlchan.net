@@ -6,6 +6,8 @@ interactions:
       - '*/*'
       accept-encoding:
       - gzip, deflate
+      authorization:
+      - NETLIFY_TOKEN
       connection:
       - keep-alive
       host:
@@ -64,6 +66,8 @@ interactions:
       - '*/*'
       accept-encoding:
       - gzip, deflate
+      authorization:
+      - NETLIFY_TOKEN
       connection:
       - keep-alive
       host:
