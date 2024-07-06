@@ -119,6 +119,11 @@ def test_dashboard_can_be_rendered(client: FlaskClient) -> None:
 
         assert resp.status_code == 200
 
+    # Manually insert a country code so it renders the shaded colours on the world map
+    db = get_database("requests.sqlite")
+    first_id = next(Table(db, "events").rows)["id"]
+    Table(db, "events").upsert({"id": first_id, "country": "US"}, pk="id")
+
     dashboard_resp = client.get("/dashboard/")
     assert dashboard_resp.status_code == 200
 
