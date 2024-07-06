@@ -9,7 +9,7 @@ import pytest
 
 
 @pytest.fixture()
-def client(maxmind_database: None) -> Iterator[FlaskClient]:
+def client(maxmind_db_path: pathlib.Path) -> Iterator[FlaskClient]:
     """
     Creates an instance of the app for use in testing.
 
@@ -28,7 +28,7 @@ def client(maxmind_database: None) -> Iterator[FlaskClient]:
 
 
 @pytest.fixture
-def maxmind_database(tmp_path: pathlib.Path) -> None:
+def maxmind_db_path(tmp_path: pathlib.Path) -> pathlib.Path:
     """
     Create a MaxMind database with the right name in the current directory.
 
@@ -44,4 +44,6 @@ def maxmind_database(tmp_path: pathlib.Path) -> None:
         IPSet(["1.1.0.0/24", "1.1.1.0/24"]), {"country": {"iso_code": "EXAMPLE"}}
     )
 
-    writer.to_db_file(tmp_path / "GeoLite2-Country_TEST" / "GeoLite2-Country.mmdb")
+    db_path = tmp_path / "GeoLite2-Country_TEST" / "GeoLite2-Country.mmdb"
+    writer.to_db_file(db_path)
+    return db_path
