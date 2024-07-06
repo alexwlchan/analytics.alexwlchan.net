@@ -1,5 +1,7 @@
 import datetime
+import glob
 import json
+import pathlib
 import uuid
 
 from flask import abort, Flask, redirect, render_template, request, send_file, url_for
@@ -36,6 +38,12 @@ def db_table(name: str) -> Table:
     return Table(db, name)
 
 
+def maxmind_db_path() -> pathlib.Path:
+    db_folder = max(glob.glob("GeoLite2-Country_*"))
+    db_path = pathlib.Path(db_folder) / "GeoLite2-Country.mmdb"
+    return db_path
+
+
 @app.route("/")
 def index() -> str | WerkzeugResponse:
     if request.cookies.get("analytics.alexwlchan-isMe") == "true":
@@ -61,6 +69,10 @@ def tracking_pixel() -> FlaskResponse:
 
     normalised_referrer = get_normalised_referrer(referrer=referrer, query=u.query)
 
+    country = get_country_iso_code(
+        maxmind_db_path=maxmind_db_path(), ip_address=ip_address
+    )
+
     row = {
         "id": uuid.uuid4(),
         "date": datetime.datetime.now().isoformat(),
@@ -69,7 +81,7 @@ def tracking_pixel() -> FlaskResponse:
         "session_id": get_session_identifier(
             datetime.date.today(), ip_address=ip_address, user_agent=user_agent
         ),
-        "country": get_country_iso_code(ip_address),
+        "country": country,
         "host": u.host,
         "referrer": referrer,
         "normalised_referrer": normalised_referrer,

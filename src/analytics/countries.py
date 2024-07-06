@@ -1,5 +1,5 @@
 import functools
-import glob
+import pathlib
 import typing
 
 import maxminddb
@@ -7,7 +7,9 @@ import pycountry
 
 
 @functools.lru_cache
-def get_country_iso_code(ip_address: str) -> str | None:
+def get_country_iso_code(
+    maxmind_db_path: pathlib.Path, *, ip_address: str
+) -> str | None:
     """
     Guess the country where this IP address is located.
 
@@ -21,9 +23,7 @@ def get_country_iso_code(ip_address: str) -> str | None:
         None
 
     """
-    db_folder = max(glob.glob("GeoLite2-Country_*"))
-
-    with maxminddb.open_database(f"{db_folder}/GeoLite2-Country.mmdb") as reader:
+    with maxminddb.open_database(maxmind_db_path) as reader:
         result = reader.get(ip_address)
 
     if isinstance(result, dict) and isinstance(result["country"], dict):

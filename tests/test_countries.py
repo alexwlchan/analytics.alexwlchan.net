@@ -1,3 +1,5 @@
+import pathlib
+
 import pytest
 
 from analytics.countries import get_country_iso_code, get_country_name, get_flag_emoji
@@ -7,9 +9,9 @@ from analytics.countries import get_country_iso_code, get_country_name, get_flag
     ["ip_address", "country_code"], [("1.1.1.1", "EXAMPLE"), ("127.0.0.1", None)]
 )
 def test_get_country_iso_code(
-    maxmind_database: None, ip_address: str, country_code: str | None
+    maxmind_db_path: pathlib.Path, ip_address: str, country_code: str | None
 ) -> None:
-    assert get_country_iso_code(ip_address) == country_code
+    assert get_country_iso_code(maxmind_db_path, ip_address=ip_address) == country_code
 
 
 @pytest.mark.parametrize(
