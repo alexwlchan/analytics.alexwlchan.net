@@ -1,6 +1,7 @@
 from collections.abc import Iterator
 import os
 import pathlib
+import typing
 
 from flask.testing import FlaskClient
 from netaddr import IPSet
@@ -61,3 +62,10 @@ def maxmind_db_path(tmp_working_dir: pathlib.Path) -> pathlib.Path:
     db_path = geo_dir / "GeoLite2-Country.mmdb"
     writer.to_db_file(db_path)
     return db_path
+
+
+@pytest.fixture(scope="module")
+def vcr_config() -> typing.Any:
+    return {
+        "filter_headers": [("authorization", "NETLIFY_TOKEN")],
+    }
