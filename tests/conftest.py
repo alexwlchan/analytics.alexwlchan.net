@@ -36,7 +36,8 @@ def maxmind_db_path(tmp_path: pathlib.Path) -> pathlib.Path:
     See https://pypi.org/project/mmdb-writer/
     """
     os.chdir(tmp_path)
-    os.makedirs(tmp_path / "GeoLite2-Country_TEST")
+    geo_dir = tmp_path / "GeoLite2-Country_TEST"
+    geo_dir.mkdir()
 
     writer = MMDBWriter()
 
@@ -44,6 +45,6 @@ def maxmind_db_path(tmp_path: pathlib.Path) -> pathlib.Path:
         IPSet(["1.1.0.0/24", "1.1.1.0/24"]), {"country": {"iso_code": "EXAMPLE"}}
     )
 
-    db_path = tmp_path / "GeoLite2-Country_TEST" / "GeoLite2-Country.mmdb"
+    db_path = geo_dir / "GeoLite2-Country.mmdb"
     writer.to_db_file(db_path)
     return db_path
