@@ -109,6 +109,11 @@ def test_robots_txt(client: FlaskClient) -> None:
 @pytest.mark.filterwarnings("ignore::ResourceWarning")
 @pytest.mark.vcr()
 def test_dashboard_can_be_rendered(client: FlaskClient) -> None:
+    # VCR cassette note: Netlify returns a ``Retry-After`` header which tells you
+    # when you can call the "get bandwidth usage" API again.
+    #
+    # To avoid this test trying to call it perpetually and creating new requests,
+    # I've manually set it to the far future.
     for _ in range(5):
         resp = client.get(
             "/a.gif",
