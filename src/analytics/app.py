@@ -2,12 +2,14 @@ import datetime
 import glob
 import json
 import pathlib
+import typing
 import uuid
 
 from flask import abort, Flask, redirect, render_template, request, send_file, url_for
 from flask import Response as FlaskResponse
 import humanize
 import hyperlink
+from sqlite_utils import Database
 from sqlite_utils.db import Table
 from werkzeug.wrappers.response import Response as WerkzeugResponse
 
@@ -29,11 +31,15 @@ from .utils import (
 
 app = Flask(__name__)
 
-db = get_database(path="requests.sqlite")
+
+def get_db() -> Database:
+    db = app.config.setdefault("DATABASE", get_database(path="requests.sqlite"))
+
+    return typing.cast(Database, db)
 
 
 def db_table(name: str) -> Table:
-    db = app.config.setdefault("DATABASE", get_database(path="requests.sqlite"))
+    db = get_db()
 
     return Table(db, name)
 
@@ -121,6 +127,8 @@ def get_recent_posts() -> list[RecentPost]:
         LIMIT 10;
     """
 
+    db = get_db()
+
     return [
         {
             "host": row["host"],
@@ -162,6 +170,7 @@ def dashboard() -> str:
         end_date = datetime.date.today()
         end_is_default = True
 
+    db = get_db()
     analytics_db = AnalyticsDatabase(db)
 
     by_date = analytics_db.count_requests_per_day(start_date, end_date)
