@@ -104,3 +104,29 @@ def test_robots_txt(client: FlaskClient) -> None:
     resp = client.get("/robots.txt")
     assert resp.status_code == 200
     assert resp.data.splitlines() == [b"User-agent: *", b"Disallow: /"]
+
+
+@pytest.mark.filterwarnings("ignore::ResourceWarning")
+@pytest.mark.vcr()
+def test_dashboard_can_be_rendered(client: FlaskClient) -> None:
+    for _ in range(5):
+        resp = client.get(
+            "/a.gif",
+            query_string={
+                "url": "https://alexwlchan.net/",
+                "title": "alexwlchan",
+                "referrer": "",
+            },
+            headers={"X-Real-IP": "1.2.3.4"},
+        )
+
+        assert resp.status_code == 200
+
+    dashboard_resp = client.get("/dashboard/")
+    assert dashboard_resp.status_code == 200
+
+    dashboard_resp = client.get("/dashboard/?startDate=2024-07-06")
+    assert dashboard_resp.status_code == 200
+
+    dashboard_resp = client.get("/dashboard/?endDate=2024-07-06")
+    assert dashboard_resp.status_code == 200
