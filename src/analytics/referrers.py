@@ -349,7 +349,7 @@ def _get_referrer_from_header(u: ParsedUrl) -> str | None:
                 "www.rssheap.com",
             ],
             "Pinboard": ["pinboard.in", "m.pinboard.in", "www.pinboard.in"],
-            "Pinterest": ["www.pinterest.com"],
+            "Pinterest": ["www.pinterest.ca", "www.pinterest.com"],
             "Search (Google, Bing, DDG, …)": [
                 "au.search.yahoo.com",
                 "bing.com",
