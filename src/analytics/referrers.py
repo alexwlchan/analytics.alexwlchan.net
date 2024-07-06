@@ -282,6 +282,7 @@ def _get_referrer_from_header(u: ParsedUrl) -> str | None:
                 "hn42.net",
                 "hnapp.com",
                 "hntoplinks.com",
+                "mono-hackernews.deno.dev",
                 "news-ycombinator-com.translate.goog",
                 "news.workers.tools",
                 "sveltekit-hacker-news-pwa.vercel.app",
