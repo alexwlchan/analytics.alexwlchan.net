@@ -19,7 +19,7 @@ from .fetch_rss_feed import fetch_rss_feed_entries, NoNewEntries
 from .referrers import get_normalised_referrer
 from .types import RecentPost
 from .utils import (
-    get_circular_arc_path_command,
+    draw_pi_chart_arc,
     get_database,
     get_hex_color_between,
     get_session_identifier,
@@ -143,7 +143,7 @@ app.jinja_env.filters["interpolate_color"] = get_hex_color_between
 app.jinja_env.filters["naturalsize"] = humanize.naturalsize
 app.jinja_env.filters["naturaltime"] = humanize.naturaltime
 app.jinja_env.filters["prettydate"] = date_helpers.prettydate
-app.jinja_env.globals["circular_arc"] = get_circular_arc_path_command
+app.jinja_env.globals["pi_chart_arc"] = draw_pi_chart_arc
 
 
 @app.route("/dashboard/")
