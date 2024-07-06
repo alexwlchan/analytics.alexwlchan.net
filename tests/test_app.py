@@ -1,5 +1,3 @@
-import pathlib
-
 from flask.testing import FlaskClient
 import pytest
 from sqlite_utils.db import Table
@@ -38,9 +36,7 @@ class TestTrackingPixel:
         assert resp.status_code == 400
 
     @pytest.mark.filterwarnings("ignore::ResourceWarning")
-    def test_records_single_event(
-        self, tmp_working_dir: pathlib.Path, client: FlaskClient
-    ) -> None:
+    def test_records_single_event(self, client: FlaskClient) -> None:
         resp = client.get(
             "/a.gif",
             query_string={
@@ -57,9 +53,7 @@ class TestTrackingPixel:
         assert Table(db, "events").count == 1
 
     @pytest.mark.filterwarnings("ignore::ResourceWarning")
-    def test_records_bot_event(
-        self, tmp_working_dir: pathlib.Path, client: FlaskClient
-    ) -> None:
+    def test_records_bot_event(self, client: FlaskClient) -> None:
         resp = client.get(
             "/a.gif",
             query_string={
@@ -78,9 +72,7 @@ class TestTrackingPixel:
         assert row["is_bot"]
 
     @pytest.mark.filterwarnings("ignore::ResourceWarning")
-    def test_utm_source_mastodon(
-        self, tmp_working_dir: pathlib.Path, client: FlaskClient
-    ) -> None:
+    def test_utm_source_mastodon(self, client: FlaskClient) -> None:
         resp = client.get(
             "/a.gif",
             query_string={

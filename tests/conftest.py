@@ -24,7 +24,9 @@ def tmp_working_dir(tmp_path: pathlib.Path) -> Iterator[pathlib.Path]:
 
 
 @pytest.fixture()
-def client(maxmind_db_path: pathlib.Path) -> Iterator[FlaskClient]:
+def client(
+    maxmind_db_path: pathlib.Path, tmp_working_dir: pathlib.Path
+) -> Iterator[FlaskClient]:
     """
     Creates an instance of the app for use in testing.
 
