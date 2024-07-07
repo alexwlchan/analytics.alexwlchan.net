@@ -38,6 +38,7 @@ def get_normalised_referrer(*, referrer: str, query: QueryParams) -> str | None:
         (("force_isolation", "true"),),
         (("homescreen", "1"),),
         (("s", "03"),),
+        (("s", "07"),),
         (("s", "08"),),
         (("s", "09"),),
         (("secureweb", "Teams"),),
