@@ -78,7 +78,7 @@ httpcore==1.0.5
     #   httpx
 httpx==0.27.0
     # via -r requirements.txt
-humanize==4.9.0
+humanize==4.10.0
     # via -r requirements.txt
 hyperlink==21.0.0
     # via -r requirements.txt
@@ -112,6 +112,7 @@ jaraco-functools==4.0.1
     #   keyring
 jeepney==0.8.0
     # via
+    #   -r requirements.txt
     #   keyring
     #   secretstorage
 jinja2==3.1.4
@@ -210,7 +211,9 @@ requests==2.32.3
 ruff==0.5.1
     # via -r dev_requirements.in
 secretstorage==3.3.3
-    # via keyring
+    # via
+    #   -r requirements.txt
+    #   keyring
 sgmllib3k==1.0.0
     # via
     #   -r requirements.txt
