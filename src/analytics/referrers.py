@@ -634,6 +634,7 @@ def _get_referrer_from_android_app_name(u: ParsedUrl) -> str | None:
             "Lemmy": ["io.syncapps.lemmy_sync"],
             "LinkedIn": ["com.linkedin.android"],
             "Pinterest": ["com.pinterest"],
+            "Reddit": ["com.reddit.frontpage"],
             "Search (Google, Bing, DDG, …)": [
                 "com.google.android.gm",
                 "com.google.android.googlequicksearchbox",
