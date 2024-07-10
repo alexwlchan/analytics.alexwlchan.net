@@ -138,15 +138,6 @@ I have a small number of `utm_source` parameters I add to my own links I share:
 * `utm_source=mastodon` – links I post on Mastodon
 * `utm_source=rss` – links in my RSS feed
 
-## Analysing the data
-
-Because the data is in a SQLite database, I can analyse it using Datasette.
-I use the following command:
-
-```console
-$ datasette requests.sqlite --port 8008 --metadata metadata.json
-```
-
 ## License
 
 MIT.
