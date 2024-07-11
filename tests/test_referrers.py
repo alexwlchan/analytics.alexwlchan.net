@@ -24,6 +24,18 @@ def test_it_drops_boring_referrers(referrer: str) -> None:
 @pytest.mark.parametrize(
     "referrer",
     [
+        "https://example.net/",
+        "http://roam.localhost:8000/",
+        "http://75.2.60.5:6080/",
+    ],
+)
+def test_it_drops_unhelpful_referrers(referrer: str) -> None:
+    assert get_normalised_referrer(referrer=referrer, query=()) is None
+
+
+@pytest.mark.parametrize(
+    "referrer",
+    [
         # An unrecognised domain
         "https://unrecognisedomain.net",
         # A recognised domain, but with a path/query included
@@ -103,11 +115,6 @@ def test_spots_a_substack_email() -> None:
         query=(("utm_source", "substack"), ("utm_medium", "email")),
     )
     assert result == "Substack"
-
-
-def test_leaves_a_non_local_ip_address_as_is() -> None:
-    referrer = "http://1.2.3.4:8080"
-    assert get_normalised_referrer(referrer=referrer, query=()) == referrer
 
 
 @pytest.mark.parametrize(
@@ -262,6 +269,7 @@ def test_prioritises_utm_source_over_gmail() -> None:
         (("tag", "drawing-things"),),
         (("tag", "shell-scripting"), ("details", "open")),
         (("s", "08"),),
+        (("msclkid", "cac221a3c04b11ecae4a4fc62f02d101"),),
     ],
 )
 def test_bad_queries_are_ignored(query: QueryParams) -> None:
