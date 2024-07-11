@@ -304,6 +304,7 @@ def _get_referrer_from_header(u: ParsedUrl) -> str | None:
                 "www.hntoplinks.com",
             ],
             "Instagram": ["instagram.com", "l.instagram.com", "www.instagram.com"],
+            "Instapaper": ["www.instapaper.com"],
             "Kottke": ["kottke.org", "www.kottke.org"],
             "LinkedIn": ["www.linkedin.com", "lnkd.in"],
             "Linkhut": ["ln.ht"],
