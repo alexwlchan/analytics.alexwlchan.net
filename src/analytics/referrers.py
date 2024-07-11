@@ -151,10 +151,11 @@ def get_normalised_referrer(*, referrer: str, query: QueryParams) -> str | None:
         return None
 
     try:
-        if ipaddress.ip_address(u.host).is_private:
-            return None
+        ipaddress.ip_address(u.host)
     except ValueError:
         pass
+    else:
+        return None
 
     # Ignore any referrer data from my own domain -- I'm more interested
     # in who's linking to me than how people are moving about my site.
@@ -164,6 +165,11 @@ def get_normalised_referrer(*, referrer: str, query: QueryParams) -> str | None:
         "books.alexwlchan.net",
         "til.alexwlchan.net",
     }:
+        return None
+
+    # Ignore any referrer data from domains which clearly can't be sending
+    # me real referrer data.
+    if u.host in {"alexwlchan.com", "example.net", "roam.localhost"}:
         return None
 
     # Do any normalisation of referrer URLs
