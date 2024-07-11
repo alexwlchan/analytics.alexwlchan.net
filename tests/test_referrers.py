@@ -269,6 +269,7 @@ def test_prioritises_utm_source_over_gmail() -> None:
         (("tag", "drawing-things"),),
         (("tag", "shell-scripting"), ("details", "open")),
         (("s", "08"),),
+        (("msclkid", "cac221a3c04b11ecae4a4fc62f02d101"),),
     ],
 )
 def test_bad_queries_are_ignored(query: QueryParams) -> None:

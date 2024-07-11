@@ -37,10 +37,6 @@ def get_normalised_referrer(*, referrer: str, query: QueryParams) -> str | None:
     if query in {
         (("force_isolation", "true"),),
         (("homescreen", "1"),),
-        (("s", "03"),),
-        (("s", "07"),),
-        (("s", "08"),),
-        (("s", "09"),),
         (("secureweb", "Teams"),),
         (("seed", "202404"),),
         (("t", None),),
@@ -51,6 +47,11 @@ def get_normalised_referrer(*, referrer: str, query: QueryParams) -> str | None:
         (("commit", None),),
     }:
         query = ()
+
+    # If we only get a single query string parameter and no other referrer
+    # information, there's probably not much we can do here -- just drop it.
+    if not referrer and len(query) == 1 and query[0][0] in {"cmdf", "msclkid", "s"}:
+        return None
 
     # Remove some redundant referrer info
     if referrer == "https://api.daily.dev/" and query == (("ref", "dailydev"),):
