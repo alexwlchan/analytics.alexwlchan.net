@@ -502,6 +502,10 @@ def _get_referrer_from_query(query: QueryParams) -> str | None:
             "params": {"ref": "usepanda.com"},
         },
         {
+            "referrer": "News reader (Feedly, Inoreader, …)",
+            "params": {"utm_source": "feedly"},
+        },
+        {
             "referrer": "News aggregator (Flipboard, HN, Reddit, …)",
             "params": {"ref": "cloudhiker.net"},
         },
