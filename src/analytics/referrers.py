@@ -477,7 +477,7 @@ def _get_referrer_from_query(query: QueryParams) -> str | None:
             "Mastodon": ["mastodon"],
             "News aggregator (Flipboard, HN, Reddit, …)": ["cloudhiker.net"],
             "Pocket": ["pocket_mylist", "pocket_reader", "pocket_saves"],
-            "RSS subscribers": ["rss"],
+            "RSS subscribers": ["feedly", "rss"],
             "Substack": ["substack"],
             "TLDR Newsletter (https://tldr.tech/)": ["tldrnewsletter", "tldrwebdev"],
         }
@@ -500,10 +500,6 @@ def _get_referrer_from_query(query: QueryParams) -> str | None:
         {
             "referrer": "News reader (Feedly, Inoreader, …)",
             "params": {"ref": "usepanda.com"},
-        },
-        {
-            "referrer": "News reader (Feedly, Inoreader, …)",
-            "params": {"utm_source": "feedly"},
         },
         {
             "referrer": "News aggregator (Flipboard, HN, Reddit, …)",
