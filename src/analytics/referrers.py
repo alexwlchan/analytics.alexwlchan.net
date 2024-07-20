@@ -406,6 +406,7 @@ def _get_referrer_from_header(u: ParsedUrl) -> str | None:
             "Twitter": ["t.co"],
             "Weibo": ["weibo.cn"],
             "Wikimedia Commons": ["commons.wikimedia.org", "commons.m.wikimedia.org"],
+            "Wikipedia": ["ru.wikipedia.org"],
             "YouTube": ["www.youtube.com"],
             "Zenodo": ["zenodo.org"],
             #
