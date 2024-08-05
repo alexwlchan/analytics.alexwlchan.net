@@ -124,7 +124,7 @@ josepy==1.14.0
     #   -r requirements.txt
     #   acme
     #   certbot
-keyring==25.2.1
+keyring==25.3.0
     # via -r requirements.txt
 keyrings-alt==5.0.1
     # via -r requirements.txt
