@@ -238,7 +238,7 @@ tabulate==0.9.0
     # via
     #   -r requirements.txt
     #   sqlite-utils
-tqdm==4.66.4
+tqdm==4.66.5
     # via -r dev_requirements.in
 typing-extensions==4.9.0
     # via mypy
