@@ -85,7 +85,7 @@ josepy==1.14.0
     #   certbot
 keyring==25.3.0
     # via -r requirements.in
-keyrings-alt==5.0.1
+keyrings-alt==5.0.2
     # via -r requirements.in
 markupsafe==2.1.5
     # via
