@@ -121,7 +121,7 @@ def get_recent_posts() -> list[RecentPost]:
     query = """
         SELECT p.host, p.path, p.title, p.date_posted, COUNT(e.url) AS count
         FROM posts p
-        LEFT JOIN events e ON p.host = e.host AND p.path = e.path
+        LEFT JOIN events e ON p.host = e.host AND p.path = e.path AND e.is_me = '0'
         GROUP BY p.host, p.path, p.date_posted
         ORDER BY p.date_posted DESC
         LIMIT 10;
