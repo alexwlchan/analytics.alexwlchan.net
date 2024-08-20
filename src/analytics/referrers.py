@@ -118,6 +118,9 @@ def get_normalised_referrer(*, referrer: str, query: QueryParams) -> str | None:
                 "https://devblogs.microsoft.com/oldnewthing/20240628-01/?p=109945&ocid=oldnewthing_eml_tnp_autoid271_readmore",
                 "https://devblogs.microsoft.com/oldnewthing/20240628-01/?p=109945/",
             ],
+            "https://devblogs-microsoft-com/": [
+                "https://devblogs-microsoft-com.translate.goog/",
+            ],
             # This website seems to be dual-published in Germany/Austria,
             # and the Austrian site is more popular.
             "https://www.derstandard.at/": [
@@ -244,6 +247,7 @@ def _get_referrer_from_header(u: ParsedUrl) -> str | None:
         {
             "Baidu": ["baidu.com", "m.baidu.com"],
             "Bluesky": ["bsky.app", "staging.bsky.app"],
+            "ChatGPT": ["chatgpt.com"],
             "Email": [
                 "deref-gmx.com",
                 "e.mail.ru",
@@ -263,7 +267,7 @@ def _get_referrer_from_header(u: ParsedUrl) -> str | None:
                 "us13.campaign-archive.com",
             ],
             "Evernote": ["www.evernote.com"],
-            "GitHub": ["gist.github.com", "github.com"],
+            "GitHub": ["gist.github.com", "github.com", "github-com.translate.goog"],
             "Facebook": ["l.facebook.com", "m.facebook.com", "lm.facebook.com"],
             "Facebook Messenger": ["l.messenger.com"],
             "Fark": ["www.fark.com", "m.fark.com"],
@@ -322,6 +326,20 @@ def _get_referrer_from_header(u: ParsedUrl) -> str | None:
                 "hachyderm.io",
             ],
             "MetaFilter": ["www.metafilter.com"],
+            #
+            # I get a bunch of links from Office-related domains.  I don't
+            # really know what they are; I guess they're corporate Intranets?
+            # Throw them all into one bucket for now.
+            "Microsoft Office": [
+                "login.microsoftonline.us",
+                "res.cdn.office.net",
+                "statics.gov.teams.microsoft.us",
+                "statics.teams.cdn.office.net",
+                "teams.microsoft.com",
+                "ukc-word-edit.officeapps.live.com",
+                "usc-word-edit.officeapps.live.com",
+                "word-edit.officeapps.live.com",
+            ],
             "MSN": ["www.msn.com"],
             "News aggregator (Flipboard, HN, Reddit, …)": [
                 "boredreading.com",
@@ -370,6 +388,7 @@ def _get_referrer_from_header(u: ParsedUrl) -> str | None:
             ],
             "Pinboard": ["pinboard.in", "m.pinboard.in", "www.pinboard.in"],
             "Pinterest": ["www.pinterest.ca", "www.pinterest.com"],
+            "PyPI": ["pypi.org"],
             "Search (Google, Bing, DDG, …)": [
                 "au.search.yahoo.com",
                 "bing.com",
@@ -408,6 +427,7 @@ def _get_referrer_from_header(u: ParsedUrl) -> str | None:
             ],
             "Telegram": ["web.telegram.org", "weba.telegram.org"],
             "Threads": ["l.threads.net"],
+            "Trello": ["trello.com"],
             "Tumblr": ["www.tumblr.com"],
             "Twitter": ["t.co", "xcancel.com"],
             "Weibo": ["weibo.cn"],
@@ -415,20 +435,6 @@ def _get_referrer_from_header(u: ParsedUrl) -> str | None:
             "Wikipedia": ["ru.wikipedia.org"],
             "YouTube": ["www.youtube.com"],
             "Zenodo": ["zenodo.org"],
-            #
-            # I get a bunch of links from Office-related domains.  I don't
-            # really know what they are; I guess they're corporate Intranets?
-            # Throw them all into one bucket for now.
-            "Microsoft Office": [
-                "login.microsoftonline.us",
-                "res.cdn.office.net",
-                "statics.gov.teams.microsoft.us",
-                "statics.teams.cdn.office.net",
-                "teams.microsoft.com",
-                "ukc-word-edit.officeapps.live.com",
-                "usc-word-edit.officeapps.live.com",
-                "word-edit.officeapps.live.com",
-            ],
         }
     )
 
