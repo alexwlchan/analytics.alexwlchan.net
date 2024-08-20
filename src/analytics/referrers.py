@@ -168,9 +168,14 @@ def get_normalised_referrer(*, referrer: str, query: QueryParams) -> str | None:
     }:
         return None
 
-    # Ignore any referrer data from domains which clearly can't be sending
+    # Ignore any referrer data from domains which can't be sending
     # me real referrer data.
-    if u.host in {"alexwlchan.com", "example.net", "roam.localhost"}:
+    if u.host in {
+        "alexwlchan.com",
+        "alexwlchan-net.translate.goog",
+        "example.net",
+        "roam.localhost",
+    }:
         return None
 
     # Do any normalisation of referrer URLs
@@ -255,6 +260,7 @@ def _get_referrer_from_header(u: ParsedUrl) -> str | None:
                 "buttondown.email",
                 "mailchi.mp",
                 "us1.campaign-archive.com",
+                "us13.campaign-archive.com",
             ],
             "Evernote": ["www.evernote.com"],
             "GitHub": ["gist.github.com", "github.com"],
@@ -403,7 +409,7 @@ def _get_referrer_from_header(u: ParsedUrl) -> str | None:
             "Telegram": ["web.telegram.org", "weba.telegram.org"],
             "Threads": ["l.threads.net"],
             "Tumblr": ["www.tumblr.com"],
-            "Twitter": ["t.co"],
+            "Twitter": ["t.co", "xcancel.com"],
             "Weibo": ["weibo.cn"],
             "Wikimedia Commons": ["commons.wikimedia.org", "commons.m.wikimedia.org"],
             "Wikipedia": ["ru.wikipedia.org"],
@@ -414,11 +420,13 @@ def _get_referrer_from_header(u: ParsedUrl) -> str | None:
             # really know what they are; I guess they're corporate Intranets?
             # Throw them all into one bucket for now.
             "Microsoft Office": [
+                "login.microsoftonline.us",
                 "res.cdn.office.net",
                 "statics.gov.teams.microsoft.us",
                 "statics.teams.cdn.office.net",
                 "teams.microsoft.com",
                 "ukc-word-edit.officeapps.live.com",
+                "usc-word-edit.officeapps.live.com",
                 "word-edit.officeapps.live.com",
             ],
         }
