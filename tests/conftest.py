@@ -69,5 +69,6 @@ def maxmind_db_path(tmp_path: pathlib.Path) -> pathlib.Path:
 @pytest.fixture(scope="module")
 def vcr_config() -> typing.Any:
     return {
+        "decode_compressed_response": True,
         "filter_headers": [("authorization", "NETLIFY_TOKEN")],
     }
