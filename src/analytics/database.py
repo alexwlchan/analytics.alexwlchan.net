@@ -10,6 +10,7 @@ import datetime
 import typing
 
 from sqlite_utils import Database
+from sqlite_utils.db import Table
 
 from .date_helpers import days_between
 from .types import CountedReferrers, MissingPage, PerDayCount, PerPageCount
@@ -26,6 +27,14 @@ class AnalyticsDatabase:
         Create a new instance of AnalyticsDatabase.
         """
         self.db = db
+
+    @property
+    def events_table(self) -> Table:
+        """
+        The table which stores all the analytics events -- that is,
+        any time somebody visits my site.
+        """
+        return Table(self.db, "events")
 
     @staticmethod
     def _where_clause(start_date: datetime.date, end_date: datetime.date) -> str:
