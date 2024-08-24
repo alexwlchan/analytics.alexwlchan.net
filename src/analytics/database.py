@@ -1,3 +1,10 @@
+"""
+Database code.
+
+Ideally this file should handle all interactions between the app and
+the database.
+"""
+
 import collections
 import datetime
 import typing
@@ -9,11 +16,23 @@ from .types import CountedReferrers, MissingPage, PerDayCount, PerPageCount
 
 
 class AnalyticsDatabase:
+    """
+    Wraps a SQLite database and provides some convenience methods for
+    updating and querying it.
+    """
+
     def __init__(self, db: Database):
+        """
+        Create a new instance of AnalyticsDatabase.
+        """
         self.db = db
 
     @staticmethod
     def _where_clause(start_date: datetime.date, end_date: datetime.date) -> str:
+        """
+        This creates a SQLite query fragment that filters out certain
+        values I don't want, and filters to a date range.
+        """
         # Note: we add the 'x' so that complete datestamps
         # e.g. 2001-02-03T04:56:07Z sort lower than a date like '2001-02-03'
         return f"""
