@@ -105,7 +105,7 @@ def tracking_pixel() -> FlaskResponse:
         maxmind_db_path=maxmind_db_path(), ip_address=ip_address
     )
 
-    row = {
+    event = {
         "id": uuid.uuid4(),
         "date": datetime.datetime.now().isoformat(),
         "url": url,
@@ -123,7 +123,9 @@ def tracking_pixel() -> FlaskResponse:
         "is_me": request.cookies.get("analytics.alexwlchan-isMe") == "true",
     }
 
-    db_table("events").insert(row)
+    db = get_db()
+    analytics_db = AnalyticsDatabase(db)
+    analytics_db.events_table.insert(event)
 
     return send_file("static/a.gif")
 

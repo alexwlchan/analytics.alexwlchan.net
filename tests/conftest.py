@@ -11,6 +11,9 @@ from flask.testing import FlaskClient
 from netaddr import IPSet
 from mmdb_writer import MMDBWriter
 import pytest
+from sqlite_utils import Database
+
+from analytics.database import AnalyticsDatabase
 
 
 @pytest.fixture()
@@ -25,6 +28,14 @@ def tmp_working_dir(tmp_path: pathlib.Path) -> Iterator[pathlib.Path]:
         yield tmp_path
     finally:
         os.chdir(current_dir)
+
+
+@pytest.fixture
+def analytics_db() -> AnalyticsDatabase:
+    """
+    An empty instance of ``AnalyticsDatabase`` for testing.
+    """
+    return AnalyticsDatabase(db=Database(":memory:"))
 
 
 @pytest.fixture()
