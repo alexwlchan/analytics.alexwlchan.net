@@ -1,3 +1,12 @@
+"""
+Look up my Netlify bandwidth usage.
+
+This is used to show a small pie chart in the interface, which marks
+how much of this month's allocation I've used.  This lets me see if I'm
+at risk of incurring an overage charge, and need to take some preventative
+measure (either reducing my usage, or changing my plan).
+"""
+
 import datetime
 import json
 import typing
@@ -8,6 +17,10 @@ from .utils import get_password
 
 
 class NetlifyBandwidthUsage(typing.TypedDict):
+    """
+    The parsed data from the Netlify Bandwidth Usage API.
+    """
+
     used: int
     included: int
     period_start_date: datetime.datetime
@@ -15,6 +28,9 @@ class NetlifyBandwidthUsage(typing.TypedDict):
 
 
 def parse_data(data: typing.Any) -> NetlifyBandwidthUsage:
+    """
+    Convert the untyped raw data into a typed object.
+    """
     return {
         "used": data["used"],
         "included": data["included"],
