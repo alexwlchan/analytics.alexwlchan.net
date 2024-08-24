@@ -1,3 +1,7 @@
+"""
+Date-related code.
+"""
+
 from collections.abc import Iterator
 import datetime
 
@@ -31,4 +35,8 @@ def days_between(
 
 
 def prettydate(d: str) -> str:
+    """
+    Returns a date formatted for the hover labels on the graph,
+    e.g. 'Wed 14 Aug'
+    """
     return datetime.datetime.strptime(d, "%Y-%m-%d").strftime("%a %-d %b")
