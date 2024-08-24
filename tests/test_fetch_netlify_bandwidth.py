@@ -1,3 +1,7 @@
+"""
+Tests for ``analytics.fetch_netlify_bandwidth``.
+"""
+
 import datetime
 import json
 import pathlib
@@ -9,6 +13,9 @@ from analytics.fetch_netlify_bandwidth import fetch_netlify_bandwidth_usage
 
 @pytest.mark.vcr()
 def test_fetch_netlify_bandwidth(tmp_working_dir: pathlib.Path) -> None:
+    """
+    Fetch the Netlify bandwidth.
+    """
     bst = datetime.timezone(datetime.timedelta(days=-1, seconds=61200))
 
     assert fetch_netlify_bandwidth_usage() == {
@@ -21,6 +28,9 @@ def test_fetch_netlify_bandwidth(tmp_working_dir: pathlib.Path) -> None:
 
 @pytest.mark.vcr()
 def test_fetch_netlify_bandwidth_is_cached(tmp_working_dir: pathlib.Path) -> None:
+    """
+    If you fetch the Netlify bandwidth twice, it gets cached to disk.
+    """
     result1 = fetch_netlify_bandwidth_usage()
     result2 = fetch_netlify_bandwidth_usage()
 
@@ -29,6 +39,10 @@ def test_fetch_netlify_bandwidth_is_cached(tmp_working_dir: pathlib.Path) -> Non
 
 
 def test_respects_retry_after_header(tmp_working_dir: pathlib.Path) -> None:
+    """
+    It won't re-fetch the Netlify bandwidth data until after the time
+    sent by the HTTP ``Retry-After`` header has passed.
+    """
     data = {
         "used": 100,
         "included": 200,

@@ -1,3 +1,8 @@
+"""
+Assorted utility functions; this is the "junk drawer" of the project
+for code that doesn't have a better place to go.
+"""
+
 import datetime
 import functools
 import math

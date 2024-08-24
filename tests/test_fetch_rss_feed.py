@@ -1,3 +1,7 @@
+"""
+Tests for ``analytics.fetch_rss_feed``.
+"""
+
 import datetime
 import pathlib
 
@@ -8,6 +12,9 @@ from analytics.fetch_rss_feed import fetch_rss_feed_entries, NoNewEntries
 
 @pytest.mark.vcr()
 def test_fetch_rss_feed_entries(tmp_working_dir: pathlib.Path) -> None:
+    """
+    Fetch entries from my RSS feed.
+    """
     entries = fetch_rss_feed_entries()
 
     assert next(entries) == {
@@ -35,6 +42,13 @@ def test_fetch_rss_feed_entries(tmp_working_dir: pathlib.Path) -> None:
 
 @pytest.mark.vcr()
 def test_it_skips_if_no_new_entries(tmp_working_dir: pathlib.Path) -> None:
+    """
+    If there are no new entries since I last fetched the RSS feed,
+    do nothing.
+
+    This is using the HTTP caching headers to reduce passing around
+    unnecessary data.
+    """
     for _ in fetch_rss_feed_entries():
         pass
 

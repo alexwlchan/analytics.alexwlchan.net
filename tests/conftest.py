@@ -1,3 +1,7 @@
+"""
+Test fixtures and utility code.
+"""
+
 from collections.abc import Iterator
 import os
 import pathlib
@@ -68,6 +72,9 @@ def maxmind_db_path(tmp_path: pathlib.Path) -> pathlib.Path:
 
 @pytest.fixture(scope="module")
 def vcr_config() -> typing.Any:
+    """
+    Config for vcrpy.
+    """
     return {
         "decode_compressed_response": True,
         "filter_headers": [("authorization", "NETLIFY_TOKEN")],

@@ -1,7 +1,5 @@
 import datetime
-import glob
 import json
-import pathlib
 import typing
 import uuid
 
@@ -14,7 +12,12 @@ from sqlite_utils.db import Table
 from werkzeug.wrappers.response import Response as WerkzeugResponse
 
 from . import date_helpers
-from .countries import get_country_iso_code, get_country_name, get_flag_emoji
+from .countries import (
+    get_country_iso_code,
+    get_country_name,
+    get_flag_emoji,
+    maxmind_db_path,
+)
 from .database import AnalyticsDatabase
 from .fetch_netlify_bandwidth import fetch_netlify_bandwidth_usage
 from .fetch_rss_feed import fetch_rss_feed_entries, NoNewEntries
@@ -42,12 +45,6 @@ def db_table(name: str) -> Table:
     db = get_db()
 
     return Table(db, name)
-
-
-def maxmind_db_path() -> pathlib.Path:
-    db_folder = max(glob.glob("GeoLite2-Country_*"))
-    db_path = pathlib.Path(db_folder) / "GeoLite2-Country.mmdb"
-    return db_path
 
 
 @app.route("/")
