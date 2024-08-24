@@ -12,7 +12,6 @@ from flask import Response as FlaskResponse
 import humanize
 import hyperlink
 from sqlite_utils import Database
-from sqlite_utils.db import Table
 from werkzeug.wrappers.response import Response as WerkzeugResponse
 
 from . import date_helpers
@@ -48,17 +47,6 @@ def get_db() -> Database:
     db = app.config.setdefault("DATABASE", get_database(path="requests.sqlite"))
 
     return typing.cast(Database, db)
-
-
-def db_table(name: str) -> Table:
-    """
-    Get a database table.
-
-    TODO: Push all database interactions inside ``database.py``.
-    """
-    db = get_db()
-
-    return Table(db, name)
 
 
 @app.route("/")
@@ -145,9 +133,12 @@ def get_recent_posts() -> list[RecentPost]:
     Return a list of the ten most recent posts, and the number of times
     they were viewed.
     """
+    db = get_db()
+    analytics_db = AnalyticsDatabase(db)
+
     try:
         entries = fetch_rss_feed_entries()
-        db_table("posts").upsert_all(entries, pk="id")
+        analytics_db.posts_table.upsert_all(entries, pk="id")
     except NoNewEntries:
         pass
 
@@ -159,8 +150,6 @@ def get_recent_posts() -> list[RecentPost]:
         ORDER BY p.date_posted DESC
         LIMIT 10;
     """
-
-    db = get_db()
 
     return [
         {

@@ -36,6 +36,14 @@ class AnalyticsDatabase:
         """
         return Table(self.db, "events")
 
+    @property
+    def posts_table(self) -> Table:
+        """
+        The table which stores all my recent posts -- that is, articles
+        I've published on my site.
+        """
+        return Table(self.db, "posts")
+
     @staticmethod
     def _where_clause(start_date: datetime.date, end_date: datetime.date) -> str:
         """
