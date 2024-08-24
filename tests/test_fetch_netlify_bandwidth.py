@@ -1,17 +1,10 @@
 import datetime
 import json
-import os
 import pathlib
 
 import pytest
 
 from analytics.fetch_netlify_bandwidth import fetch_netlify_bandwidth_usage
-
-
-@pytest.fixture
-def tmp_working_dir(tmp_path: pathlib.Path) -> pathlib.Path:
-    os.chdir(tmp_path)
-    return tmp_path
 
 
 @pytest.mark.vcr()
