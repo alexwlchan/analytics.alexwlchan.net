@@ -45,14 +45,14 @@ def client(
 
 
 @pytest.fixture
-def maxmind_db_path(tmp_working_dir: pathlib.Path) -> pathlib.Path:
+def maxmind_db_path(tmp_path: pathlib.Path) -> pathlib.Path:
     """
     Create a MaxMind database with the right name in the current directory.
 
     This is based on the example code for mmdb_writer.
     See https://pypi.org/project/mmdb-writer/
     """
-    geo_dir = pathlib.Path("GeoLite2-Country_TEST")
+    geo_dir = tmp_path / "GeoLite2-Country_TEST"
     geo_dir.mkdir()
 
     writer = MMDBWriter()
@@ -69,5 +69,6 @@ def maxmind_db_path(tmp_working_dir: pathlib.Path) -> pathlib.Path:
 @pytest.fixture(scope="module")
 def vcr_config() -> typing.Any:
     return {
+        "decode_compressed_response": True,
         "filter_headers": [("authorization", "NETLIFY_TOKEN")],
     }
