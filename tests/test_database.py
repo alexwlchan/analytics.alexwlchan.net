@@ -35,6 +35,13 @@ def create_event(
     }
 
 
+def create_events(count: int, **kwargs: typing.Any) -> list[typing.Any]:
+    """
+    Create a list of example events for testing.
+    """
+    return [create_event(**kwargs) for _ in range(count)]
+
+
 @pytest.mark.parametrize(
     ["start_date", "end_date", "expected_result"],
     [
@@ -69,10 +76,9 @@ def test_count_unique_visitors_per_day(
     for day, visitor_count in requests.items():
         for visitor_id in range(visitor_count):
             analytics_db.events_table.insert_all(
-                [
-                    create_event(day=day, visitor_id=visitor_id)
-                    for _ in range(random.randint(1, 10))
-                ]
+                create_events(
+                    day=day, visitor_id=visitor_id, count=random.randint(1, 10)
+                )
             )
 
     actual = analytics_db.count_unique_visitors_per_day(
@@ -112,7 +118,7 @@ def test_count_visitors_by_country(
     for day, country_info in requests.items():
         for country_id, count in country_info.items():
             analytics_db.events_table.insert_all(
-                [create_event(day=day, country_id=country_id) for _ in range(count)]
+                create_events(day=day, country_id=country_id, count=count)
             )
 
     actual = analytics_db.count_visitors_by_country(
@@ -170,15 +176,13 @@ class TestAnalyticsDatabase:
         """
         for row in records:
             analytics_db.events_table.insert_all(
-                [
-                    create_event(
-                        day="2024-03-29",
-                        title=row["title"],
-                        path=row["path"],
-                        normalised_referrer=row["normalised_referrer"],
-                    )
-                    for _ in range(row["count"])
-                ]
+                create_events(
+                    day="2024-03-29",
+                    title=row["title"],
+                    path=row["path"],
+                    normalised_referrer=row["normalised_referrer"],
+                    count=row["count"],
+                )
             )
 
         result = analytics_db.count_referrers(
@@ -213,15 +217,13 @@ class TestAnalyticsDatabase:
         """
         for row in records:
             analytics_db.events_table.insert_all(
-                [
-                    create_event(
-                        day="2024-03-29",
-                        title=row["title"],
-                        path=row["path"],
-                        normalised_referrer=row["normalised_referrer"],
-                    )
-                    for _ in range(row["count"])
-                ]
+                create_events(
+                    day="2024-03-29",
+                    title=row["title"],
+                    path=row["path"],
+                    normalised_referrer=row["normalised_referrer"],
+                    count=row["count"],
+                )
             )
 
         result = analytics_db.count_hits_per_page(
@@ -246,25 +248,23 @@ class TestAnalyticsDatabase:
         """
         for row in records:
             analytics_db.events_table.insert_all(
-                [
-                    create_event(
-                        day="2024-03-29",
-                        title=row["title"],
-                        path=row["path"],
-                        normalised_referrer=row["normalised_referrer"],
-                    )
-                    for _ in range(row["count"])
-                ]
+                create_events(
+                    day="2024-03-29",
+                    title=row["title"],
+                    path=row["path"],
+                    normalised_referrer=row["normalised_referrer"],
+                    count=row["count"],
+                )
             )
 
         for path, count in [("/404", 2), ("/not-found", 5), ("/files/2021/null", 1)]:
             analytics_db.events_table.insert_all(
-                [
-                    create_event(
-                        day="2024-03-29", title="404 Not Found – alexwlchan", path=path
-                    )
-                    for _ in range(count)
-                ]
+                create_events(
+                    day="2024-03-29",
+                    title="404 Not Found – alexwlchan",
+                    path=path,
+                    count=count,
+                )
             )
 
         result = analytics_db.count_missing_pages(
@@ -293,15 +293,13 @@ class TestAnalyticsDatabase:
         )
 
         analytics_db.events_table.insert_all(
-            [
-                create_event(
-                    day="2024-05-26",
-                    title="404 Not Found – alexwlchan",
-                    path="/2019/08/a-post-that-never-existed",
-                    normalised_referrer="example.net",
-                )
-                for _ in range(3)
-            ]
+            create_events(
+                day="2024-05-26",
+                title="404 Not Found – alexwlchan",
+                path="/2019/08/a-post-that-never-existed",
+                normalised_referrer="example.net",
+                count=3,
+            )
         )
 
         result = analytics_db.count_referrers(
@@ -397,9 +395,7 @@ class TestAnalyticsDatabase:
         }
 
         for day, count in requests.items():
-            analytics_db.events_table.insert_all(
-                [create_event(day=day) for _ in range(count)]
-            )
+            analytics_db.events_table.insert_all(create_events(day=day, count=count))
 
         actual = analytics_db.count_requests_per_day(
             start_date=datetime.date.fromisoformat(start_date),
