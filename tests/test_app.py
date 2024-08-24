@@ -1,3 +1,7 @@
+"""
+Tests for the main Flask app.
+"""
+
 from flask.testing import FlaskClient
 import pytest
 from sqlite_utils.db import Table
@@ -6,12 +10,19 @@ from analytics.utils import get_database
 
 
 def test_index_explains_domain(client: FlaskClient) -> None:
+    """
+    There's explanatory text at the root of the domain.
+    """
     resp = client.get("/")
     assert resp.status_code == 200
     assert b"This website hosts a tracking pixel for alexwlchan.net" in resp.data
 
 
 def test_index_redirects_if_cookie(client: FlaskClient) -> None:
+    """
+    If you have the ``isMe`` cookie, you're automatically redirected
+    from the homepage to the dashboard.
+    """
     client.set_cookie("analytics.alexwlchan-isMe", "true")
 
     resp = client.get("/")
@@ -20,6 +31,10 @@ def test_index_redirects_if_cookie(client: FlaskClient) -> None:
 
 
 class TestTrackingPixel:
+    """
+    Tests for the tracking pixel at ``/a.gif``
+    """
+
     @pytest.mark.parametrize(
         "query_string",
         [
@@ -32,11 +47,18 @@ class TestTrackingPixel:
     def test_missing_mandatory_parameter_is_error(
         self, client: FlaskClient, query_string: dict[str, str]
     ) -> None:
+        """
+        If you omit one of the parameters, you get an HTTP 400 error.
+        """
         resp = client.get("/a.gif", query_string=query_string)
         assert resp.status_code == 400
 
     @pytest.mark.filterwarnings("ignore::ResourceWarning")
     def test_records_single_event(self, client: FlaskClient) -> None:
+        """
+        If you pass the right parameters, an event gets recorded in
+        the database.
+        """
         resp = client.get(
             "/a.gif",
             query_string={
@@ -54,6 +76,10 @@ class TestTrackingPixel:
 
     @pytest.mark.filterwarnings("ignore::ResourceWarning")
     def test_records_bot_event(self, client: FlaskClient) -> None:
+        """
+        If your User-Agent looks like a bot, the recorded event has
+        ``is_bot=1``.
+        """
         resp = client.get(
             "/a.gif",
             query_string={
@@ -73,6 +99,10 @@ class TestTrackingPixel:
 
     @pytest.mark.filterwarnings("ignore::ResourceWarning")
     def test_utm_source_mastodon(self, client: FlaskClient) -> None:
+        """
+        If the query parameter has a ``utm_source``, this is reflected
+        in the ``normalised_referrer``.
+        """
         resp = client.get(
             "/a.gif",
             query_string={
@@ -93,6 +123,9 @@ class TestTrackingPixel:
 
 @pytest.mark.filterwarnings("ignore::ResourceWarning")
 def test_robots_txt(client: FlaskClient) -> None:
+    """
+    The ``/robots.txt`` page tells robots to ignore this domain.
+    """
     resp = client.get("/robots.txt")
     assert resp.status_code == 200
     assert resp.data.splitlines() == [b"User-agent: *", b"Disallow: /"]
@@ -101,6 +134,14 @@ def test_robots_txt(client: FlaskClient) -> None:
 @pytest.mark.filterwarnings("ignore::ResourceWarning")
 @pytest.mark.vcr()
 def test_dashboard_can_be_rendered(client: FlaskClient) -> None:
+    """
+    The dashboard can be shown.
+
+    This is a fairly minimal test that's just designed to get coverage
+    for this code, but doesn't test any specific behaviours.  In future,
+    it'd be nice to expand this and add tests that are more interesting
+    than just "the dashboard loads okay".
+    """
     # VCR cassette note: Netlify returns a ``Retry-After`` header which tells you
     # when you can call the "get bandwidth usage" API again.
     #

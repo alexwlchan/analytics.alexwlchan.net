@@ -1,3 +1,7 @@
+"""
+Tests for ``analytics.database``.
+"""
+
 import datetime
 import random
 import typing
@@ -33,6 +37,9 @@ from analytics.types import CountedReferrers, PerDayCount
 def test_count_unique_visitors_per_day(
     start_date: str, end_date: str, expected_result: list[PerDayCount]
 ) -> None:
+    """
+    Tally the number of unique visitors (=session IDs) each day.
+    """
     db = Database(":memory:")
     analytics_db = AnalyticsDatabase(db)
 
@@ -71,6 +78,9 @@ def test_count_unique_visitors_per_day(
 def test_count_visitors_by_country(
     start_date: str, end_date: str, expected_result: dict[str, int]
 ) -> None:
+    """
+    Tally the number of visitors from each country.
+    """
     db = Database(":memory:")
     analytics_db = AnalyticsDatabase(db)
 
@@ -100,14 +110,7 @@ def test_count_visitors_by_country(
     assert actual == expected_result
 
 
-class DummyRecord(typing.TypedDict):
-    title: str
-    path: str
-    normalised_referrer: str
-    count: int
-
-
-records: list[DummyRecord] = [
+records: list[typing.Any] = [
     {
         "title": "Making a PDF that’s larger than Germany – alexwlchan",
         "path": "/2024/big-pdf/",
@@ -142,7 +145,15 @@ records: list[DummyRecord] = [
 
 
 class TestAnalyticsDatabase:
+    """
+    Tests for the ``AnalyticsDatabase`` class.
+    """
+
     def test_count_referrers_gets_all_germany_posts(self) -> None:
+        """
+        It groups referrers for the "PDF larger than Germany" post, which
+        is popular and has a long tail of referrers.
+        """
         db = Database(":memory:")
         analytics_db = AnalyticsDatabase(db)
 
@@ -184,6 +195,9 @@ class TestAnalyticsDatabase:
         }
 
     def test_count_hits_per_page(self) -> None:
+        """
+        Tally the number of htis per page.
+        """
         db = Database(":memory:")
         analytics_db = AnalyticsDatabase(db)
 
@@ -215,6 +229,9 @@ class TestAnalyticsDatabase:
         ]
 
     def test_count_missing_pages(self) -> None:
+        """
+        Count the number of pages which got a 404 error.
+        """
         db = Database(":memory:")
         analytics_db = AnalyticsDatabase(db)
 
@@ -252,6 +269,9 @@ class TestAnalyticsDatabase:
         ]
 
     def test_count_referrers_gets_missing_pages(self) -> None:
+        """
+        Count the number of pages which got a 404 Not Found or 410 Gone.
+        """
         db = Database(":memory:")
         analytics_db = AnalyticsDatabase(db)
 
@@ -294,6 +314,9 @@ class TestAnalyticsDatabase:
         )
 
     def test_count_referrers_handles_multiple_pages_in_long_tail(self) -> None:
+        """
+        The long tail of popular posts can include multiple posts.
+        """
         db = Database(":memory:")
         analytics_db = AnalyticsDatabase(db)
 
@@ -356,6 +379,9 @@ class TestAnalyticsDatabase:
     def test_count_requests_per_day(
         self, start_date: str, end_date: str, expected_result: list[PerDayCount]
     ) -> None:
+        """
+        Tally the total number of requests each day.
+        """
         db = Database(":memory:")
         analytics_db = AnalyticsDatabase(db)
 

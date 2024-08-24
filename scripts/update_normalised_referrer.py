@@ -13,10 +13,17 @@ from analytics.utils import get_database
 
 @functools.cache
 def parse_query(qs: str) -> QueryParams:
+    """
+    Given a JSON-formatted query string stored in the database,
+    turn it back into a proper ``QueryParams`` value.
+    """
     return tuple(tuple(q) for q in json.loads(qs))
 
 
 def get_events_to_upsert(db):
+    """
+    Find events in the database whose ``normalised_referrer`` is outdated.
+    """
     cursor = db["events"].rows_where(
         "referrer != '' or query != '[]'",
         select="id, referrer, normalised_referrer, query",

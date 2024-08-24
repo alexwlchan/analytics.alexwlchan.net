@@ -1,3 +1,7 @@
+"""
+Main Flask app.
+"""
+
 import datetime
 import json
 import typing
@@ -36,12 +40,22 @@ app = Flask(__name__)
 
 
 def get_db() -> Database:
+    """
+    Get an instance of the database.
+
+    TODO: Replace this with the recommended approach for Flask/SQLite.
+    """
     db = app.config.setdefault("DATABASE", get_database(path="requests.sqlite"))
 
     return typing.cast(Database, db)
 
 
 def db_table(name: str) -> Table:
+    """
+    Get a database table.
+
+    TODO: Push all database interactions inside ``database.py``.
+    """
     db = get_db()
 
     return Table(db, name)
@@ -49,6 +63,14 @@ def db_table(name: str) -> Table:
 
 @app.route("/")
 def index() -> str | WerkzeugResponse:
+    """
+    Homepage.
+
+    If a random person visit this page, it shows them a brief explanatory
+    note about what I do with analytics.
+
+    If I visit this page, it automatically redirects me to the dashboard.
+    """
     if request.cookies.get("analytics.alexwlchan-isMe") == "true":
         return redirect(url_for("dashboard"))
     else:
@@ -57,6 +79,13 @@ def index() -> str | WerkzeugResponse:
 
 @app.route("/a.gif")
 def tracking_pixel() -> FlaskResponse:
+    """
+    Tracking pixel.
+
+    Nobody visits this directly, but they make a request for it and it
+    records a tracking event in the database.  This is based on a combination
+    of query parameters passed in the URL, and the HTTP headers.
+    """
     try:
         url = request.args["url"]
         referrer = request.args["referrer"]
@@ -101,6 +130,11 @@ def tracking_pixel() -> FlaskResponse:
 
 @app.route("/robots.txt")
 def robots_txt() -> FlaskResponse:
+    """
+    Send a static ``robots.txt`` file.
+
+    This tells bots/crawlers to ignore the entire site.
+    """
     return send_file("static/robots.txt")
 
 
@@ -153,6 +187,9 @@ app.jinja_env.globals["pi_chart_arc"] = draw_pi_chart_arc
 
 @app.route("/dashboard/")
 def dashboard() -> str:
+    """
+    Dashboard view for me to see all the captured analytics data.
+    """
     try:
         start_date = datetime.date.fromisoformat(request.args["startDate"])
         start_is_default = False

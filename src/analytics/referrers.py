@@ -469,11 +469,6 @@ def _get_referrer_from_header(u: ParsedUrl) -> str | None:
     return None
 
 
-class ReferrerMatch(typing.TypedDict):
-    referrer: str
-    params: dict[str, str]
-
-
 def _get_referrer_from_query(query: QueryParams) -> str | None:
     """
     Given the query string appended to the URL, look to see if it tells
@@ -506,6 +501,10 @@ def _get_referrer_from_query(query: QueryParams) -> str | None:
         return utm_source_lookup[utm_source]  # type: ignore
     except KeyError:
         pass
+
+    ReferrerMatch = typing.TypedDict(
+        "ReferrerMatch", {"referrer": str, "params": dict[str, str]}
+    )
 
     # Look for a ``utm_source`` and ``utm_campaign`` parameters in the
     # query string.

@@ -1,3 +1,10 @@
+"""
+Fetch entries from my RSS feed.
+
+This gives me a list of the most recent posts I've published, so I can
+see whether my new posts are getting picked up.
+"""
+
 from collections.abc import Iterator
 import datetime
 import typing
@@ -8,6 +15,10 @@ import hyperlink
 
 
 class RssEntry(typing.TypedDict):
+    """
+    Represents a new post in the RSS feed.
+    """
+
     id: str
     date_posted: datetime.datetime
     title: str
