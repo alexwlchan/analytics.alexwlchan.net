@@ -1,9 +1,16 @@
+"""
+Tests for ``analytics.referrer``.
+"""
+
 import pytest
 
 from analytics.referrers import get_normalised_referrer, QueryParams
 
 
 def test_empty_referrer_data_is_none() -> None:
+    """
+    If there's no referrer information, there's no normalised referrer.
+    """
     assert get_normalised_referrer(referrer="", query=()) is None
 
 
@@ -15,21 +22,17 @@ def test_empty_referrer_data_is_none() -> None:
         "http://localhost:3000",
         "http://192.168.2.112:3000/",
         "https://192.168.0.230/",
-    ],
-)
-def test_it_drops_boring_referrers(referrer: str) -> None:
-    assert get_normalised_referrer(referrer=referrer, query=()) is None
-
-
-@pytest.mark.parametrize(
-    "referrer",
-    [
         "https://example.net/",
         "http://roam.localhost:8000/",
         "http://75.2.60.5:6080/",
     ],
 )
 def test_it_drops_unhelpful_referrers(referrer: str) -> None:
+    """
+    If the referrer information isn't useful, it gets discarded.
+
+    e.g. links within my own site, or other non-public sites.
+    """
     assert get_normalised_referrer(referrer=referrer, query=()) is None
 
 
@@ -48,6 +51,9 @@ def test_it_drops_unhelpful_referrers(referrer: str) -> None:
     ],
 )
 def test_unrecognised_domain_is_preserved(referrer: str) -> None:
+    """
+    If the referrer domain isn't recognised, it's left as-is.
+    """
     assert get_normalised_referrer(referrer=referrer, query=()) == referrer
 
 
@@ -66,6 +72,9 @@ def test_unrecognised_domain_is_preserved(referrer: str) -> None:
     ],
 )
 def test_domain_with_recognised_referrer_is_mapped(referrer: str, name: str) -> None:
+    """
+    If I recognise the referrer domain, it's mapped to a human-readable label.
+    """
     assert get_normalised_referrer(referrer=referrer, query=()) == name
 
 
@@ -91,25 +100,20 @@ def test_domain_with_recognised_referrer_is_mapped(referrer: str, name: str) -> 
     ],
 )
 def test_maps_search_referrer(referrer: str) -> None:
+    """
+    If the referrer domain is a search domain, it gets mapped to my
+    catchall search label.
+    """
     assert (
         get_normalised_referrer(referrer=referrer, query=())
         == "Search (Google, Bing, DDG, …)"
     )
 
 
-def test_maps_an_exact_match() -> None:
-    result = get_normalised_referrer(
-        referrer="https://www-golem-de.cdn.ampproject.org/v/s/www.golem.de/news/spassprojekt-mann-erstellt-pdf-dokument-in-der-groesse-der-welt-2402-181844.amp.html?amp_gsa=1&amp_js_v=a9&usqp=mq331AQGsAEggAID",
-        query=(),
-    )
-
-    assert (
-        result
-        == "https://www.golem.de/news/spassprojekt-mann-erstellt-pdf-dokument-in-der-groesse-der-welt-2402-181844.html"
-    )
-
-
 def test_spots_a_substack_email() -> None:
+    """
+    Links from Substack are mapped to the 'Substack' label.
+    """
     result = get_normalised_referrer(
         referrer="https://substack.com/",
         query=(("utm_source", "substack"), ("utm_medium", "email")),
@@ -125,6 +129,9 @@ def test_spots_a_substack_email() -> None:
     ],
 )
 def test_utm_source_is_mapped(utm_source: str, name: str) -> None:
+    """
+    If I recognise the ``utm_source``, it's mapped to a human-readable label.
+    """
     query = (("utm_source", utm_source),)
     assert get_normalised_referrer(referrer="", query=query) == name
 
@@ -222,10 +229,18 @@ def test_utm_source_is_mapped(utm_source: str, name: str) -> None:
     ],
 )
 def test_query_is_mapped(query: QueryParams, name: str) -> None:
+    """
+    If I recognise the query parameters on the request URL, they
+    get mapped to a human-readable label.
+    """
     assert get_normalised_referrer(referrer="", query=query) == name
 
 
 def test_an_unrecognised_utm_source_is_preserved() -> None:
+    """
+    If I don't recognise the ``utm_source`` parameter, it gets shown
+    as a string that includes the unrecognised values.
+    """
     query = (("utm_source", "unrecognised"),)
     assert (
         get_normalised_referrer(referrer="", query=query)
@@ -234,19 +249,42 @@ def test_an_unrecognised_utm_source_is_preserved() -> None:
 
 
 def test_an_unrecognised_referrer_and_utm_source_are_preserved() -> None:
+    """
+    If I don't recognise the referrer domain or the query parameters,
+    both of them are shown in the human-readable string.
+    """
     result = get_normalised_referrer(
         referrer="example.com", query=(("utm_source", "unrecognised"),)
     )
     assert result == "example.com (query=(('utm_source', 'unrecognised'),))"
 
 
-def test_an_irrelevant_query_param_is_ignored() -> None:
-    result = get_normalised_referrer(referrer="", query=(("commit", None),))
+@pytest.mark.parametrize(
+    "query",
+    [
+        (("commit", None),),
+        (("tag", "drawing-things"),),
+        (("tag", "shell-scripting"), ("details", "open")),
+        (("s", "08"),),
+        (("msclkid", "cac221a3c04b11ecae4a4fc62f02d101"),),
+    ],
+)
+def test_irrelevant_query_params_are_ignored(
+    query: tuple[tuple[str, str], ...],
+) -> None:
+    """
+    If the query parameter is irrelevant for the referrer, it's discarded.
+    """
+    result = get_normalised_referrer(referrer="", query=query)
 
     assert result is None
 
 
 def test_prioritises_utm_source_over_android_app() -> None:
+    """
+    If the referrer domain and ``utm_source`` have conflicting information,
+    pick the ``utm_source`` which is usually more specific.
+    """
     result = get_normalised_referrer(
         referrer="android-app://com.google.android.gm/",
         query=(("utm_source", "tldrnewsletter"),),
@@ -256,24 +294,19 @@ def test_prioritises_utm_source_over_android_app() -> None:
 
 
 def test_prioritises_utm_source_over_gmail() -> None:
+    """
+    If the referrer domain and ``utm_source`` have conflicting information
+    and one of them says it's Gmail, pick the other one.
+
+    This occurs with email newsletters if somebody opens the link in
+    the Gmail app -- the referrer domain will be Gmail, but the query
+    params will point to the newsletter.
+    """
     result = get_normalised_referrer(
         referrer="https://mail.google.com/", query=(("utm_source", "tldrnewsletter"),)
     )
 
     assert result == "TLDR Newsletter (https://tldr.tech/)"
-
-
-@pytest.mark.parametrize(
-    "query",
-    [
-        (("tag", "drawing-things"),),
-        (("tag", "shell-scripting"), ("details", "open")),
-        (("s", "08"),),
-        (("msclkid", "cac221a3c04b11ecae4a4fc62f02d101"),),
-    ],
-)
-def test_bad_queries_are_ignored(query: QueryParams) -> None:
-    assert get_normalised_referrer(referrer="", query=query) is None
 
 
 @pytest.mark.parametrize(
@@ -299,9 +332,17 @@ def test_bad_queries_are_ignored(query: QueryParams) -> None:
             "https://old.reddit.com/r/logitech/comments/pi5flh/anyone_know_how_to_fix_this_inactive_problem_with/",
             "https://www.reddit.com/r/logitech/comments/pi5flh/anyone_know_how_to_fix_this_inactive_problem_with/",
         ),
+        (
+            "https://www-golem-de.cdn.ampproject.org/v/s/www.golem.de/news/spassprojekt-mann-erstellt-pdf-dokument-in-der-groesse-der-welt-2402-181844.amp.html?amp_gsa=1&amp_js_v=a9&usqp=mq331AQGsAEggAID",
+            "https://www.golem.de/news/spassprojekt-mann-erstellt-pdf-dokument-in-der-groesse-der-welt-2402-181844.html",
+        ),
     ],
 )
 def test_it_tidies_up_urls(referrer: str, normalised_referrer: str) -> None:
+    """
+    It handles all the special cases and unusual URLs which aren't
+    mapped by more general rules.
+    """
     assert (
         get_normalised_referrer(
             referrer=referrer,
@@ -319,6 +360,10 @@ def test_it_tidies_up_urls(referrer: str, normalised_referrer: str) -> None:
     ],
 )
 def test_it_normalises_github_urls(referrer: str) -> None:
+    """
+    If the referrer URL is the README of a GitHub repository, link to
+    the root of the repo instead.
+    """
     actual = get_normalised_referrer(referrer=referrer, query=())
     expected = "https://github.com/alexwlchan/safari-webarchiver"
 
@@ -335,4 +380,8 @@ def test_it_normalises_github_urls(referrer: str) -> None:
 def test_it_removes_redundant_query_info(
     referrer: str, query: tuple[tuple[str, str | None], ...]
 ) -> None:
+    """
+    If the referrer header and query params both contain the same info,
+    discard the query parameters.
+    """
     assert get_normalised_referrer(referrer=referrer, query=query) == referrer

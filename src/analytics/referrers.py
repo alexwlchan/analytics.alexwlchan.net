@@ -682,10 +682,25 @@ def _get_referrer_from_android_app_name(u: ParsedUrl) -> str | None:
 
 
 def invert_dict(d: dict[str, list[str]]) -> dict[str, str]:
+    """
+    Invert a dictionary so you can look up by the values, not the keys.
+
+    e.g. if the original dictionary was
+
+        { a -> ["apple", "apricot", "avocado"], "b" -> ["banana", "berry"] }
+
+    then it gets inverted to
+
+        { apple -> a, apricot -> a, avocado -> a, banana -> b, berry -> b }
+
+    This assumes the values in the original dict are all unique.
+
+    """
     result: dict[str, str] = {}
 
     for key, values in d.items():
         for v in values:
+            assert v not in result
             result[v] = key
 
     return result
