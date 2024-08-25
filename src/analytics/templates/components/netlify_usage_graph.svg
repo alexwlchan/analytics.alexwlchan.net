@@ -1,3 +1,14 @@
+<!--
+  Draw the Netlify bandwidth usage pie chart.
+  
+  This pie chart has two parts:
+  
+  * A filled green circular segment which shows how much bandwidth I've used
+  * A grey outer circular arc which shows how much of the month has passed
+  
+  The centre of the two circles is (55, 55).
+-->
+
 <svg viewBox="0 0 110 110" xmlns="http://www.w3.org/2000/svg" height="50" style="margin: -5px;">
   <circle cx="55" cy="55" r="50" fill="#eee" stroke-width="1" fill="none"/>
   <path d="M 55 55 L 55 5 {{
@@ -7,7 +18,7 @@
       radius=50,
       percentage=netlify_usage.used / netlify_usage.included,
     )
-  }} Z"
+  }} L 55 55 Z"
   fill="#4ca300"
   />
 
