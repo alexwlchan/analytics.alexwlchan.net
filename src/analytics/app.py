@@ -7,11 +7,19 @@ import json
 import typing
 import uuid
 
-from flask import abort, Flask, redirect, render_template, request, send_file, url_for
+from flask import (
+    abort,
+    Flask,
+    g,
+    redirect,
+    render_template,
+    request,
+    send_file,
+    url_for,
+)
 from flask import Response as FlaskResponse
 import humanize
 import hyperlink
-from sqlite_utils import Database
 from werkzeug.wrappers.response import Response as WerkzeugResponse
 
 from . import date_helpers
@@ -28,7 +36,6 @@ from .referrers import get_normalised_referrer
 from .types import RecentPost
 from .utils import (
     draw_pi_chart_arc,
-    get_database,
     get_hex_color_between,
     get_session_identifier,
     guess_if_bot,
@@ -38,15 +45,27 @@ from .utils import (
 app = Flask(__name__)
 
 
-def get_db() -> Database:
+def get_db() -> AnalyticsDatabase:
     """
-    Get an instance of the database.
+    Open a connection to an instance of AnalyticsDatabase.
 
-    TODO: Replace this with the recommended approach for Flask/SQLite.
+    This follows the pattern described for accessing SQLite in the
+    Flask docs: https://flask.palletsprojects.com/en/3.0.x/patterns/sqlite3/
     """
-    db = app.config.setdefault("DATABASE", get_database(path="requests.sqlite"))
+    db = getattr(g, "_database", None)
+    if db is None:
+        db = g._database = AnalyticsDatabase("requests.sqlite")
+    return db
 
-    return typing.cast(Database, db)
+
+@app.teardown_appcontext
+def close_connection(exception: typing.Any) -> None:
+    """
+    Close the database connection (usually at the end of the request).
+    """
+    db = getattr(g, "_database", None)
+    if db is not None:
+        db.close()
 
 
 @app.route("/")
@@ -112,8 +131,7 @@ def tracking_pixel() -> FlaskResponse:
     }
 
     db = get_db()
-    analytics_db = AnalyticsDatabase(db)
-    analytics_db.events_table.insert(event)
+    db.events_table.insert(event)
 
     return send_file("static/a.gif")
 
@@ -134,11 +152,10 @@ def get_recent_posts() -> list[RecentPost]:
     they were viewed.
     """
     db = get_db()
-    analytics_db = AnalyticsDatabase(db)
 
     try:
         entries = fetch_rss_feed_entries()
-        analytics_db.posts_table.upsert_all(entries, pk="id")
+        db.posts_table.upsert_all(entries, pk="id")
     except NoNewEntries:
         pass
 
@@ -159,7 +176,7 @@ def get_recent_posts() -> list[RecentPost]:
             "date_posted": datetime.datetime.fromisoformat(row["date_posted"]),
             "count": row["count"],
         }
-        for row in db.query(query)
+        for row in db.db.query(query)
     ]
 
 
@@ -195,8 +212,7 @@ def dashboard() -> str:
         end_date = datetime.date.today()
         end_is_default = True
 
-    db = get_db()
-    analytics_db = AnalyticsDatabase(db)
+    analytics_db = get_db()
 
     by_date = analytics_db.count_requests_per_day(start_date, end_date)
     unique_visitors = analytics_db.count_unique_visitors_per_day(start_date, end_date)

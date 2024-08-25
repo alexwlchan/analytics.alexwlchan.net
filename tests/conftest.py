@@ -11,7 +11,6 @@ from flask.testing import FlaskClient
 from netaddr import IPSet
 from mmdb_writer import MMDBWriter
 import pytest
-from sqlite_utils import Database
 
 from analytics.database import AnalyticsDatabase
 
@@ -35,7 +34,7 @@ def analytics_db() -> AnalyticsDatabase:
     """
     An empty instance of ``AnalyticsDatabase`` for testing.
     """
-    return AnalyticsDatabase(db=Database(":memory:"))
+    return AnalyticsDatabase(":memory:")
 
 
 @pytest.fixture()
@@ -50,10 +49,6 @@ def client(
     from analytics import app
 
     app.config["TESTING"] = True
-
-    # Reset to prevent this leaking between tests
-    if "DATABASE" in app.config:
-        del app.config["DATABASE"]
 
     with app.test_client() as client:
         yield client
