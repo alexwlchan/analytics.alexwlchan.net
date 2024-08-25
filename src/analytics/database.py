@@ -7,6 +7,7 @@ the database.
 
 import collections
 import datetime
+import pathlib
 import typing
 
 from sqlite_utils import Database
@@ -22,11 +23,12 @@ class AnalyticsDatabase:
     updating and querying it.
     """
 
-    def __init__(self, path: str):
+    def __init__(self, path: pathlib.Path | str):
         """
         Create a new instance of AnalyticsDatabase.
         """
         self.db = Database(path)
+        self.path = pathlib.Path(path)
 
     def close(self) -> None:
         """

@@ -9,6 +9,7 @@ import uuid
 
 from flask import (
     abort,
+    current_app,
     Flask,
     g,
     redirect,
@@ -54,7 +55,9 @@ def get_db() -> AnalyticsDatabase:
     """
     db = getattr(g, "_database", None)
     if db is None:
-        db = g._database = AnalyticsDatabase("requests.sqlite")
+        db = g._database = AnalyticsDatabase(
+            current_app.config.get("DATABASE_PATH", "requests.sqlite")
+        )
     return db
 
 

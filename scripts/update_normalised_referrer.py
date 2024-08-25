@@ -5,10 +5,10 @@ Update the database with the latest definitions of get_normalised_referrer().
 import functools
 import json
 
+from sqlite_utils import Database
 import tqdm
 
 from analytics.referrers import get_normalised_referrer, QueryParams
-from analytics.utils import get_database
 
 
 @functools.cache
@@ -44,7 +44,7 @@ def get_events_to_upsert(db):
 
 
 if __name__ == "__main__":
-    db = get_database(path="requests.sqlite")
+    db = Database("requests.sqlite")
 
     events = list(get_events_to_upsert(db))
 

@@ -4,9 +4,8 @@ Tests for the main Flask app.
 
 from flask.testing import FlaskClient
 import pytest
-from sqlite_utils.db import Table
 
-from analytics.utils import get_database
+from analytics.database import AnalyticsDatabase
 
 
 def test_index_explains_domain(client: FlaskClient) -> None:
@@ -54,7 +53,9 @@ class TestTrackingPixel:
         assert resp.status_code == 400
 
     @pytest.mark.filterwarnings("ignore::ResourceWarning")
-    def test_records_single_event(self, client: FlaskClient) -> None:
+    def test_records_single_event(
+        self, analytics_db: AnalyticsDatabase, client: FlaskClient
+    ) -> None:
         """
         If you pass the right parameters, an event gets recorded in
         the database.
@@ -70,12 +71,12 @@ class TestTrackingPixel:
         )
 
         assert resp.status_code == 200
-
-        db = get_database("requests.sqlite")
-        assert Table(db, "events").count == 1
+        assert analytics_db.events_table.count == 1
 
     @pytest.mark.filterwarnings("ignore::ResourceWarning")
-    def test_records_bot_event(self, client: FlaskClient) -> None:
+    def test_records_bot_event(
+        self, analytics_db: AnalyticsDatabase, client: FlaskClient
+    ) -> None:
         """
         If your User-Agent looks like a bot, the recorded event has
         ``is_bot=1``.
@@ -92,13 +93,14 @@ class TestTrackingPixel:
 
         assert resp.status_code == 200
 
-        db = get_database("requests.sqlite")
-        assert Table(db, "events").count == 1
-        row = next(Table(db, "events").rows)
+        assert analytics_db.events_table.count == 1
+        row = next(analytics_db.events_table.rows)
         assert row["is_bot"]
 
     @pytest.mark.filterwarnings("ignore::ResourceWarning")
-    def test_utm_source_mastodon(self, client: FlaskClient) -> None:
+    def test_utm_source_mastodon(
+        self, analytics_db: AnalyticsDatabase, client: FlaskClient
+    ) -> None:
         """
         If the query parameter has a ``utm_source``, this is reflected
         in the ``normalised_referrer``.
@@ -115,9 +117,8 @@ class TestTrackingPixel:
 
         assert resp.status_code == 200
 
-        db = get_database("requests.sqlite")
-        assert Table(db, "events").count == 1
-        row = next(Table(db, "events").rows)
+        assert analytics_db.events_table.count == 1
+        row = next(analytics_db.events_table.rows)
         assert row["normalised_referrer"] == "Mastodon"
 
 
@@ -133,7 +134,9 @@ def test_robots_txt(client: FlaskClient) -> None:
 
 @pytest.mark.filterwarnings("ignore::ResourceWarning")
 @pytest.mark.vcr()
-def test_dashboard_can_be_rendered(client: FlaskClient) -> None:
+def test_dashboard_can_be_rendered(
+    analytics_db: AnalyticsDatabase, client: FlaskClient
+) -> None:
     """
     The dashboard can be shown.
 
@@ -161,9 +164,8 @@ def test_dashboard_can_be_rendered(client: FlaskClient) -> None:
         assert resp.status_code == 200
 
     # Manually insert a country code so it renders the shaded colours on the world map
-    db = get_database("requests.sqlite")
-    first_id = next(Table(db, "events").rows)["id"]
-    Table(db, "events").upsert({"id": first_id, "country": "US"}, pk="id")
+    first_id = next(analytics_db.events_table.rows)["id"]
+    analytics_db.events_table.upsert({"id": first_id, "country": "US"}, pk="id")
 
     dashboard_resp = client.get("/dashboard/")
     assert dashboard_resp.status_code == 200
