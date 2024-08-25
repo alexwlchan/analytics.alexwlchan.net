@@ -11,7 +11,6 @@ from flask.testing import FlaskClient
 from netaddr import IPSet
 from mmdb_writer import MMDBWriter
 import pytest
-from sqlite_utils import Database
 
 from analytics.database import AnalyticsDatabase
 
@@ -31,16 +30,18 @@ def tmp_working_dir(tmp_path: pathlib.Path) -> Iterator[pathlib.Path]:
 
 
 @pytest.fixture
-def analytics_db() -> AnalyticsDatabase:
+def analytics_db(tmp_path: pathlib.Path) -> AnalyticsDatabase:
     """
     An empty instance of ``AnalyticsDatabase`` for testing.
     """
-    return AnalyticsDatabase(db=Database(":memory:"))
+    return AnalyticsDatabase(tmp_path / "requests.sqlite")
 
 
 @pytest.fixture()
 def client(
-    maxmind_db_path: pathlib.Path, tmp_working_dir: pathlib.Path
+    analytics_db: AnalyticsDatabase,
+    maxmind_db_path: pathlib.Path,
+    tmp_working_dir: pathlib.Path,
 ) -> Iterator[FlaskClient]:
     """
     Creates an instance of the app for use in testing.
@@ -50,10 +51,7 @@ def client(
     from analytics import app
 
     app.config["TESTING"] = True
-
-    # Reset to prevent this leaking between tests
-    if "DATABASE" in app.config:
-        del app.config["DATABASE"]
+    app.config["DATABASE_PATH"] = analytics_db.path
 
     with app.test_client() as client:
         yield client

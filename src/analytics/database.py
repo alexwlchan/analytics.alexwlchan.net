@@ -7,6 +7,7 @@ the database.
 
 import collections
 import datetime
+import pathlib
 import typing
 
 from sqlite_utils import Database
@@ -22,11 +23,18 @@ class AnalyticsDatabase:
     updating and querying it.
     """
 
-    def __init__(self, db: Database):
+    def __init__(self, path: pathlib.Path | str):
         """
         Create a new instance of AnalyticsDatabase.
         """
-        self.db = db
+        self.db = Database(path)
+        self.path = pathlib.Path(path)
+
+    def close(self) -> None:
+        """
+        Close the underlying database connection.
+        """
+        self.db.close()  # type: ignore
 
     @property
     def events_table(self) -> Table:
@@ -35,6 +43,14 @@ class AnalyticsDatabase:
         any time somebody visits my site.
         """
         return Table(self.db, "events")
+
+    @property
+    def posts_table(self) -> Table:
+        """
+        The table which stores all my recent posts -- that is, articles
+        I've published on my site.
+        """
+        return Table(self.db, "posts")
 
     @staticmethod
     def _where_clause(start_date: datetime.date, end_date: datetime.date) -> str:

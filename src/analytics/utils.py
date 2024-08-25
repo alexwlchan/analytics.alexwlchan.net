@@ -6,35 +6,10 @@ for code that doesn't have a better place to go.
 import datetime
 import functools
 import math
-import os
-import pathlib
-import sqlite3
 import typing
 import uuid
 
 import keyring
-from sqlite_utils import Database
-
-
-def get_database(path: str) -> Database:
-    """
-    Create a SQLite database with the necessary tables.
-    """
-    # Check we can use SQLite safely across multiple threads.
-    #
-    # See https://ricardoanderegg.com/posts/python-sqlite-thread-safety/
-    assert sqlite3.threadsafety == 3
-    con = sqlite3.connect(path, check_same_thread=False)
-
-    this_file = pathlib.Path(os.path.abspath(__file__))
-
-    with open(this_file.parent / "schema.sql") as f:
-        schema = f.read()
-        con.executescript(schema)
-
-    db = Database(con)
-
-    return db
 
 
 # 100,000 unique visitors a day is way more than I usually get,
