@@ -1,0 +1,33 @@
+<svg viewBox="0 0 110 110" xmlns="http://www.w3.org/2000/svg" height="50" style="margin: -5px;">
+  <circle cx="55" cy="55" r="50" fill="#eee" stroke-width="1" fill="none"/>
+  <path d="M 55 55 L 55 5 {{
+    pi_chart_arc(
+      centre_x=55,
+      centre_y=55,
+      radius=50,
+      percentage=netlify_usage.used / netlify_usage.included,
+    )
+  }} Z"
+  fill="#4ca300"
+  />
+
+  <!--
+    This arc shows the proportion of the current usage period, so
+    I can see how my bandwidth usage matches the month.
+   -->
+  {% set seconds_used = (now - netlify_usage.period_start_date).total_seconds() %}
+  {% set seconds_total = (netlify_usage.period_end_date - netlify_usage.period_start_date).total_seconds() %}
+
+  <path d="M 55 0 {{
+    pi_chart_arc(
+      centre_x=55,
+      centre_y=55,
+      radius=54,
+      percentage=seconds_used / seconds_total,
+    )
+  }}"
+  stroke="#ccc"
+  stroke-width="3"
+  fill="none"
+  />
+</svg>
