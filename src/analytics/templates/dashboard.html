@@ -210,7 +210,7 @@
         const count = vc[1];
 
         var title = document.createElementNS('http://www.w3.org/2000/svg', 'title');
-        title.textContent = `${country_names[countryId]}: ${count} hit${count > 1 ? 's' : ''}`;
+        title.textContent = `${country_names[countryId]}: ${count.toLocaleString()} visit${count > 1 ? 's' : ''}`;
 
         if (document.getElementById(countryId.toLowerCase()) !== null) {
           document.getElementById(countryId.toLowerCase()).appendChild(title);
