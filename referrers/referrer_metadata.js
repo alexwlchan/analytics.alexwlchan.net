@@ -35,5 +35,23 @@ const referrers = [
     "links_to": "https://alexwlchan.net/2024/big-pdf/",
     "archive_path": "archive/briefdose.substack.com/4-gonorrhea-snap-and-22-trillion.webarchive",
     "archive_saved_at": "2024-09-11 08:27:57 +0100"
+  },
+  {
+    "url": "https://mjtsai.com/blog/2015/01/12/overcast-rejected-for-listing-competing-podcast-apps/",
+    "title": "Overcast Rejected for Listing Competing Podcast Apps",
+    "author": "Michael Tsai",
+    "date_published": "2015-01-12",
+    "comment": "Includes a link to my Overcast piece, which accounted for a small spike in traffic. :)",
+    "links_to": "http://alexwlchan.net/2014/07/overcast/",
+    "archive_path": "archive/mjtsai.com/overcast-rejected-for-listing-competing-podcast-apps.webarchive",
+    "archive_saved_at": "2024-09-11 08:30:55 +0100"
+  },
+  {
+    "url": "https://forum.dji.com/thread-31953-1-2.html",
+    "title": "Google Maps Irritation Solved",
+    "date_published": "2015-09-23",
+    "links_to": "http://alexwlchan.net/2013/08/google-maps/",
+    "archive_path": "archive/forum.dji.com/thread-31953-1-2.webarchive",
+    "archive_saved_at": "2024-09-11 08:39:46 +0100"
   }
 ];

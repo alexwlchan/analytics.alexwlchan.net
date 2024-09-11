@@ -15,7 +15,7 @@
       --header-background-color: LightSkyBlue;
       --footer-background-color: LightSkyBlue;
 
-      --max-width: 34rem;
+      --max-width: 42rem;
       --padding:   1em;
     }
 
@@ -67,7 +67,9 @@
       `
         <li>
           <h3>
-            <a href="${props.url}">${props.title}</a>, by ${props.author} (${props.date_published.split("-")[0]})
+            <a href="${props.url}">${props.title}</a>
+            ${typeof props.author !== 'undefined' ? `, by ${props.author}` : ''}
+            (${props.date_published.split("-")[0]})
             ${props.language === 'es' ? '🇪🇸' : ''}
             ${
               props.archive_path !== null
