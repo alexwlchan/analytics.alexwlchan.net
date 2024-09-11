@@ -68,6 +68,7 @@
         <li>
           <h3>
             <a href="${props.url}">${props.title}</a>, by ${props.author} (${props.date_published.split("-")[0]})
+            ${props.language === 'es' ? '🇪🇸' : ''}
             ${
               props.archive_path !== null
                 ? `<a href="${props.archive_path}" class="archive">☑︎</a>`
