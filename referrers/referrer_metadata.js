@@ -19,5 +19,15 @@ const referrers = [
     "archive_path": "archive/microsiervos.com/pdf-dimensiones-colosales.webarchive",
     "archive_saved_at": "2024-09-11 08:15:17 +0100",
     "language": "es"
+  },
+  {
+    "url": "https://www.dragonflydigest.com/2019/05/19/lazy-reading-for-2019-05-19/",
+    "title": "Lazy Reading for 2019/05/19",
+    "author": "Justin Sherrill",
+    "date_published": "2019-05-19",
+    "comments": null,
+    "links_to": "https://alexwlchan.net/2019/05/falsehoods-programmers-believe-about-unix-time/",
+    "archive_path": "archive/dragonflydigest.com/lazy-reading-for-2019-05-19.webarchive",
+    "archive_saved_at": "2024-09-11 08:21:51 +0100"
   }
 ];
