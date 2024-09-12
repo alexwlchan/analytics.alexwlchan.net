@@ -77,5 +77,23 @@ const referrers = [
     "archive_path": "archive/brainbaking.com/august-2022.webarchive",
     "archive_saved_at": "2024-09-12 07:12:35 +0100",
     "quote": "You should take more screenshots by alexwlchan, via Luke Harris. Damn right you should! I really enjoyed doing that for my old websites but still don’t do this often enough."
+  },
+  {
+    "url": "https://bulltown.joejenett.com/081222/",
+    "title": "(untitled)",
+    "author": "Joe Jenett",
+    "date_published": "2022-08-12",
+    "links_to": "https://alexwlchan.net/say-thanks/",
+    "archive_path": "archive/bulltown.joejennett.com/081222.webarchive",
+    "archive_saved_at": "2024-09-11 09:48:07 +0100"
+  },
+  {
+    "url": "https://ckastam.wordpress.com/2018/03/31/march-2018-meetups/",
+    "title": "March 2018 Meetups",
+    "author": "Chris Kastamonitis",
+    "date_published": "2018-03-31",
+    "links_to": "https://alexwlchan.net/about/",
+    "archive_path": "archive/ckastam.wordpress.com/march-2018-meetups.webarchive",
+    "archive_saved_at": "2024-09-12 07:42:29 +0100"
   }
 ];
