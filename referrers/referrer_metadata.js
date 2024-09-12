@@ -67,5 +67,15 @@ const referrers = [
     "archive_path": "archive/unwrapping.tumblr.com/find-untagged-tumblr-posts.webarchive",
     "archive_saved_at": "2024-09-12 07:01:01 +0100",
     "quote": "Alex Chan (alexwlchan) created finduntaggedtumblrposts.com to track down your Tumblr posts without any tags. I’ve added this resource to my blogkeeping checklist."
+  },
+  {
+    "url": "https://brainbaking.com/post/2022/09/august-2022/",
+    "title": "August 2022 In Review",
+    "author": "Wouter Groeneveld",
+    "date_published": "2022-09-02",
+    "links_to": "https://alexwlchan.net/2022/07/screenshots/",
+    "archive_path": "archive/brainbaking.com/august-2022.webarchive",
+    "archive_saved_at": "2024-09-12 07:12:35 +0100",
+    "quote": "You should take more screenshots by alexwlchan, via Luke Harris. Damn right you should! I really enjoyed doing that for my old websites but still don’t do this often enough."
   }
 ];
