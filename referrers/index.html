@@ -68,8 +68,7 @@
       `
         <li>
           <h3>
-            <a href="${props.url}">${props.title}</a>
-            ${typeof props.author !== 'undefined' ? `, by ${props.author}` : ''}
+            <a href="${props.url}">${props.title}</a>${typeof props.author !== 'undefined' ? `, by ${props.author}` : ''}
             (${props.date_published.split("-")[0]})
             ${props.language === 'es' ? '🇪🇸' : ''}
             ${
@@ -78,6 +77,11 @@
                 : '❌'
             }
           </h3>
+          ${
+            typeof props.quote !== 'undefined'
+              ? `<blockquote>${props.quote}</blockquote>`
+              : ''
+          }
           links to: <a href="${props.links_to}">${props.links_to}</a>
         </li>
       `;
