@@ -38,6 +38,7 @@ def get_normalised_referrer(*, referrer: str, query: QueryParams) -> str | None:
         (("force_isolation", "true"),),
         (("homescreen", "1"),),
         (("secureweb", "Teams"),),
+        (("secureweb", "ONENOTE"),),
         (("seed", "202404"),),
         (("t", None),),
         (("trk", "article-ssr-frontend-pulse_little-text-block"),),
@@ -386,6 +387,7 @@ def _get_referrer_from_header(u: ParsedUrl) -> str | None:
                 "www.newsblur.com",
                 "www.rssheap.com",
             ],
+            "Perplexity AI": ["www.perplexity.ai"],
             "Pinboard": ["pinboard.in", "m.pinboard.in", "www.pinboard.in"],
             "Pinterest": ["www.pinterest.ca", "www.pinterest.com"],
             "PyPI": ["pypi.org"],
@@ -456,6 +458,9 @@ def _get_referrer_from_header(u: ParsedUrl) -> str | None:
         if re.match(r"^([a-z]+\.)?search\.yahoo.com$", u.host):
             return "Search (Google, Bing, DDG, …)"
 
+        if u.host == "search.yahoo.co.jp":
+            return "Search (Google, Bing, DDG, …)"
+
     if u.scheme in {"http", "https"} and u.host in {
         "www.google.com",
         "r.search.yahoo.com",
@@ -483,13 +488,16 @@ def _get_referrer_from_query(query: QueryParams) -> str | None:
     utm_source_lookup = invert_dict(
         {
             "Email newsletter": ["newsletter"],
+            "Facebook": ["facebook"],
             "Hacker News": ["hackernewsletter", "hnblogs.substack.com"],
             "Mastodon": ["mastodon"],
             "News aggregator (Flipboard, HN, Reddit, …)": ["cloudhiker.net"],
+            "Perplexity AI": ["perplexity"],
             "Pocket": ["pocket_mylist", "pocket_reader", "pocket_saves"],
             "RSS subscribers": ["feedly", "rss"],
             "Substack": ["substack"],
             "TLDR Newsletter (https://tldr.tech/)": ["tldrnewsletter", "tldrwebdev"],
+            "Twitter": ["twitter"],
         }
     )
 
@@ -611,7 +619,10 @@ def _get_referrer_from_query(query: QueryParams) -> str | None:
     # I gets lots of different values for it and I'm not sure what, if
     # anything, I can do with them, but I also don't care much -- it's
     # enough to know Facebook is the source.
-    if query_dict.keys() == {"fbclid"}:
+    if query_dict.keys() == {"fbclid"} or (
+        query_dict.keys() == {"fbclid", "utm_source"}
+        and query_dict["utm_source"] == "facebook"
+    ):
         return "Facebook"
 
     # mc_cid and mc_eid are tracking parameters added by Mailchimp

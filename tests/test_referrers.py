@@ -89,6 +89,7 @@ def test_domain_with_recognised_referrer_is_mapped(referrer: str, name: str) -> 
         "https://r.search.yahoo.com/_ylt=Awr1RUZ",
         "https://search.brave.com/",
         "https://search.yahoo.com/",
+        "https://search.yahoo.co.jp/",
         "https://www.google.co.uk/",
         "https://www.google.com/",
         "https://www.google.com/search?sca_esv=6457b5ff455aa099",
@@ -140,6 +141,7 @@ def test_utm_source_is_mapped(utm_source: str, name: str) -> None:
     ["query", "name"],
     [
         ((("fbclid", "1234"),), "Facebook"),
+        ((("fbclid", "1234"), ("utm_source", "facebook")), "Facebook"),
         ((("ref", "stachu.net"),), "https://stachu.net/"),
         ((("ref", "usepanda.com"),), "News reader (Feedly, Inoreader, …)"),
         (
