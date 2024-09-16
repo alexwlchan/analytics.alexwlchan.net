@@ -10,12 +10,12 @@ blinker==1.8.2
     # via flask
 certbot==2.11.0
     # via -r requirements.in
-certifi==2024.2.2
+certifi==2024.8.30
     # via
     #   httpcore
     #   httpx
     #   requests
-cffi==1.16.0
+cffi==1.17.1
     # via cryptography
 charset-normalizer==3.3.2
     # via requests
@@ -30,13 +30,12 @@ configargparse==1.7
     # via certbot
 configobj==5.0.8
     # via certbot
-cryptography==42.0.7
+cryptography==43.0.1
     # via
     #   acme
     #   certbot
     #   josepy
     #   pyopenssl
-    #   secretstorage
 distro==1.9.0
     # via certbot
 feedparser==6.0.11
@@ -55,7 +54,7 @@ humanize==4.10.0
     # via -r requirements.in
 hyperlink==21.0.0
     # via -r requirements.in
-idna==3.7
+idna==3.10
     # via
     #   anyio
     #   httpx
@@ -67,16 +66,12 @@ jaraco-classes==3.4.0
     # via
     #   keyring
     #   keyrings-alt
-jaraco-context==5.3.0
+jaraco-context==6.0.1
     # via
     #   keyring
     #   keyrings-alt
-jaraco-functools==4.0.1
+jaraco-functools==4.0.2
     # via keyring
-jeepney==0.8.0
-    # via
-    #   keyring
-    #   secretstorage
 jinja2==3.1.4
     # via flask
 josepy==1.14.0
@@ -93,11 +88,11 @@ markupsafe==2.1.5
     #   werkzeug
 maxminddb==2.6.2
     # via -r requirements.in
-more-itertools==10.2.0
+more-itertools==10.5.0
     # via
     #   jaraco-classes
     #   jaraco-functools
-packaging==24.0
+packaging==24.1
     # via gunicorn
 parsedatetime==2.6
     # via certbot
@@ -107,7 +102,7 @@ pycountry==24.6.1
     # via -r requirements.in
 pycparser==2.22
     # via cffi
-pyopenssl==24.1.0
+pyopenssl==24.2.1
     # via
     #   acme
     #   josepy
@@ -117,15 +112,17 @@ pyrfc3339==1.1
     #   certbot
 python-dateutil==2.9.0.post0
     # via sqlite-utils
-pytz==2024.1
+pytz==2024.2
     # via
     #   acme
     #   certbot
     #   pyrfc3339
 requests==2.32.3
     # via acme
-secretstorage==3.3.3
-    # via keyring
+setuptools==75.1.0
+    # via
+    #   acme
+    #   certbot
 sgmllib3k==1.0.0
     # via feedparser
 six==1.16.0
@@ -142,7 +139,7 @@ sqlite-utils==3.37
     # via -r requirements.in
 tabulate==0.9.0
     # via sqlite-utils
-urllib3==2.2.1
+urllib3==2.2.3
     # via requests
-werkzeug==3.0.3
+werkzeug==3.0.4
     # via flask
