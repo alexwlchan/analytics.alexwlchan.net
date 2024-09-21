@@ -397,6 +397,7 @@ def _get_referrer_from_header(u: ParsedUrl) -> str | None:
                 "cn.bing.com",
                 "duckduckgo.com",
                 "edgeservices.bing.com",
+                "freespoke.com",
                 "html.duckduckgo.com",
                 "iframe-yang.yandex",
                 "kagi.com",
