@@ -404,6 +404,7 @@ def _get_referrer_from_header(u: ParsedUrl) -> str | None:
                 "next.duckduckgo.com",
                 "online-mobilesearch.com",
                 "presearch.com",
+                "search.app",
                 "search.brave.com",
                 "search.lilo.org",
                 "searchmysite.net",
