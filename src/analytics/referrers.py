@@ -409,6 +409,7 @@ def _get_referrer_from_header(u: ParsedUrl) -> str | None:
                 "search.brave.com",
                 "search.lilo.org",
                 "searchmysite.net",
+                "skyjem.com",
                 "sogou.com",
                 "swisscows.com",
                 "www.bing.com",
@@ -436,7 +437,7 @@ def _get_referrer_from_header(u: ParsedUrl) -> str | None:
             "Twitter": ["t.co", "xcancel.com"],
             "Weibo": ["weibo.cn"],
             "Wikimedia Commons": ["commons.wikimedia.org", "commons.m.wikimedia.org"],
-            "Wikipedia": ["ru.wikipedia.org"],
+            "Wikipedia": ["en.wikipedia.org", "ru.wikipedia.org"],
             "YouTube": ["www.youtube.com"],
             "Zenodo": ["zenodo.org"],
         }
@@ -489,9 +490,12 @@ def _get_referrer_from_query(query: QueryParams) -> str | None:
     # These aren't URLs but I can map the most common examples in my data.
     utm_source_lookup = invert_dict(
         {
+            "Discord": ["discord", "discord]"],
             "Email newsletter": ["newsletter"],
             "Facebook": ["facebook"],
             "Hacker News": ["hackernewsletter", "hnblogs.substack.com"],
+            "iPres Slack": ["ipres_slack"],
+            "LinkedIn": ["linkedin"],
             "Mastodon": ["mastodon"],
             "News aggregator (Flipboard, HN, Reddit, …)": ["cloudhiker.net"],
             "Perplexity AI": ["perplexity"],
