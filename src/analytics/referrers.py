@@ -61,6 +61,8 @@ def get_normalised_referrer(*, referrer: str, query: QueryParams) -> str | None:
     if referrer == "https://birchtree.me/" and query == (("ref", "birchtree.me"),):
         query = ()
 
+    # If this looks like it's coming from Google
+
     # If we don't have any referrer or query info, we can stop here.
     if not referrer and not query:
         return None
@@ -180,6 +182,16 @@ def get_normalised_referrer(*, referrer: str, query: QueryParams) -> str | None:
         "example.net",
         "roam.localhost",
     }:
+        return None
+
+    # Ignore any referrer data coming from Google Translate, which doesn't
+    # tell me anything about how people are getting to my site.
+    if u.host in {
+        "translate.google.fr",
+    }:
+        return None
+
+    if not referrer and all(param.startswith("_x_tr_") for param, _ in query):
         return None
 
     # Do any normalisation of referrer URLs

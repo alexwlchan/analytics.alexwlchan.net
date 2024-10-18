@@ -387,3 +387,27 @@ def test_it_removes_redundant_query_info(
     discard the query parameters.
     """
     assert get_normalised_referrer(referrer=referrer, query=query) == referrer
+
+
+def test_it_drops_google_translate_query_params() -> None:
+    """
+    If the referrer is just query parameters that look like they're
+    from Google Translate, the referrer is dropped.
+    """
+    query = (("_x_tr_sl", "auto"), ("_x_tr_tl", "ru"), ("_x_tr_hl", "ru"))
+    assert get_normalised_referrer(referrer="", query=query) is None
+
+
+def test_it_drops_google_translate_referrer() -> None:
+    """
+    If the referrer comes from Google Translate, it's dropped.
+    """
+    referrer = "https://translate.google.fr/"
+    query = (
+        ("_x_tr_sl", "fr"),
+        ("_x_tr_tl", "en"),
+        ("_x_tr_hl", "fr"),
+        ("_x_tr_pto", "wapp"),
+    )
+
+    assert get_normalised_referrer(referrer=referrer, query=query) is None
