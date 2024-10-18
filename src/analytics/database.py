@@ -254,6 +254,7 @@ class AnalyticsDatabase:
             "You should take more screenshots – alexwlchan",
             "Creating a Safari webarchive from the command line – alexwlchan",
             "Documenting my DNS records – alexwlchan",
+            "Using static websites for tiny archives – alexwlchan",
         }
 
         long_tail: dict[str, dict[str, int]] = collections.defaultdict(
